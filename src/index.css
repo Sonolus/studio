@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.125);
+}
+
+.scrollbar::-webkit-scrollbar {
+    @apply w-2;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-sonolus-ui-button-normal;
+    @apply hover:bg-sonolus-ui-button-highlighted;
+    @apply active:bg-sonolus-ui-button-pressed;
+}
+
+.icon {
+    @apply w-4;
+    @apply h-4;
+    @apply fill-current;
+}
+
+.clickable {
+    @apply transition-colors;
+    @apply duration-200;
+    @apply bg-sonolus-ui-button-normal;
+    @apply hover:bg-sonolus-ui-button-highlighted;
+    @apply active:bg-sonolus-ui-button-pressed;
+    @apply disabled:bg-transparent;
+    @apply disabled:text-sonolus-ui-text-disabled;
+    @apply disabled:cursor-not-allowed;
+    @apply placeholder-sonolus-ui-text-disabled;
+}
+
+.transparent-clickable {
+    @apply transition-colors;
+    @apply duration-200;
+    @apply hover:bg-sonolus-ui-button-highlighted;
+    @apply active:bg-sonolus-ui-button-pressed;
+    @apply disabled:bg-transparent;
+    @apply disabled:text-sonolus-ui-text-disabled;
+    @apply disabled:cursor-not-allowed;
+    @apply placeholder-sonolus-ui-text-disabled;
+}
+
+.reset {
+    @apply rounded-none;
+    @apply outline-none;
+    @apply appearance-none;
+}
