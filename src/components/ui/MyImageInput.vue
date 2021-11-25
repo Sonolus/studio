@@ -108,7 +108,7 @@ function clear() {
             ref="el"
             class="hidden"
             type="file"
-            accept="image/*"
+            accept="image/png, image/jpeg"
             @input="onFileInput()"
         />
     </div>
