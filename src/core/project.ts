@@ -5,6 +5,7 @@ import {
     Background,
     packBackground,
 } from './background'
+import { addEffectToWhitelist, Effect } from './effect'
 
 zip.configure({
     useWebWorkers: false,
@@ -13,6 +14,7 @@ zip.configure({
 export type Project = {
     view: string[]
     backgrounds: Map<string, Background>
+    effects: Map<string, Effect>
 }
 
 export type ProjectItemTypeOf<T> = {
@@ -23,6 +25,7 @@ export function newProject(): Project {
     return {
         view: [],
         backgrounds: new Map(),
+        effects: new Map(),
     }
 }
 
@@ -33,6 +36,7 @@ export function addProjectToWhitelist(
     project.backgrounds.forEach((background) =>
         addBackgroundToWhitelist(background, whitelist)
     )
+    project.effects.forEach((effect) => addEffectToWhitelist(effect, whitelist))
 }
 
 export type PackProcess = {

@@ -40,7 +40,7 @@ export function useView<T>(props: { data: T }, type: ProjectItemTypeOf<T>) {
             newProps
         )
 
-        const items = new Map(project.value[type])
+        const items = new Map(project.value[type] as never)
         items.set(view.value[1], newProps.data)
 
         push(

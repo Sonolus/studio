@@ -4,9 +4,11 @@ import { computed, markRaw, reactive, watchEffect } from 'vue'
 import { useModals } from '../composables/modal'
 import { useState } from '../composables/state'
 import { newBackground } from '../core/background'
+import { newEffect } from '../core/effect'
 import { ProjectItemTypeOf } from '../core/project'
 import IconAngleDown from '../icons/angle-down-solid.svg?component'
 import IconAngleRight from '../icons/angle-right-solid.svg?component'
+import IconDrum from '../icons/drum-solid.svg?component'
 import IconImage from '../icons/image-solid.svg?component'
 import IconPlus from '../icons/plus-solid.svg?component'
 import IconTrash from '../icons/trash-alt-solid.svg?component'
@@ -101,6 +103,29 @@ const tree = computed(() => {
         })
     }
 
+    items.push({
+        level: 0,
+        path: ['effects'],
+        hasChildren: true,
+        icon: IconDrum,
+        title: 'Effects',
+        onNew: () =>
+            onNew('effects', 'New Effect', 'Enter effect name...', newEffect()),
+        onDelete: () => onDeleteAll('effects'),
+    })
+    if (isOpened(['effects'])) {
+        project.value.effects.forEach((effect, name) => {
+            items.push({
+                level: 1,
+                path: ['effects', name],
+                hasChildren: false,
+                icon: effect.thumbnail,
+                title: name,
+                onDelete: () => onDelete('effects', name),
+            })
+        })
+    }
+
     return items
 })
 
@@ -137,7 +162,7 @@ async function onNew<T>(
     )?.trim()
     if (!name) return
 
-    const items = new Map(project.value[type])
+    const items = new Map(project.value[type] as never)
     items.set(name, value as never)
 
     push({
@@ -160,7 +185,7 @@ function onDeleteAll<T>(type: ProjectItemTypeOf<T>) {
 }
 
 function onDelete<T>(type: ProjectItemTypeOf<T>, name: string) {
-    const items = new Map(project.value[type])
+    const items = new Map(project.value[type] as never)
     items.delete(name)
 
     push({
