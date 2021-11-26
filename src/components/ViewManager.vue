@@ -5,6 +5,7 @@ import { useState } from '../composables/state'
 import { Project } from '../core/project'
 import ViewBackground from './views/ViewBackground.vue'
 import ViewDefault from './views/ViewDefault.vue'
+import ViewEffect from './views/ViewEffect.vue'
 
 const { project, clearUpdater, view } = useState()
 
@@ -24,6 +25,9 @@ export function resolveViewInfo(project: Project, view: string[]) {
     switch (view[0]) {
         case 'backgrounds':
             component = ViewBackground
+            break
+        case 'effects':
+            component = ViewEffect
             break
         default:
             return
