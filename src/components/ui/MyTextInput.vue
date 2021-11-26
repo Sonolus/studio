@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { useMounted } from '@vueuse/core'
+import { computed, nextTick, ref, watchEffect } from 'vue'
 import { validate, Validator } from '../../core/validation'
 import IconKeyboard from '../../icons/keyboard-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
@@ -21,11 +22,13 @@ const emit = defineEmits<{
 }>()
 
 const el = ref<HTMLInputElement>()
-watch(el, (value) => {
-    if (!value) return
+const mounted = useMounted()
+watchEffect(() => {
     if (!props.autoFocus) return
+    if (!el.value) return
+    if (!mounted.value) return
 
-    value.focus()
+    el.value.focus()
 })
 
 const value = computed({

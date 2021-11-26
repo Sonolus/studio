@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { useMounted } from '@vueuse/core'
 import type { Component } from 'vue'
-import { ref, watch } from 'vue'
+import { ref, watchEffect } from 'vue'
 
 const props = defineProps<{
     icon: Component
@@ -9,11 +10,13 @@ const props = defineProps<{
 }>()
 
 const el = ref<HTMLButtonElement>()
-watch(el, (value) => {
-    if (!value) return
+const mounted = useMounted()
+watchEffect(() => {
     if (!props.autoFocus) return
+    if (!el.value) return
+    if (!mounted.value) return
 
-    value.focus()
+    el.value.focus()
 })
 </script>
 

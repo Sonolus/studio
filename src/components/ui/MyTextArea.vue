@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { useMounted } from '@vueuse/core'
+import { computed, ref, watchEffect } from 'vue'
 import { validate, Validator } from '../../core/validation'
 
 const props = defineProps<{
@@ -15,11 +16,13 @@ const emit = defineEmits<{
 }>()
 
 const el = ref<HTMLInputElement>()
-watch(el, (value) => {
-    if (!value) return
+const mounted = useMounted()
+watchEffect(() => {
     if (!props.autoFocus) return
+    if (!el.value) return
+    if (!mounted.value) return
 
-    value.focus()
+    el.value.focus()
 })
 
 const value = computed({
