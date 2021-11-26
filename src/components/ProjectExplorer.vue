@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EffectClip } from 'sonolus-core'
 import type { Component } from 'vue'
 import { computed, markRaw, reactive, watchEffect } from 'vue'
 import { useModals } from '../composables/modal'
@@ -9,6 +10,8 @@ import { ProjectItemTypeOf } from '../core/project'
 import IconAngleDown from '../icons/angle-down-solid.svg?component'
 import IconAngleRight from '../icons/angle-right-solid.svg?component'
 import IconDrum from '../icons/drum-solid.svg?component'
+import IconFileAudio from '../icons/file-audio-solid.svg?component'
+import IconFolder from '../icons/folder-solid.svg?component'
 import IconImage from '../icons/image-solid.svg?component'
 import IconPlus from '../icons/plus-solid.svg?component'
 import IconTrash from '../icons/trash-alt-solid.svg?component'
@@ -118,10 +121,32 @@ const tree = computed(() => {
             items.push({
                 level: 1,
                 path: ['effects', name],
-                hasChildren: false,
+                hasChildren: true,
                 icon: effect.thumbnail,
                 title: name,
                 onDelete: () => onDelete('effects', name),
+            })
+
+            if (!isOpened(['effects', name])) return
+            items.push({
+                level: 2,
+                path: ['effects', name, 'clips'],
+                hasChildren: true,
+                icon: IconFolder,
+                title: 'Clips',
+                onDelete: () => console.log('Delete clips'),
+            })
+
+            if (!isOpened(['effects', name, 'clips'])) return
+            effect.data.clips.forEach(({ id }) => {
+                items.push({
+                    level: 3,
+                    path: ['effects', name, 'clips', id.toString()],
+                    hasChildren: false,
+                    icon: IconFileAudio,
+                    title: EffectClip[id],
+                    onDelete: () => console.log('Delete clip'),
+                })
             })
         })
     }
