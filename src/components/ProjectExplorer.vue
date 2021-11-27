@@ -11,6 +11,7 @@ import IconAngleDown from '../icons/angle-down-solid.svg?component'
 import IconAngleRight from '../icons/angle-right-solid.svg?component'
 import IconDrum from '../icons/drum-solid.svg?component'
 import IconFileAudio from '../icons/file-audio-solid.svg?component'
+import IconFile from '../icons/file-solid.svg?component'
 import IconFolder from '../icons/folder-solid.svg?component'
 import IconImage from '../icons/image-solid.svg?component'
 import IconPlus from '../icons/plus-solid.svg?component'
@@ -321,6 +322,7 @@ async function onNewEffectClip(name: string) {
                 v-if="typeof item.icon === 'string'"
                 class="flex-none icon"
                 :src="item.icon"
+                :fallback="IconFile"
                 fill
             />
             <component :is="item.icon" v-else class="flex-none icon" />
