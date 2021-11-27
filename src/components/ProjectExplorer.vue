@@ -138,7 +138,7 @@ const tree = computed(() => {
                 icon: IconFolder,
                 title: 'Clips',
                 onNew: () => onNewEffectClip(name),
-                onDelete: () => console.log('Delete clips'),
+                onDelete: () => onDeleteEffectClips(name),
             })
 
             if (!isOpened(['effects', name, 'clips'])) return
@@ -149,7 +149,7 @@ const tree = computed(() => {
                     hasChildren: false,
                     icon: IconFileAudio,
                     title: formatEffectClipId(id),
-                    onDelete: () => console.log('Delete clip'),
+                    onDelete: () => onDeleteEffectClip(name, id),
                 })
             })
         })
@@ -262,6 +262,41 @@ async function onNewEffectClip(name: string) {
     push({
         ...project.value,
         view: ['effects', name, 'clips', id.toString()],
+        effects,
+    })
+}
+
+async function onDeleteEffectClips(name: string) {
+    const effect = project.value.effects.get(name)
+    if (!effect) throw 'Effect not found'
+    if (!effect.data.clips.length) return
+
+    const newEffect = clone(effect)
+    newEffect.data.clips = []
+
+    const effects = new Map(project.value.effects)
+    effects.set(name, newEffect)
+
+    push({
+        ...project.value,
+        view: [],
+        effects,
+    })
+}
+
+async function onDeleteEffectClip(name: string, id: number) {
+    const effect = project.value.effects.get(name)
+    if (!effect) throw 'Effect not found'
+
+    const newEffect = clone(effect)
+    newEffect.data.clips = newEffect.data.clips.filter((clip) => clip.id !== id)
+
+    const effects = new Map(project.value.effects)
+    effects.set(name, newEffect)
+
+    push({
+        ...project.value,
+        view: [],
         effects,
     })
 }
