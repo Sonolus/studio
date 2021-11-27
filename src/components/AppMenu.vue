@@ -105,7 +105,7 @@ function onClick(item: { command: () => void }) {
     close()
 }
 
-const { modals, show } = useModals()
+const { modal, show } = useModals()
 
 onMounted(() =>
     document.addEventListener('keydown', onKeyDown, { passive: false })
@@ -119,7 +119,7 @@ function onKeyDown(e: KeyboardEvent) {
     if (command === undefined) return
 
     e.preventDefault()
-    if (modals.length) return
+    if (modal.value) return
 
     command?.()
 }

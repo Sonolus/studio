@@ -1,4 +1,4 @@
-import { markRaw, reactive } from 'vue'
+import { computed, markRaw, reactive } from 'vue'
 
 type ModalComponent<T, U> = new () => {
     $props: { data: T }
@@ -14,6 +14,8 @@ const modals = reactive<
 >([])
 
 export function useModals() {
+    const modal = computed(() => modals[0])
+
     function show<T, U>(component: ModalComponent<T, U>, data: T) {
         return new Promise<U | undefined>((resolve) => {
             const modal = {
@@ -28,10 +30,8 @@ export function useModals() {
         })
     }
 
-    show
-
     return {
-        modals,
+        modal,
         show,
     }
 }

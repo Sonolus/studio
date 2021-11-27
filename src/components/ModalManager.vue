@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { useModals } from '../composables/modal'
 
-const { modals } = useModals()
+const { modal } = useModals()
 </script>
 
 <template>
-    <template v-for="(modal, index) in modals" :key="index">
-        <div class="fixed top-0 left-0 z-50 w-full h-full">
+    <Transition
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        enter-active-class="transition-opacity duration-200"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+        leave-active-class="transition-opacity duration-200"
+    >
+        <div v-if="modal" class="fixed top-0 left-0 z-50 w-full h-full">
             <div class="absolute w-full h-full bg-sonolus-main opacity-90" />
             <div
                 class="
@@ -28,5 +35,5 @@ const { modals } = useModals()
                 />
             </div>
         </div>
-    </template>
+    </Transition>
 </template>
