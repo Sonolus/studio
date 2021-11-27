@@ -7,6 +7,7 @@ import { useState } from '../composables/state'
 import { newBackground } from '../core/background'
 import { newEffect } from '../core/effect'
 import { ProjectItemTypeOf } from '../core/project'
+import { clone } from '../core/utils'
 import IconAngleDown from '../icons/angle-down-solid.svg?component'
 import IconAngleRight from '../icons/angle-right-solid.svg?component'
 import IconDrum from '../icons/drum-solid.svg?component'
@@ -249,7 +250,7 @@ async function onNewEffectClip(name: string) {
     })
     if (id === undefined) return
 
-    const newEffect = JSON.parse(JSON.stringify(effect))
+    const newEffect = clone(effect)
     newEffect.data.clips.push({
         id,
         clip: '',

@@ -45,7 +45,7 @@ const value = computed(() => {
         case 'custom':
             return customId.value
         default:
-            return 0
+            throw 'Unexpected type'
     }
 })
 

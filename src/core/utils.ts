@@ -9,6 +9,10 @@ export function srl<T extends ResourceType>(type: T) {
     }
 }
 
+export function clone<T>(data: T): T {
+    return JSON.parse(JSON.stringify(data))
+}
+
 export function getImageInfo(image: string) {
     return new Promise<{ width: number; height: number }>((resolve, reject) => {
         if (!image) {

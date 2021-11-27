@@ -1,5 +1,6 @@
 import { toRef } from 'vue'
 import { ProjectItemTypeOf } from '../core/project'
+import { clone } from '../core/utils'
 import { useState } from './state'
 
 export function useView<T>(props: { data: T }, type: ProjectItemTypeOf<T>) {
@@ -33,11 +34,12 @@ export function useView<T>(props: { data: T }, type: ProjectItemTypeOf<T>) {
     }
 
     function update(path: string[], value: unknown) {
-        const newProps = JSON.parse(JSON.stringify(props))
+        const newProps = clone(props)
         path.reduce(
             (data, key, index) =>
                 index === path.length - 1 ? (data[key] = value) : data[key],
-            newProps
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            newProps as any
         )
 
         const items = new Map(project.value[type] as never)

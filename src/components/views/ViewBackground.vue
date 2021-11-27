@@ -57,7 +57,7 @@ const previewWidth = computed(() => {
         case 'cover':
             return isLarger ? inverse : 1
         default:
-            return 1
+            throw 'Unexpected fit'
     }
 })
 
