@@ -29,6 +29,10 @@ export function newEffect(): Effect {
     }
 }
 
+export function hasEffectClip(effect: Effect, id: number) {
+    return effect.data.clips.some((c) => c.id === id)
+}
+
 export function addEffectToWhitelist(effect: Effect, whitelist: Set<string>) {
     whitelist.add(effect.thumbnail)
     Object.values(effect.data.clips).forEach(({ clip }) => whitelist.add(clip))

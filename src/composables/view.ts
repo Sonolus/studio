@@ -1,12 +1,17 @@
-import { toRef } from 'vue'
+import { computed, Ref, toRef } from 'vue'
 import { ProjectItemTypeOf } from '../core/project'
 import { clone } from '../core/utils'
 import { useState } from './state'
 
-export function useView<T>(props: { data: T }, type: ProjectItemTypeOf<T>) {
+export function useView<T, U = T>(
+    props: { data: T },
+    type: ProjectItemTypeOf<T>,
+    getter?: (v: Ref<T>, view: Ref<string[]>) => U
+): Ref<U> {
     const { project, push, view } = useState()
 
-    return toRef(bind(props), 'data')
+    const v = toRef(bind(props), 'data')
+    return getter ? computed(() => getter(v, view)) : v
 
     function bind<T extends Record<string, unknown>>(
         data: T,

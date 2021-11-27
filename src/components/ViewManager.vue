@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { Component } from 'vue'
 import { computed, markRaw, watch } from 'vue'
 import { useState } from '../composables/state'
+import { hasEffectClip } from '../core/effect'
 import { Project } from '../core/project'
 import ViewBackground from './views/ViewBackground.vue'
 import ViewDefault from './views/ViewDefault.vue'
 import ViewEffect from './views/ViewEffect.vue'
+import ViewEffectClip from './views/ViewEffectClip.vue'
 
 const { project, clearUpdater, view } = useState()
 
@@ -19,25 +20,28 @@ const viewInfo = computed(() => resolveViewInfo(project.value, view.value))
 
 <script lang="ts">
 export function resolveViewInfo(project: Project, view: string[]) {
-    if (view.length < 2) return
-
-    let component: Component
     switch (view[0]) {
-        case 'backgrounds':
-            component = ViewBackground
-            break
-        case 'effects':
-            component = ViewEffect
-            break
-        default:
-            return
+        case 'backgrounds': {
+            const data = project[view[0]].get(view[1])
+            if (!data) return
+
+            return { component: markRaw(ViewBackground), data }
+        }
+        case 'effects': {
+            const data = project[view[0]].get(view[1])
+            if (!data) return
+
+            switch (view.length) {
+                case 2:
+                    return { component: markRaw(ViewEffect), data }
+                case 4:
+                    if (!hasEffectClip(data, +view[3])) return
+                    return { component: markRaw(ViewEffectClip), data }
+                default:
+                    return
+            }
+        }
     }
-    component = markRaw(component)
-
-    const data = project[view[0]].get(view[1])
-    if (!data) return
-
-    return { component, data }
 }
 </script>
 
