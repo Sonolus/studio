@@ -73,6 +73,7 @@ function tryClose() {
                     Engine: 'engine',
                     Custom: 'custom',
                 }"
+                auto-focus
             />
         </MyField>
 

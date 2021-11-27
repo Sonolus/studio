@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { useMounted } from '@vueuse/core'
+import { computed, ref, watchEffect } from 'vue'
 import IconAngleDown from '../../icons/angle-down-solid.svg?component'
 import IconStream from '../../icons/stream-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
@@ -8,6 +9,7 @@ const props = defineProps<{
     modelValue: string
     defaultValue?: string
     options: Record<string, string>
+    autoFocus?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -15,6 +17,14 @@ const emit = defineEmits<{
 }>()
 
 const el = ref<HTMLSelectElement>()
+const mounted = useMounted()
+watchEffect(() => {
+    if (!props.autoFocus) return
+    if (!el.value) return
+    if (!mounted.value) return
+
+    el.value.focus()
+})
 
 const value = computed({
     get: () => props.modelValue,
