@@ -13,7 +13,7 @@ import IconList from '../../icons/list-solid.svg?component'
         "
     >
         <div class="text-2xl font-semibold">Sonolus Studio</div>
-        <div>Version 0.1.0</div>
+        <div>Version 0.2.0</div>
         <div class="mt-16">
             Use
             <IconList class="icon inline-block ml-2 mr-1 my-2 sm:hidden" />
