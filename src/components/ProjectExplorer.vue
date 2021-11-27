@@ -15,6 +15,7 @@ import IconFolder from '../icons/folder-solid.svg?component'
 import IconImage from '../icons/image-solid.svg?component'
 import IconPlus from '../icons/plus-solid.svg?component'
 import IconTrash from '../icons/trash-alt-solid.svg?component'
+import ModalEffectClipId from './modals/ModalEffectClipId.vue'
 import ModalTextInput from './modals/ModalTextInput.vue'
 import MyImageIcon from './ui/MyImageIcon.vue'
 import { resolveViewInfo } from './ViewManager.vue'
@@ -134,6 +135,7 @@ const tree = computed(() => {
                 hasChildren: true,
                 icon: IconFolder,
                 title: 'Clips',
+                onNew: () => onNewEffectClip(name),
                 onDelete: () => console.log('Delete clips'),
             })
 
@@ -217,6 +219,34 @@ function onDelete<T>(type: ProjectItemTypeOf<T>, name: string) {
         ...project.value,
         view: [],
         [type]: items,
+    })
+}
+
+async function onNewEffectClip(name: string) {
+    const effect = project.value.effects.get(name)
+    if (!effect) throw 'Effect not found'
+
+    const id = await show(ModalEffectClipId, {
+        icon: markRaw(IconPlus),
+        title: 'New Effect Clip',
+        defaultValue: 0,
+        validator: (value) => !effect.data.clips.some(({ id }) => id === value),
+    })
+    if (id === undefined) return
+
+    const newEffect = JSON.parse(JSON.stringify(effect))
+    newEffect.data.clips.push({
+        id,
+        clip: '',
+    })
+
+    const effects = new Map(project.value.effects)
+    effects.set(name, newEffect)
+
+    push({
+        ...project.value,
+        view: ['effects', name, 'clips', id.toString()],
+        effects,
     })
 }
 </script>
