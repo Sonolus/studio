@@ -7,6 +7,7 @@ import IconTimes from '../../icons/times-solid.svg?component'
 import MyButton from '../ui/MyButton.vue'
 import MyField from '../ui/MyField.vue'
 import MyNumberInput from '../ui/MyNumberInput.vue'
+import MyNumberSelect from '../ui/MyNumberSelect.vue'
 import MyTextSelect from '../ui/MyTextSelect.vue'
 import ModalBase from './ModalBase.vue'
 
@@ -25,12 +26,12 @@ const emit = defineEmits<{
 
 const effectClipOptions = Object.fromEntries(
     Object.entries(EffectClip).filter(
-        (kvp): kvp is [string, string] => typeof kvp[1] === 'string'
+        (kvp): kvp is [string, number] => typeof kvp[1] === 'number'
     )
 )
 
 const type = ref<'general' | 'engine' | 'custom'>('general')
-const generalClipId = ref<string>('0')
+const generalClipId = ref<number>(0)
 const engineId = ref<number>(0)
 const engineClipId = ref<number>(0)
 const customId = ref<number>(0)
@@ -38,7 +39,7 @@ const customId = ref<number>(0)
 const value = computed(() => {
     switch (type.value) {
         case 'general':
-            return +generalClipId.value
+            return generalClipId.value
         case 'engine':
             return customEffectClip(engineId.value, engineClipId.value)
         case 'custom':
@@ -67,16 +68,16 @@ function tryClose() {
             <MyTextSelect
                 v-model="type"
                 :options="{
-                    general: 'General',
-                    engine: 'Engine',
-                    custom: 'Custom',
+                    General: 'general',
+                    Engine: 'engine',
+                    Custom: 'custom',
                 }"
             />
         </MyField>
 
         <template v-if="type === 'general'">
             <MyField title="Clip Type">
-                <MyTextSelect
+                <MyNumberSelect
                     v-model="generalClipId"
                     :options="effectClipOptions"
                 />

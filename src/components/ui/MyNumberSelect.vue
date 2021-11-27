@@ -5,13 +5,13 @@ import IconStream from '../../icons/stream-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
 
 const props = defineProps<{
-    modelValue: string
-    defaultValue?: string
-    options: Record<string, string>
+    modelValue: number
+    defaultValue?: number
+    options: Record<string, number>
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: string): void
+    (e: 'update:modelValue', value: number): void
 }>()
 
 const el = ref<HTMLSelectElement>()
