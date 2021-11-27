@@ -13,9 +13,9 @@ export function clone<T>(data: T): T {
     return JSON.parse(JSON.stringify(data))
 }
 
-export function getImageInfo(image: string) {
+export function getImageInfo(src: string) {
     return new Promise<{ width: number; height: number }>((resolve, reject) => {
-        if (!image) {
+        if (!src) {
             reject()
             return
         }
@@ -27,7 +27,24 @@ export function getImageInfo(image: string) {
                 height: img.naturalHeight,
             })
         img.onerror = reject
-        img.src = image
+        img.src = src
+    })
+}
+
+export function getAudioInfo(src: string) {
+    return new Promise<{ duration: number }>((resolve, reject) => {
+        if (!src) {
+            reject()
+            return
+        }
+
+        const audio = new Audio(src)
+        audio.onloadedmetadata = () =>
+            resolve({
+                duration: audio.duration,
+            })
+        audio.onerror = reject
+        audio.src = src
     })
 }
 

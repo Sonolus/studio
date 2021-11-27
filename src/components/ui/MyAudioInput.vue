@@ -2,16 +2,15 @@
 import { computed, ref, watchEffect } from 'vue'
 import { useModals } from '../../composables/modal'
 import { loadFile } from '../../core/storage'
-import { getImageInfo } from '../../core/utils'
+import { getAudioInfo } from '../../core/utils'
 import { validate } from '../../core/validation'
-import IconImage from '../../icons/image-solid.svg?component'
+import IconExclamation from '../../icons/exclamation-circle-solid.svg?component'
+import IconFileAudio from '../../icons/file-audio-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
-import ModalImage from '../modals/ModalImage.vue'
-import MyImageIcon from './MyImageIcon.vue'
+import ModalAudio from '../modals/ModalAudio.vue'
 
 const props = defineProps<{
     modelValue: string
-    fill?: boolean
     validate?: boolean
 }>()
 
@@ -21,19 +20,23 @@ const emit = defineEmits<{
 
 const el = ref<HTMLInputElement>()
 
-const imageInfo = ref<string | false>()
+const audioInfo = ref<string | false>()
 watchEffect(async () => {
-    imageInfo.value = undefined
+    audioInfo.value = undefined
     try {
-        const { width, height } = await getImageInfo(props.modelValue)
-        imageInfo.value = `${width} x ${height}`
+        const { duration } = await getAudioInfo(props.modelValue)
+        const minutes = Math.floor(duration / 60)
+            .toString()
+            .padStart(2, '0')
+        const seconds = (duration % 60).toFixed(2).padStart(5, '0')
+        audioInfo.value = `${minutes}:${seconds}`
     } catch (error) {
-        imageInfo.value = false
+        audioInfo.value = false
     }
 })
 
 const isError = computed(
-    () => !validate(props, () => imageInfo.value !== false)
+    () => !validate(props, () => audioInfo.value !== false)
 )
 
 function select() {
@@ -56,7 +59,7 @@ function onFileInput() {
 const { show } = useModals()
 
 function open() {
-    show(ModalImage, { src: props.modelValue })
+    show(ModalAudio, { src: props.modelValue })
 }
 
 function clear() {
@@ -74,14 +77,17 @@ function clear() {
                 class="flex items-center flex-grow w-full h-full px-2 clickable"
                 @click="open()"
             >
-                <MyImageIcon class="icon" :src="modelValue" :fill="fill" />
+                <component
+                    :is="audioInfo === false ? IconExclamation : IconFileAudio"
+                    class="icon"
+                />
                 <div class="flex-grow ml-2 text-center">
                     {{
-                        imageInfo === undefined
+                        audioInfo === undefined
                             ? 'Loading...'
-                            : imageInfo === false
+                            : audioInfo === false
                             ? 'Error'
-                            : imageInfo
+                            : audioInfo
                     }}
                 </div>
             </button>
@@ -98,17 +104,11 @@ function clear() {
                 class="flex items-center flex-grow w-full h-full px-2 clickable"
                 @click="select()"
             >
-                <IconImage class="flex-none icon" />
-                <div class="flex-grow ml-2 text-center">Select Image...</div>
+                <IconFileAudio class="flex-none icon" />
+                <div class="flex-grow ml-2 text-center">Select Audio...</div>
             </button>
         </template>
 
-        <input
-            ref="el"
-            class="hidden"
-            type="file"
-            accept="image/png, image/jpeg"
-            @input="onFileInput()"
-        />
+        <input ref="el" class="hidden" type="file" @input="onFileInput()" />
     </div>
 </template>

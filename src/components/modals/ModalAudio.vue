@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import IconImage from '../../icons/image-solid.svg?component'
+import IconFileAudio from '../../icons/file-audio-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
 import MyButton from '../ui/MyButton.vue'
 import ModalBase from './ModalBase.vue'
@@ -16,8 +16,8 @@ defineEmits<{
 </script>
 
 <template>
-    <ModalBase :icon="IconImage" title="Image">
-        <img class="w-full h-auto" :src="data.src" />
+    <ModalBase :icon="IconFileAudio" title="Audio">
+        <audio class="w-full h-8" :src="data.src" controls autoplay />
 
         <template #actions>
             <MyButton
