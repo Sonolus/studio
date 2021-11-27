@@ -1,11 +1,11 @@
 import * as zip from '@zip.js/zip.js'
-import { BackgroundItem, ItemList } from 'sonolus-core'
+import { BackgroundItem, EffectItem, ItemList } from 'sonolus-core'
 import {
     addBackgroundToWhitelist,
     Background,
     packBackground,
 } from './background'
-import { addEffectToWhitelist, Effect } from './effect'
+import { addEffectToWhitelist, Effect, packEffect } from './effect'
 
 zip.configure({
     useWebWorkers: false,
@@ -41,6 +41,7 @@ export function addProjectToWhitelist(
 
 export type PackProcess = {
     backgrounds: BackgroundItem[]
+    effects: EffectItem[]
 
     tasks: {
         description: string
@@ -60,6 +61,7 @@ export function packProject(project: Project) {
 
     const process: PackProcess = {
         backgrounds: [],
+        effects: [],
 
         tasks: [],
 
@@ -85,6 +87,7 @@ export function packProject(project: Project) {
     project.backgrounds.forEach((background, name) =>
         packBackground(process, name, background)
     )
+    project.effects.forEach((effect, name) => packEffect(process, name, effect))
 
     process.tasks.push({
         description: 'Generating /backgrounds/list...',
@@ -96,6 +99,16 @@ export function packProject(project: Project) {
                     items: process.backgrounds,
                 }
             )
+        },
+    })
+
+    process.tasks.push({
+        description: 'Generating /effects/list...',
+        async execute() {
+            await process.addJson<ItemList<EffectItem>>('effects/list', {
+                pageCount: 1,
+                items: process.effects,
+            })
         },
     })
 

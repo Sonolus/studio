@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { EffectClip } from 'sonolus-core'
 import type { Component } from 'vue'
 import { computed, markRaw, reactive, watchEffect } from 'vue'
 import { useModals } from '../composables/modal'
 import { useState } from '../composables/state'
 import { newBackground } from '../core/background'
-import { newEffect } from '../core/effect'
+import { formatEffectClipId, newEffect } from '../core/effect'
 import { ProjectItemTypeOf } from '../core/project'
 import { clone } from '../core/utils'
 import IconAngleDown from '../icons/angle-down-solid.svg?component'
@@ -223,19 +222,6 @@ function onDelete<T>(type: ProjectItemTypeOf<T>, name: string) {
         view: [],
         [type]: items,
     })
-}
-
-function formatEffectClipId(id: number) {
-    const name = EffectClip[id]
-    if (name) return name
-
-    if (id >= 100000 && id < 200000) {
-        const engineId = Math.floor(id / 100 - 1000)
-        const clipId = id % 100
-        return `${engineId}: ${clipId}`
-    }
-
-    return id.toString()
 }
 
 async function onNewEffectClip(name: string) {
