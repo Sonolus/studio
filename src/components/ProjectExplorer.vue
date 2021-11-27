@@ -146,7 +146,7 @@ const tree = computed(() => {
                     path: ['effects', name, 'clips', id.toString()],
                     hasChildren: false,
                     icon: IconFileAudio,
-                    title: EffectClip[id],
+                    title: formatEffectClipId(id),
                     onDelete: () => console.log('Delete clip'),
                 })
             })
@@ -220,6 +220,19 @@ function onDelete<T>(type: ProjectItemTypeOf<T>, name: string) {
         view: [],
         [type]: items,
     })
+}
+
+function formatEffectClipId(id: number) {
+    const name = EffectClip[id]
+    if (name) return name
+
+    if (id >= 100000 && id < 200000) {
+        const engineId = Math.floor(id / 100 - 1000)
+        const clipId = id % 100
+        return `${engineId}: ${clipId}`
+    }
+
+    return id.toString()
 }
 
 async function onNewEffectClip(name: string) {
