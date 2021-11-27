@@ -250,6 +250,8 @@ async function onNewEffectClip(name: string) {
         view: ['effects', name, 'clips', id.toString()],
         effects,
     })
+
+    isExplorerOpened.value = false
 }
 
 async function onDeleteEffectClips(name: string) {
