@@ -50,6 +50,7 @@ const value = computed(() => {
 })
 
 const isError = computed(() => !props.data.validator(value.value))
+const validator = () => !isError.value
 
 function close(isSuccess?: boolean) {
     emit('close', isSuccess ? value.value : undefined)
@@ -80,6 +81,8 @@ function tryClose() {
                 <MyNumberSelect
                     v-model="generalClipId"
                     :options="effectClipOptions"
+                    validate
+                    :validator="validator"
                 />
             </MyField>
         </template>
@@ -95,6 +98,8 @@ function tryClose() {
                 <MyNumberInput
                     v-model="engineClipId"
                     placeholder="Enter clip ID..."
+                    validate
+                    :validator="validator"
                 />
             </MyField>
         </template>
@@ -104,6 +109,8 @@ function tryClose() {
                 <MyNumberInput
                     v-model="customId"
                     placeholder="Enter clip ID..."
+                    validate
+                    :validator="validator"
                 />
             </MyField>
         </template>

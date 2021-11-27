@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { validate, Validator } from '../../core/validation'
 import IconAngleDown from '../../icons/angle-down-solid.svg?component'
 import IconStream from '../../icons/stream-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
@@ -8,6 +9,8 @@ const props = defineProps<{
     modelValue: number
     defaultValue?: number
     options: Record<string, number>
+    validate?: boolean
+    validator?: Validator<number>
 }>()
 
 const emit = defineEmits<{
@@ -21,6 +24,8 @@ const value = computed({
     set: (value) => emit('update:modelValue', value),
 })
 
+const isError = computed(() => !validate(props, () => true))
+
 function reset() {
     if (props.defaultValue === undefined) return
     value.value = props.defaultValue
@@ -28,7 +33,10 @@ function reset() {
 </script>
 
 <template>
-    <div class="flex items-center h-8">
+    <div
+        class="flex items-center h-8"
+        :class="{ 'ring-1 ring-sonolus-warning': isError }"
+    >
         <div class="relative flex-grow w-full h-full">
             <select
                 ref="el"
