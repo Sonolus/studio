@@ -181,7 +181,8 @@ async function onNew<T>(
             defaultValue: '',
             placeholder,
             validator(name) {
-                if (!name.trim().length) return false
+                name = name.trim()
+                if (!name.length) return false
                 if (project.value[type].has(name)) return false
                 return true
             },
