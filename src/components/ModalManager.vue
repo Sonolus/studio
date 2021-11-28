@@ -11,7 +11,7 @@ const { modal } = useModals()
         enter-active-class="transition-opacity duration-200"
         leave-from-class="opacity-100"
         leave-to-class="opacity-0"
-        leave-active-class="transition-opacity duration-200"
+        leave-active-class="transition-opacity duration-200 pointer-events-none mt-1"
     >
         <div v-if="modal" class="fixed top-0 left-0 z-50 w-full h-full">
             <div class="absolute w-full h-full bg-sonolus-main opacity-90" />
