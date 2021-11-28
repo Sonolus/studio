@@ -6,6 +6,7 @@ import MyImageInput from '../ui/MyImageInput.vue'
 import MySection from '../ui/MySection.vue'
 import MyTextArea from '../ui/MyTextArea.vue'
 import MyTextInput from '../ui/MyTextInput.vue'
+import MyToggle from '../ui/MyToggle.vue'
 
 const props = defineProps<{
     data: Skin
@@ -49,6 +50,12 @@ const v = useView(props, 'skins')
     <MySection header="Thumbnail">
         <MyField title="Thumbnail">
             <MyImageInput v-model="v.thumbnail" fill validate />
+        </MyField>
+    </MySection>
+
+    <MySection header="Data">
+        <MyField title="Interpolation">
+            <MyToggle v-model="v.data.interpolation" :default-value="true" />
         </MyField>
     </MySection>
 </template>
