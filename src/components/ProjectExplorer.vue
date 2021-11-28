@@ -113,7 +113,7 @@ const tree = computed(() => {
                 icon: IconFolder,
                 title: 'Sprites',
                 onNew: () => onNewSkinSprite(name),
-                onDelete: () => console.log('delete sprites'),
+                onDelete: () => onDeleteSkinSprites(name),
             })
 
             if (!isOpened(['skins', name, 'sprites'])) return
@@ -124,7 +124,7 @@ const tree = computed(() => {
                     hasChildren: false,
                     icon: IconFileImage,
                     title: id.toString(),
-                    onDelete: () => console.log('delete sprite'),
+                    onDelete: () => onDeleteSkinSprite(name, id),
                 })
             })
         })
@@ -311,6 +311,43 @@ async function onNewSkinSprite(name: string) {
     })
 
     isExplorerOpened.value = false
+}
+
+async function onDeleteSkinSprites(name: string) {
+    const skin = project.value.skins.get(name)
+    if (!skin) throw 'Skin not found'
+    if (!skin.data.sprites.length) return
+
+    const newSkin = clone(skin)
+    newSkin.data.sprites = []
+
+    const skins = new Map(project.value.skins)
+    skins.set(name, newSkin)
+
+    push({
+        ...project.value,
+        view: [],
+        skins,
+    })
+}
+
+async function onDeleteSkinSprite(name: string, id: number) {
+    const skin = project.value.skins.get(name)
+    if (!skin) throw 'Skin not found'
+
+    const newSkin = clone(skin)
+    newSkin.data.sprites = newSkin.data.sprites.filter(
+        (sprite) => sprite.id !== id
+    )
+
+    const skins = new Map(project.value.skins)
+    skins.set(name, newSkin)
+
+    push({
+        ...project.value,
+        view: [],
+        skins,
+    })
 }
 
 async function onNewEffectClip(name: string) {
