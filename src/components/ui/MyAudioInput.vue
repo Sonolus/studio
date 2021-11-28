@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue'
 import { useModals } from '../../composables/modal'
-import { loadFile } from '../../core/storage'
+import { load } from '../../core/storage'
 import { getAudioInfo } from '../../core/utils'
 import { validate } from '../../core/validation'
 import IconExclamation from '../../icons/exclamation-circle-solid.svg?component'
@@ -53,7 +53,7 @@ function onFileInput() {
 
     el.value.value = ''
 
-    emit('update:modelValue', loadFile(file))
+    emit('update:modelValue', load(file))
 }
 
 const { show } = useModals()

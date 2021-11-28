@@ -1,4 +1,4 @@
-import { gzip } from 'pako'
+import { gzip, ungzip } from 'pako'
 import { ResourceType } from 'sonolus-core'
 
 export function srl<T extends ResourceType>(type: T) {
@@ -65,6 +65,12 @@ export async function packJson<T>(json: T) {
         hash: await hash(data),
         data,
     }
+}
+
+export async function unpackJson<T>(data: Blob): Promise<T> {
+    return JSON.parse(
+        ungzip(new Uint8Array(await data.arrayBuffer()), { to: 'string' })
+    )
 }
 
 async function hash(data: BufferSource) {

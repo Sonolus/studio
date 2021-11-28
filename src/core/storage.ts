@@ -9,8 +9,8 @@ export function purge(whitelist: Set<string>) {
     }
 }
 
-export function loadFile(file: File) {
-    return add(URL.createObjectURL(file))
+export function load(data: File | Blob) {
+    return add(URL.createObjectURL(data))
 }
 
 function add(url: string) {

@@ -3,9 +3,11 @@ import {
     BackgroundData,
     BackgroundItem,
     ItemDetails,
+    ItemList,
 } from 'sonolus-core'
-import { PackProcess } from './project'
-import { packJson, packRaw, srl } from './utils'
+import { PackProcess, UnpackProcess } from './project'
+import { load } from './storage'
+import { packJson, packRaw, srl, unpackJson } from './utils'
 
 export type Background = {
     title: string
@@ -120,6 +122,76 @@ export function packBackground(
                 description: background.description,
                 recommended: [],
             })
+        },
+    })
+}
+
+export function unpackBackgrounds(process: UnpackProcess) {
+    const { tasks, getJson } = process
+
+    tasks.push({
+        description: 'Loading /backgrounds/list...',
+        async execute() {
+            const list = await getJson<ItemList<BackgroundItem>>(
+                '/backgrounds/list'
+            )
+            list.items.forEach(({ name }) => unpackBackground(process, name))
+        },
+    })
+}
+
+function unpackBackground(
+    { project, tasks, getRaw, getJson }: UnpackProcess,
+    name: string
+) {
+    tasks.push({
+        description: `Loading /backgrounds/${name}...`,
+        async execute() {
+            const details = await getJson<ItemDetails<BackgroundItem>>(
+                `/backgrounds/${name}`
+            )
+
+            const item = newBackground()
+            item.title = details.item.title
+            item.subtitle = details.item.subtitle
+            item.author = details.item.author
+            item.description = details.description
+
+            tasks.push({
+                description: `Unpacking background "${name}" thumbnail...`,
+                async execute() {
+                    item.thumbnail = load(
+                        await getRaw(details.item.thumbnail.url)
+                    )
+                },
+            })
+
+            tasks.push({
+                description: `Unpacking background "${name}" image...`,
+                async execute() {
+                    item.image = load(await getRaw(details.item.image.url))
+                },
+            })
+
+            tasks.push({
+                description: `Unpacking background "${name}" data...`,
+                async execute() {
+                    item.data = await unpackJson(
+                        await getRaw(details.item.data.url)
+                    )
+                },
+            })
+
+            tasks.push({
+                description: `Unpacking background "${name}" configuration...`,
+                async execute() {
+                    item.configuration = await unpackJson(
+                        await getRaw(details.item.configuration.url)
+                    )
+                },
+            })
+
+            project.backgrounds.set(name, item)
         },
     })
 }

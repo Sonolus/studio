@@ -4,6 +4,7 @@ import {
     addBackgroundToWhitelist,
     Background,
     packBackground,
+    unpackBackgrounds,
 } from './background'
 import { addEffectToWhitelist, Effect, packEffect } from './effect'
 
@@ -123,19 +124,50 @@ export type UnpackProcess = {
         execute: () => Promise<void>
     }[]
 
+    getRaw: (path: string) => Promise<Blob>
+    getJson: <T>(path: string) => Promise<T>
+
     finish: () => Promise<void>
 }
 
 export function unpackPackage(file: File) {
+    const zipReader = new zip.ZipReader(new zip.BlobReader(file))
+    let entries: zip.Entry[] = []
+
     const process: UnpackProcess = {
         project: newProject(),
 
         tasks: [],
 
+        async getRaw(path: string) {
+            return await get(path, new zip.BlobWriter())
+        },
+        async getJson(path: string) {
+            return JSON.parse(await get(path, new zip.TextWriter()))
+        },
+
         async finish() {
-            console.log('finished')
+            await zipReader.close()
         },
     }
 
+    process.tasks.push({
+        description: 'Loading package...',
+        async execute() {
+            entries = await zipReader.getEntries()
+        },
+    })
+
+    unpackBackgrounds(process)
+
     return process
+
+    function get(path: string, writer: zip.Writer) {
+        if (!path.startsWith('/')) throw `"${path}" not allowed`
+        const entry = entries.find((entry) => entry.filename === path.slice(1))
+        if (!entry) throw `"${path}" not found`
+        if (!entry.getData) throw 'Unexpected missing entry.getData'
+
+        return entry.getData(writer)
+    }
 }
