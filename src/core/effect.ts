@@ -83,9 +83,9 @@ function packEffect(
         async execute() {
             const { hash, data } = await packRaw(effect.thumbnail)
 
-            const path = `repository/EffectThumbnail/${hash}`
+            const path = `/repository/EffectThumbnail/${hash}`
             item.thumbnail.hash = hash
-            item.thumbnail.url = `/${path}`
+            item.thumbnail.url = path
             await addRaw(path, data)
         },
     })
@@ -104,9 +104,9 @@ function packEffect(
                 async execute() {
                     const { hash, data } = await packRaw(clip)
 
-                    const path = `repository/EffectClip/${hash}`
+                    const path = `/repository/EffectClip/${hash}`
                     output.clip.hash = hash
-                    output.clip.url = `/${path}`
+                    output.clip.url = path
                     await addRaw(path, data)
                 },
             })
@@ -120,9 +120,9 @@ function packEffect(
         async execute() {
             const { hash, data } = await packJson(effectData)
 
-            const path = `repository/EffectData/${hash}`
+            const path = `/repository/EffectData/${hash}`
             item.data.hash = hash
-            item.data.url = `/${path}`
+            item.data.url = path
             await addRaw(path, data)
         },
     })
@@ -130,7 +130,7 @@ function packEffect(
     tasks.push({
         description: `Generating /effects/${name}`,
         async execute() {
-            await addJson<ItemDetails<EffectItem>>(`effects/${name}`, {
+            await addJson<ItemDetails<EffectItem>>(`/effects/${name}`, {
                 item,
                 description: effect.description,
                 recommended: [],

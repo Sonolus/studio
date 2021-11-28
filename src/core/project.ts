@@ -72,16 +72,10 @@ export function packProject(project: Project) {
         tasks: [],
 
         async addRaw(path, data) {
-            if (paths.has(path)) return
-            paths.add(path)
-
-            await zipWriter.add(path, new zip.Uint8ArrayReader(data))
+            await add(path, new zip.Uint8ArrayReader(data))
         },
         async addJson(path, data) {
-            if (paths.has(path)) return
-            paths.add(path)
-
-            await zipWriter.add(path, new zip.TextReader(JSON.stringify(data)))
+            await add(path, new zip.TextReader(JSON.stringify(data)))
         },
 
         async finish() {
@@ -97,7 +91,7 @@ export function packProject(project: Project) {
         description: 'Generating /backgrounds/list...',
         async execute() {
             await process.addJson<ItemList<BackgroundItem>>(
-                'backgrounds/list',
+                '/backgrounds/list',
                 {
                     pageCount: 1,
                     items: process.backgrounds,
@@ -109,7 +103,7 @@ export function packProject(project: Project) {
     process.tasks.push({
         description: 'Generating /effects/list...',
         async execute() {
-            await process.addJson<ItemList<EffectItem>>('effects/list', {
+            await process.addJson<ItemList<EffectItem>>('/effects/list', {
                 pageCount: 1,
                 items: process.effects,
             })
@@ -117,6 +111,16 @@ export function packProject(project: Project) {
     })
 
     return process
+
+    function add(path: string, reader: zip.Reader) {
+        if (!path.startsWith('/')) throw `"${path}" not allowed`
+        path = path.slice(1)
+
+        if (paths.has(path)) return
+        paths.add(path)
+
+        return zipWriter.add(path, reader)
+    }
 }
 
 export type UnpackProcess = {

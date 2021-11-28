@@ -77,9 +77,9 @@ function packBackground(
         async execute() {
             const { hash, data } = await packRaw(background.thumbnail)
 
-            const path = `repository/BackgroundThumbnail/${hash}`
+            const path = `/repository/BackgroundThumbnail/${hash}`
             item.thumbnail.hash = hash
-            item.thumbnail.url = `/${path}`
+            item.thumbnail.url = path
             await addRaw(path, data)
         },
     })
@@ -89,9 +89,9 @@ function packBackground(
         async execute() {
             const { hash, data } = await packRaw(background.image)
 
-            const path = `repository/BackgroundImage/${hash}`
+            const path = `/repository/BackgroundImage/${hash}`
             item.image.hash = hash
-            item.image.url = `/${path}`
+            item.image.url = path
             await addRaw(path, data)
         },
     })
@@ -101,9 +101,9 @@ function packBackground(
         async execute() {
             const { hash, data } = await packJson(background.data)
 
-            const path = `repository/BackgroundData/${hash}`
+            const path = `/repository/BackgroundData/${hash}`
             item.data.hash = hash
-            item.data.url = `/${path}`
+            item.data.url = path
             await addRaw(path, data)
         },
     })
@@ -113,9 +113,9 @@ function packBackground(
         async execute() {
             const { hash, data } = await packJson(background.configuration)
 
-            const path = `repository/BackgroundConfiguration/${hash}`
+            const path = `/repository/BackgroundConfiguration/${hash}`
             item.configuration.hash = hash
-            item.configuration.url = `/${path}`
+            item.configuration.url = path
             await addRaw(path, data)
         },
     })
@@ -123,7 +123,7 @@ function packBackground(
     tasks.push({
         description: `Generating /backgrounds/${name}`,
         async execute() {
-            await addJson<ItemDetails<BackgroundItem>>(`backgrounds/${name}`, {
+            await addJson<ItemDetails<BackgroundItem>>(`/backgrounds/${name}`, {
                 item,
                 description: background.description,
                 recommended: [],
