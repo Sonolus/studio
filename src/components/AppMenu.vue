@@ -4,6 +4,7 @@ import { useModals } from '../composables/modal'
 import { useState } from '../composables/state'
 import { newProject } from '../core/project'
 import IconList from '../icons/list-solid.svg?component'
+import ModalConfirmation from './modals/ModalConfirmation.vue'
 import ModalPackProject from './modals/ModalPackProject.vue'
 
 const { replace, canUndo, canRedo, undo, redo, isExplorerOpened } = useState()
@@ -65,7 +66,13 @@ const menus = computed(() => [
     },
 ])
 
-function onNewProject() {
+async function onNewProject() {
+    const result = await show(ModalConfirmation, {
+        message:
+            'Creating a new project will cause current project to be closed. Continue?',
+    })
+    if (!result) return
+
     replace(newProject())
 }
 
