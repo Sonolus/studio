@@ -10,7 +10,6 @@ import { load } from './storage'
 import { packJson, packRaw, srl, unpackJson } from './utils'
 
 export type Effect = {
-    version: 2
     title: string
     subtitle: string
     author: string
@@ -26,7 +25,6 @@ export type Effect = {
 
 export function newEffect(): Effect {
     return {
-        version: 2,
         title: '',
         subtitle: '',
         author: '',
