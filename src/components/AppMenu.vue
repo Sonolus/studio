@@ -8,7 +8,16 @@ import ModalConfirmation from './modals/ModalConfirmation.vue'
 import ModalPackProject from './modals/ModalPackProject.vue'
 import ModalUnpackPackage from './modals/ModalUnpackPackage.vue'
 
-const { replace, canUndo, canRedo, undo, redo, isExplorerOpened } = useState()
+const {
+    project,
+    push,
+    replace,
+    canUndo,
+    canRedo,
+    undo,
+    redo,
+    isExplorerOpened,
+} = useState()
 const { modal, show } = useModals()
 
 function toggleExplorer() {
@@ -35,9 +44,9 @@ const menus = computed(() => [
             },
             {
                 title: 'Import',
-                enabled: false,
+                enabled: true,
                 key: 'i',
-                command: () => console.log('import-project'),
+                command: onImportProject,
             },
             null,
             {
@@ -106,10 +115,55 @@ async function onOpenProject() {
     if (!result) return
 
     selectFile(async (file) => {
-        const project = await show(ModalUnpackPackage, file)
-        if (!project) return
+        const selectedProject = await show(ModalUnpackPackage, file)
+        if (!selectedProject) return
 
-        replace(project)
+        replace(selectedProject)
+    })
+}
+
+async function onImportProject() {
+    selectFile(async (file) => {
+        const selectedProject = await show(ModalUnpackPackage, file)
+        if (!selectedProject) return
+
+        const backgrounds = await merge(
+            project.value.backgrounds,
+            selectedProject.backgrounds,
+            (name) => `Background "${name}" already exists. Overwrite?`
+        )
+        const effects = await merge(
+            project.value.effects,
+            selectedProject.effects,
+            (name) => `Effect "${name}" already exists. Overwrite?`
+        )
+
+        push({
+            view: project.value.view,
+            backgrounds,
+            effects,
+        })
+
+        async function merge<T>(
+            source: Map<string, T>,
+            target: Map<string, T>,
+            message: (name: string) => string
+        ) {
+            const output = new Map(source)
+
+            for (const [name, item] of target) {
+                if (output.has(name)) {
+                    const result = await show(ModalConfirmation, {
+                        message: message(name),
+                    })
+                    if (!result) continue
+                }
+
+                output.set(name, item)
+            }
+
+            return output
+        }
     })
 }
 
