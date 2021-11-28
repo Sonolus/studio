@@ -6,6 +6,7 @@ import { newProject } from '../core/project'
 import IconList from '../icons/list-solid.svg?component'
 import ModalConfirmation from './modals/ModalConfirmation.vue'
 import ModalPackProject from './modals/ModalPackProject.vue'
+import ModalUnpackPackage from './modals/ModalUnpackPackage.vue'
 
 const { replace, canUndo, canRedo, undo, redo, isExplorerOpened } = useState()
 const { modal, show } = useModals()
@@ -28,9 +29,9 @@ const menus = computed(() => [
             null,
             {
                 title: 'Open',
-                enabled: false,
+                enabled: true,
                 key: 'o',
-                command: () => console.log('open-project'),
+                command: onOpenProject,
             },
             {
                 title: 'Import',
@@ -74,6 +75,43 @@ async function onNewProject() {
     if (!result) return
 
     replace(newProject())
+}
+
+const el = ref<HTMLInputElement>()
+const onFileSelected = ref<(file: File) => void>()
+
+function onFileInput() {
+    if (!el.value) return
+
+    const file = el.value.files?.[0]
+    if (!file) return
+
+    el.value.value = ''
+
+    onFileSelected.value?.(file)
+}
+
+function selectFile() {
+    return new Promise<File>((resolve) => {
+        if (!el.value) return
+
+        onFileSelected.value = resolve
+        el.value.click()
+    })
+}
+
+async function onOpenProject() {
+    const result = await show(ModalConfirmation, {
+        message:
+            'Opening a project will cause current project to be closed. Continue?',
+    })
+    if (!result) return
+
+    const file = await selectFile()
+    const project = await show(ModalUnpackPackage, file)
+    if (!project) return
+
+    replace(project)
 }
 
 const openedIndex = ref<number>()
@@ -204,4 +242,6 @@ function onKeyDown(e: KeyboardEvent) {
         class="fixed z-40 w-full h-full"
         @click="close()"
     />
+
+    <input ref="el" class="hidden" type="file" @input="onFileInput()" />
 </template>

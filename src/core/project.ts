@@ -114,3 +114,28 @@ export function packProject(project: Project) {
 
     return process
 }
+
+export type UnpackProcess = {
+    project: Project
+
+    tasks: {
+        description: string
+        execute: () => Promise<void>
+    }[]
+
+    finish: () => Promise<void>
+}
+
+export function unpackPackage(file: File) {
+    const process: UnpackProcess = {
+        project: newProject(),
+
+        tasks: [],
+
+        async finish() {
+            console.log('finished')
+        },
+    }
+
+    return process
+}
