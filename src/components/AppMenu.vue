@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { saveAs } from 'file-saver'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useModals } from '../composables/modal'
 import { useState } from '../composables/state'
@@ -53,7 +54,7 @@ const menus = computed(() => [
                 title: 'Save',
                 enabled: true,
                 key: 's',
-                command: () => show(ModalPackProject, null),
+                command: onSaveProject,
             },
         ],
     },
@@ -165,6 +166,13 @@ async function onImportProject() {
             return output
         }
     })
+}
+
+async function onSaveProject() {
+    const result = await show(ModalPackProject, project.value)
+    if (!result) return
+
+    saveAs(result, 'project.scp')
 }
 
 const openedIndex = ref<number>()

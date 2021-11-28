@@ -1,31 +1,28 @@
 <script setup lang="ts">
-import { saveAs } from 'file-saver'
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useModals } from '../../composables/modal'
-import { useState } from '../../composables/state'
-import { packProject } from '../../core/project'
+import { packProject, Project } from '../../core/project'
 import IconSpinner from '../../icons/spinner-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
 import MyButton from '../ui/MyButton.vue'
 import ModalBase from './ModalBase.vue'
 import ModalErrorCancel from './ModalErrorCancel.vue'
 
-defineProps<{
-    data: null
+const props = defineProps<{
+    data: Project
 }>()
 
 const emit = defineEmits<{
-    (e: 'close'): void
+    (e: 'close', result?: Blob): void
 }>()
 
 const description = ref<string>()
 const aborted = ref(false)
 
-const { project } = useState()
 const { show } = useModals()
 
 onMounted(async () => {
-    const { tasks, finish } = packProject(project.value)
+    const { tasks, finish } = packProject(props.data)
 
     try {
         for (let i = 0; i < tasks.length; i++) {
@@ -41,11 +38,11 @@ onMounted(async () => {
         description.value = 'Completed.'
         await nextTick()
 
-        saveAs(await finish(), 'project.scp')
+        emit('close', await finish())
     } catch (error) {
         show(ModalErrorCancel, { message: error })
+        emit('close')
     }
-    emit('close')
 })
 
 onUnmounted(() => (aborted.value = true))
