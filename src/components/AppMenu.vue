@@ -91,13 +91,11 @@ function onFileInput() {
     onFileSelected.value?.(file)
 }
 
-function selectFile() {
-    return new Promise<File>((resolve) => {
-        if (!el.value) return
+function selectFile(callback: (file: File) => void) {
+    if (!el.value) return
 
-        onFileSelected.value = resolve
-        el.value.click()
-    })
+    onFileSelected.value = callback
+    el.value.click()
 }
 
 async function onOpenProject() {
@@ -107,11 +105,12 @@ async function onOpenProject() {
     })
     if (!result) return
 
-    const file = await selectFile()
-    const project = await show(ModalUnpackPackage, file)
-    if (!project) return
+    selectFile(async (file) => {
+        const project = await show(ModalUnpackPackage, file)
+        if (!project) return
 
-    replace(project)
+        replace(project)
+    })
 }
 
 const openedIndex = ref<number>()
