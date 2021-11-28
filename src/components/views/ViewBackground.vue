@@ -125,10 +125,10 @@ const previewBlurRadius = computed(
                 v-model="v.data.fit"
                 default-value="height"
                 :options="{
-                    height: 'Height',
-                    width: 'Width',
-                    contain: 'Contain',
-                    cover: 'Cover',
+                    Height: 'height',
+                    Width: 'width',
+                    Contain: 'contain',
+                    Cover: 'cover',
                 }"
             />
         </MyField>
