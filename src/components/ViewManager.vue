@@ -7,6 +7,7 @@ import ViewBackground from './views/ViewBackground.vue'
 import ViewDefault from './views/ViewDefault.vue'
 import ViewEffect from './views/ViewEffect.vue'
 import ViewEffectClip from './views/ViewEffectClip.vue'
+import ViewSkin from './views/ViewSkin.vue'
 
 const { project, clearUpdater, view } = useState()
 
@@ -21,6 +22,12 @@ const viewInfo = computed(() => resolveViewInfo(project.value, view.value))
 <script lang="ts">
 export function resolveViewInfo(project: Project, view: string[]) {
     switch (view[0]) {
+        case 'skins': {
+            const data = project[view[0]].get(view[1])
+            if (!data) return
+
+            return { component: markRaw(ViewSkin), data }
+        }
         case 'backgrounds': {
             const data = project[view[0]].get(view[1])
             if (!data) return

@@ -12,6 +12,7 @@ import {
     packEffects,
     unpackEffects,
 } from './effect'
+import { addSkinToWhitelist, Skin } from './skin'
 
 zip.configure({
     useWebWorkers: false,
@@ -19,6 +20,7 @@ zip.configure({
 
 export type Project = {
     view: string[]
+    skins: Map<string, Skin>
     backgrounds: Map<string, Background>
     effects: Map<string, Effect>
 }
@@ -30,6 +32,7 @@ export type ProjectItemTypeOf<T> = {
 export function newProject(): Project {
     return {
         view: [],
+        skins: new Map(),
         backgrounds: new Map(),
         effects: new Map(),
     }
@@ -39,6 +42,7 @@ export function addProjectToWhitelist(
     project: Project,
     whitelist: Set<string>
 ) {
+    project.skins.forEach((skin) => addSkinToWhitelist(skin, whitelist))
     project.backgrounds.forEach((background) =>
         addBackgroundToWhitelist(background, whitelist)
     )

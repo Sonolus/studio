@@ -6,9 +6,11 @@ import { useState } from '../composables/state'
 import { newBackground } from '../core/background'
 import { formatEffectClipId, newEffect } from '../core/effect'
 import { ProjectItemTypeOf } from '../core/project'
+import { newSkin } from '../core/skin'
 import { clone } from '../core/utils'
 import IconAngleDown from '../icons/angle-down-solid.svg?component'
 import IconAngleRight from '../icons/angle-right-solid.svg?component'
+import IconDot from '../icons/dot-circle-regular.svg?component'
 import IconDrum from '../icons/drum-solid.svg?component'
 import IconFileAudio from '../icons/file-audio-solid.svg?component'
 import IconFile from '../icons/file-solid.svg?component'
@@ -79,6 +81,29 @@ const tree = computed(() => {
         onNew?: () => void
         onDelete: () => void
     }[] = []
+
+    items.push({
+        level: 0,
+        path: ['skins'],
+        hasChildren: true,
+        icon: IconDot,
+        title: 'Skins',
+        onNew: () =>
+            onNew('skins', 'New Skin', 'Enter skin name...', newSkin()),
+        onDelete: () => onDeleteAll('skins'),
+    })
+    if (isOpened(['skins'])) {
+        project.value.skins.forEach((skin, name) => {
+            items.push({
+                level: 1,
+                path: ['skins', name],
+                hasChildren: false,
+                icon: skin.thumbnail,
+                title: name,
+                onDelete: () => onDelete('skins', name),
+            })
+        })
+    }
 
     items.push({
         level: 0,

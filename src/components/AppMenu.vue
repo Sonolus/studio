@@ -128,6 +128,11 @@ async function onImportProject() {
         const selectedProject = await show(ModalUnpackPackage, file)
         if (!selectedProject) return
 
+        const skins = await merge(
+            project.value.skins,
+            selectedProject.skins,
+            (name) => `Skin "${name}" already exists. Overwrite?`
+        )
         const backgrounds = await merge(
             project.value.backgrounds,
             selectedProject.backgrounds,
@@ -141,6 +146,7 @@ async function onImportProject() {
 
         push({
             view: project.value.view,
+            skins,
             backgrounds,
             effects,
         })
