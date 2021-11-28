@@ -6,7 +6,12 @@ import {
     packBackground,
     unpackBackgrounds,
 } from './background'
-import { addEffectToWhitelist, Effect, packEffect } from './effect'
+import {
+    addEffectToWhitelist,
+    Effect,
+    packEffect,
+    unpackEffects,
+} from './effect'
 
 zip.configure({
     useWebWorkers: false,
@@ -159,6 +164,7 @@ export function unpackPackage(file: File) {
     })
 
     unpackBackgrounds(process)
+    unpackEffects(process)
 
     return process
 

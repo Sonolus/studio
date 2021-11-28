@@ -1,6 +1,13 @@
-import { EffectClip, EffectData, EffectItem, ItemDetails } from 'sonolus-core'
-import { PackProcess } from './project'
-import { packJson, packRaw, srl } from './utils'
+import {
+    EffectClip,
+    EffectData,
+    EffectItem,
+    ItemDetails,
+    ItemList,
+} from 'sonolus-core'
+import { PackProcess, UnpackProcess } from './project'
+import { load } from './storage'
+import { packJson, packRaw, srl, unpackJson } from './utils'
 
 export type Effect = {
     version: 2
@@ -126,6 +133,72 @@ export function packEffect(
                 description: effect.description,
                 recommended: [],
             })
+        },
+    })
+}
+
+export function unpackEffects(process: UnpackProcess) {
+    const { tasks, getJson } = process
+
+    tasks.push({
+        description: 'Loading /effects/list...',
+        async execute() {
+            const list = await getJson<ItemList<EffectItem>>('/effects/list')
+            list.items.forEach(({ name }) => unpackEffect(process, name))
+        },
+    })
+}
+
+function unpackEffect(
+    { project, tasks, getRaw, getJson }: UnpackProcess,
+    name: string
+) {
+    tasks.push({
+        description: `Loading /effects/${name}...`,
+        async execute() {
+            const details = await getJson<ItemDetails<EffectItem>>(
+                `/effects/${name}`
+            )
+
+            const item = newEffect()
+            item.title = details.item.title
+            item.subtitle = details.item.subtitle
+            item.author = details.item.author
+            item.description = details.description
+
+            tasks.push({
+                description: `Unpacking effect "${name}" thumbnail...`,
+                async execute() {
+                    item.thumbnail = load(
+                        await getRaw(details.item.thumbnail.url)
+                    )
+                },
+            })
+
+            tasks.push({
+                description: `Unpacking effect "${name}" data...`,
+                async execute() {
+                    const data = await unpackJson<EffectData>(
+                        await getRaw(details.item.data.url)
+                    )
+
+                    data.clips.forEach(({ id, clip }) => {
+                        tasks.push({
+                            description: `Unpacking effect "${name}" clip "${formatEffectClipId(
+                                id
+                            )}"...`,
+                            async execute() {
+                                item.data.clips.push({
+                                    id,
+                                    clip: load(await getRaw(clip.url)),
+                                })
+                            },
+                        })
+                    })
+                },
+            })
+
+            project.effects.set(name, item)
         },
     })
 }
