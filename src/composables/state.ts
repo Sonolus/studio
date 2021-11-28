@@ -56,6 +56,15 @@ export function useState() {
         state.updaterTime = now
     }
 
+    function replace(project: Project) {
+        state.history.length = 0
+        state.history.push(project)
+        state.index = 0
+
+        state.view = []
+        clearUpdater()
+    }
+
     function undo() {
         if (!canUndo.value) return
 
@@ -82,6 +91,7 @@ export function useState() {
 
         clearUpdater,
         push,
+        replace,
         undo,
         redo,
 

@@ -2,10 +2,12 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useModals } from '../composables/modal'
 import { useState } from '../composables/state'
+import { newProject } from '../core/project'
 import IconList from '../icons/list-solid.svg?component'
 import ModalPackProject from './modals/ModalPackProject.vue'
 
-const { canUndo, canRedo, undo, redo, isExplorerOpened } = useState()
+const { replace, canUndo, canRedo, undo, redo, isExplorerOpened } = useState()
+const { modal, show } = useModals()
 
 function toggleExplorer() {
     isExplorerOpened.value = !isExplorerOpened.value
@@ -18,9 +20,9 @@ const menus = computed(() => [
         items: [
             {
                 title: 'New',
-                enabled: false,
+                enabled: true,
                 key: 'n',
-                command: () => console.log('new-project'),
+                command: onNewProject,
             },
             null,
             {
@@ -41,13 +43,6 @@ const menus = computed(() => [
                 enabled: true,
                 key: 's',
                 command: () => show(ModalPackProject, null),
-            },
-            null,
-            {
-                title: 'Close',
-                enabled: false,
-                key: 'w',
-                command: () => console.log('close-project'),
             },
         ],
     },
@@ -70,19 +65,9 @@ const menus = computed(() => [
     },
 ])
 
-const hotkeys = computed(() => {
-    const output = new Map<string, (() => void) | null>()
-
-    menus.value.forEach((menu) => {
-        menu.items.forEach((item) => {
-            if (!item) return
-
-            output.set(item.key, item.enabled ? item.command : null)
-        })
-    })
-
-    return output
-})
+function onNewProject() {
+    replace(newProject())
+}
 
 const openedIndex = ref<number>()
 
@@ -105,12 +90,24 @@ function onClick(item: { command: () => void }) {
     close()
 }
 
-const { modal, show } = useModals()
-
 onMounted(() =>
     document.addEventListener('keydown', onKeyDown, { passive: false })
 )
 onUnmounted(() => document.removeEventListener('keydown', onKeyDown))
+
+const hotkeys = computed(() => {
+    const output = new Map<string, (() => void) | null>()
+
+    menus.value.forEach((menu) => {
+        menu.items.forEach((item) => {
+            if (!item) return
+
+            output.set(item.key, item.enabled ? item.command : null)
+        })
+    })
+
+    return output
+})
 
 function onKeyDown(e: KeyboardEvent) {
     if (!e.ctrlKey) return
