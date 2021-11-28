@@ -20,6 +20,7 @@ import IconImage from '../icons/image-solid.svg?component'
 import IconPlus from '../icons/plus-solid.svg?component'
 import IconTrash from '../icons/trash-alt-solid.svg?component'
 import ModalEffectClipId from './modals/ModalEffectClipId.vue'
+import ModalSkinSpriteId from './modals/ModalSkinSpriteId.vue'
 import ModalTextInput from './modals/ModalTextInput.vue'
 import MyImageIcon from './ui/MyImageIcon.vue'
 import { resolveViewInfo } from './ViewManager.vue'
@@ -111,7 +112,7 @@ const tree = computed(() => {
                 hasChildren: true,
                 icon: IconFolder,
                 title: 'Sprites',
-                onNew: () => console.log('new sprite'),
+                onNew: () => onNewSkinSprite(name),
                 onDelete: () => console.log('delete sprites'),
             })
 
@@ -271,6 +272,45 @@ function onDelete<T>(type: ProjectItemTypeOf<T>, name: string) {
         view: [],
         [type]: items,
     })
+}
+
+async function onNewSkinSprite(name: string) {
+    const skin = project.value.skins.get(name)
+    if (!skin) throw 'Skin not found'
+
+    const id = await show(ModalSkinSpriteId, {
+        icon: markRaw(IconPlus),
+        title: 'New Skin Sprite',
+        defaultValue: 0,
+        validator: (value) => !skin.data.sprites.some(({ id }) => id === value),
+    })
+    if (id === undefined) return
+
+    const newSkin = clone(skin)
+    newSkin.data.sprites.push({
+        id,
+        transform: {
+            x1: {},
+            x2: {},
+            x3: {},
+            x4: {},
+            y1: {},
+            y2: {},
+            y3: {},
+            y4: {},
+        },
+    })
+
+    const skins = new Map(project.value.skins)
+    skins.set(name, newSkin)
+
+    push({
+        ...project.value,
+        view: ['skins', name, 'sprites', id.toString()],
+        skins,
+    })
+
+    isExplorerOpened.value = false
 }
 
 async function onNewEffectClip(name: string) {
