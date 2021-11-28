@@ -13,6 +13,7 @@ import IconAngleRight from '../icons/angle-right-solid.svg?component'
 import IconDot from '../icons/dot-circle-regular.svg?component'
 import IconDrum from '../icons/drum-solid.svg?component'
 import IconFileAudio from '../icons/file-audio-solid.svg?component'
+import IconFileImage from '../icons/file-image-solid.svg?component'
 import IconFile from '../icons/file-solid.svg?component'
 import IconFolder from '../icons/folder-solid.svg?component'
 import IconImage from '../icons/image-solid.svg?component'
@@ -97,10 +98,33 @@ const tree = computed(() => {
             items.push({
                 level: 1,
                 path: ['skins', name],
-                hasChildren: false,
+                hasChildren: true,
                 icon: skin.thumbnail,
                 title: name,
                 onDelete: () => onDelete('skins', name),
+            })
+
+            if (!isOpened(['skins', name])) return
+            items.push({
+                level: 2,
+                path: ['skins', name, 'sprites'],
+                hasChildren: true,
+                icon: IconFolder,
+                title: 'Sprites',
+                onNew: () => console.log('new sprite'),
+                onDelete: () => console.log('delete sprites'),
+            })
+
+            if (!isOpened(['skins', name, 'sprites'])) return
+            skin.data.sprites.forEach(({ id }) => {
+                items.push({
+                    level: 3,
+                    path: ['skins', name, 'sprites', id.toString()],
+                    hasChildren: false,
+                    icon: IconFileImage,
+                    title: id.toString(),
+                    onDelete: () => console.log('delete sprite'),
+                })
             })
         })
     }
