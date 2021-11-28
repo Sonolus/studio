@@ -167,7 +167,7 @@ function unpackBackground(
                 description: `Unpacking background "${name}" thumbnail...`,
                 async execute() {
                     item.thumbnail = load(
-                        await getRaw(details.item.thumbnail.url)
+                        await getRaw(details.item.thumbnail.url, 'image/png')
                     )
                 },
             })
@@ -175,7 +175,9 @@ function unpackBackground(
             tasks.push({
                 description: `Unpacking background "${name}" image...`,
                 async execute() {
-                    item.image = load(await getRaw(details.item.image.url))
+                    item.image = load(
+                        await getRaw(details.item.image.url, 'image/png')
+                    )
                 },
             })
 

@@ -172,7 +172,7 @@ function unpackEffect(
                 description: `Unpacking effect "${name}" thumbnail...`,
                 async execute() {
                     item.thumbnail = load(
-                        await getRaw(details.item.thumbnail.url)
+                        await getRaw(details.item.thumbnail.url, 'image/png')
                     )
                 },
             })
@@ -192,7 +192,9 @@ function unpackEffect(
                             async execute() {
                                 item.data.clips.push({
                                     id,
-                                    clip: load(await getRaw(clip.url)),
+                                    clip: load(
+                                        await getRaw(clip.url, 'audio/mp3')
+                                    ),
                                 })
                             },
                         })

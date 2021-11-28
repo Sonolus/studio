@@ -131,7 +131,7 @@ export type UnpackProcess = {
         execute: () => Promise<void>
     }[]
 
-    getRaw: (path: string) => Promise<Blob>
+    getRaw: (path: string, mime?: string) => Promise<Blob>
     getJson: <T>(path: string) => Promise<T>
 
     finish: () => Promise<void>
@@ -146,8 +146,8 @@ export function unpackPackage(file: File) {
 
         tasks: [],
 
-        async getRaw(path: string) {
-            return await get(path, new zip.BlobWriter())
+        async getRaw(path: string, mime?: string) {
+            return await get(path, new zip.BlobWriter(mime))
         },
         async getJson(path: string) {
             return JSON.parse(await get(path, new zip.TextWriter()))
