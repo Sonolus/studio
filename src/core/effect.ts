@@ -5,7 +5,7 @@ import {
     ItemDetails,
     ItemList,
 } from 'sonolus-core'
-import { PackProcess, UnpackProcess } from './project'
+import { PackProcess, Project, UnpackProcess } from './project'
 import { load } from './storage'
 import { packJson, packRaw, srl, unpackJson } from './utils'
 
@@ -58,7 +58,11 @@ export function addEffectToWhitelist(effect: Effect, whitelist: Set<string>) {
     Object.values(effect.data.clips).forEach(({ clip }) => whitelist.add(clip))
 }
 
-export function packEffect(
+export function packEffects(process: PackProcess, project: Project) {
+    project.effects.forEach((effect, name) => packEffect(process, name, effect))
+}
+
+function packEffect(
     { effects, tasks, addRaw, addJson }: PackProcess,
     name: string,
     effect: Effect

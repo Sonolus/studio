@@ -5,7 +5,7 @@ import {
     ItemDetails,
     ItemList,
 } from 'sonolus-core'
-import { PackProcess, UnpackProcess } from './project'
+import { PackProcess, Project, UnpackProcess } from './project'
 import { load } from './storage'
 import { packJson, packRaw, srl, unpackJson } from './utils'
 
@@ -48,7 +48,13 @@ export function addBackgroundToWhitelist(
     whitelist.add(background.image)
 }
 
-export function packBackground(
+export function packBackgrounds(process: PackProcess, project: Project) {
+    project.backgrounds.forEach((background, name) =>
+        packBackground(process, name, background)
+    )
+}
+
+function packBackground(
     { backgrounds, tasks, addRaw, addJson }: PackProcess,
     name: string,
     background: Background

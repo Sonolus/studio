@@ -3,13 +3,13 @@ import { BackgroundItem, EffectItem, ItemList } from 'sonolus-core'
 import {
     addBackgroundToWhitelist,
     Background,
-    packBackground,
+    packBackgrounds,
     unpackBackgrounds,
 } from './background'
 import {
     addEffectToWhitelist,
     Effect,
-    packEffect,
+    packEffects,
     unpackEffects,
 } from './effect'
 
@@ -90,10 +90,8 @@ export function packProject(project: Project) {
         },
     }
 
-    project.backgrounds.forEach((background, name) =>
-        packBackground(process, name, background)
-    )
-    project.effects.forEach((effect, name) => packEffect(process, name, effect))
+    packBackgrounds(process, project)
+    packEffects(process, project)
 
     process.tasks.push({
         description: 'Generating /backgrounds/list...',
