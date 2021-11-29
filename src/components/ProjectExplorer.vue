@@ -6,7 +6,7 @@ import { useState } from '../composables/state'
 import { newBackground } from '../core/background'
 import { formatEffectClipId, newEffect, newEffectClip } from '../core/effect'
 import { ProjectItemTypeOf } from '../core/project'
-import { newSkin, newSkinSprite } from '../core/skin'
+import { formatSkinSpriteId, newSkin, newSkinSprite } from '../core/skin'
 import { clone } from '../core/utils'
 import IconAngleDown from '../icons/angle-down-solid.svg?component'
 import IconAngleRight from '../icons/angle-right-solid.svg?component'
@@ -122,7 +122,7 @@ const tree = computed(() => {
                     path: ['skins', name, 'sprites', id.toString()],
                     hasChildren: false,
                     icon: texture,
-                    title: id.toString(),
+                    title: formatSkinSpriteId(id),
                     onDelete: () => onDeleteSkinSprite(name, id),
                 })
             })

@@ -63,6 +63,19 @@ export function hasSkinSprite(skin: Skin, id: number) {
     return skin.data.sprites.some((s) => s.id === id)
 }
 
+export function formatSkinSpriteId(id: number) {
+    const name = SkinSprite[id]
+    if (name) return name
+
+    if (id >= 100000 && id < 200000) {
+        const engineId = Math.floor(id / 100 - 1000)
+        const spriteId = id % 100
+        return `${engineId}: ${spriteId}`
+    }
+
+    return id.toString()
+}
+
 export function addSkinToWhitelist(skin: Skin, whitelist: Set<string>) {
     whitelist.add(skin.thumbnail)
     skin.data.sprites.forEach((s) => whitelist.add(s.texture))
