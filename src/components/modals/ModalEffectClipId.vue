@@ -31,7 +31,7 @@ const effectClipOptions = Object.fromEntries(
 )
 
 const type = ref<'general' | 'engine' | 'custom'>('general')
-const generalClipId = ref<number>(0)
+const generalClipId = ref<number>(EffectClip.Miss)
 const engineId = ref<number>(0)
 const engineClipId = ref<number>(0)
 const customId = ref<number>(0)
