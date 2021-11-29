@@ -289,6 +289,12 @@ async function onNewSkinSprite(name: string) {
     newSkin.data.sprites.push({
         id,
         texture: '',
+        padding: {
+            left: true,
+            right: true,
+            top: true,
+            bottom: true,
+        },
         transform: {
             x1: {},
             x2: {},

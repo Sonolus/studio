@@ -11,6 +11,12 @@ export type Skin = {
         sprites: {
             id: SkinSprite
             texture: string
+            padding: {
+                left: boolean
+                right: boolean
+                top: boolean
+                bottom: boolean
+            }
             transform: SkinDataTransform
         }[]
     }
