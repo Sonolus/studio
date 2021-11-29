@@ -47,6 +47,7 @@ function reset() {
             ref="el"
             v-model="value"
             type="number"
+            inputmode="decimal"
             class="
                 flex-grow
                 w-full

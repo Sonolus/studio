@@ -30,6 +30,7 @@ function selectAll() {
         ref="el"
         v-model="value"
         type="number"
+        inputmode="decimal"
         class="w-full h-8 px-2 text-center reset clickable"
         :placeholder="placeholder"
         @focus="selectAll()"
