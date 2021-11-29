@@ -3,11 +3,13 @@ import { computed, markRaw, watch } from 'vue'
 import { useState } from '../composables/state'
 import { hasEffectClip } from '../core/effect'
 import { Project } from '../core/project'
+import { hasSkinSprite } from '../core/skin'
 import ViewBackground from './views/ViewBackground.vue'
 import ViewDefault from './views/ViewDefault.vue'
 import ViewEffect from './views/ViewEffect.vue'
 import ViewEffectClip from './views/ViewEffectClip.vue'
 import ViewSkin from './views/ViewSkin.vue'
+import ViewSkinSprite from './views/ViewSkinSprite.vue'
 
 const { project, clearUpdater, view } = useState()
 
@@ -26,7 +28,15 @@ export function resolveViewInfo(project: Project, view: string[]) {
             const data = project[view[0]].get(view[1])
             if (!data) return
 
-            return { component: markRaw(ViewSkin), data }
+            switch (view.length) {
+                case 2:
+                    return { component: markRaw(ViewSkin), data }
+                case 4:
+                    if (!hasSkinSprite(data, +view[3])) return
+                    return { component: markRaw(ViewSkinSprite), data }
+                default:
+                    return
+            }
         }
         case 'backgrounds': {
             const data = project[view[0]].get(view[1])

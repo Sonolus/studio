@@ -29,6 +29,10 @@ export function newSkin(): Skin {
     }
 }
 
+export function hasSkinSprite(skin: Skin, id: number) {
+    return skin.data.sprites.some((s) => s.id === id)
+}
+
 export function addSkinToWhitelist(skin: Skin, whitelist: Set<string>) {
     whitelist.add(skin.thumbnail)
 }
