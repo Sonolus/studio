@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useView } from '../../composables/view'
 import { Skin } from '../../core/skin'
+import MyCellNumberInput from '../ui/MyCellNumberInput.vue'
 import MyField from '../ui/MyField.vue'
 import MyImageInput from '../ui/MyImageInput.vue'
-import MyNumberInput from '../ui/MyNumberInput.vue'
 import MySection from '../ui/MySection.vue'
 import MyToggle from '../ui/MyToggle.vue'
 
@@ -18,6 +18,8 @@ const v = useView(
     (v, view) => v.value.data.sprites.find(({ id }) => id === +view.value[3])!,
     (path) => (path.includes('transform') ? 0 : undefined)
 )
+
+const keys = ['x1', 'x2', 'x3', 'x4', 'y1', 'y2', 'y3', 'y4'] as const
 </script>
 
 <template>
@@ -43,13 +45,31 @@ const v = useView(
     </MySection>
 
     <MySection header="Transformation">
-        <MyField title="x1.x1">
-            <MyNumberInput
-                v-model="v.transform.x1.x1"
-                placeholder="Enter transformation x1.x1..."
-            />
-        </MyField>
+        <table class="block overflow-x-auto text-center">
+            <thead>
+                <tr class="h-8">
+                    <th class="p-0" />
+                    <th
+                        v-for="i in keys"
+                        :key="i"
+                        class="p-0 text-lg font-semibold"
+                    >
+                        {{ i }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="i in keys" :key="i" class="h-8">
+                    <td class="px-2 py-0 text-lg font-semibold">{{ i }}</td>
+                    <td v-for="j in keys" :key="j" class="p-0">
+                        <MyCellNumberInput
+                            v-model="v.transform[i][j]"
+                            class="w-16"
+                            :placeholder="`${i}.${j}`"
+                        />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </MySection>
-
-    {{ props.data }}
 </template>
