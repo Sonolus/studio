@@ -45,7 +45,7 @@ const keys = ['x1', 'x2', 'x3', 'x4', 'y1', 'y2', 'y3', 'y4'] as const
     </MySection>
 
     <MySection header="Transformation">
-        <table class="block overflow-x-auto text-center">
+        <table class="block mx-auto overflow-x-auto text-center max-w-min">
             <thead>
                 <tr class="h-8">
                     <th class="p-0" />
