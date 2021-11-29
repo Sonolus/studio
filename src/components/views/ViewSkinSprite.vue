@@ -14,12 +14,8 @@ const props = defineProps<{
 const v = useView(
     props,
     'skins',
-    (v, view) => {
-        const index = props.data.data.sprites.findIndex(
-            ({ id }) => id === +view.value[3]
-        )
-        return v.value.data.sprites[index]
-    },
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    (v, view) => v.value.data.sprites.find(({ id }) => id === +view.value[3])!,
     (path) => (path.includes('transform') ? 0 : undefined)
 )
 </script>

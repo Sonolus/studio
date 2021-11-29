@@ -9,12 +9,12 @@ const props = defineProps<{
     data: Effect
 }>()
 
-const v = useView(props, 'effects', (v, view) => {
-    const index = props.data.data.clips.findIndex(
-        ({ id }) => id === +view.value[3]
-    )
-    return v.value.data.clips[index]
-})
+const v = useView(
+    props,
+    'effects',
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    (v, view) => v.value.data.clips.find(({ id }) => id === +view.value[3])!
+)
 </script>
 
 <template>
