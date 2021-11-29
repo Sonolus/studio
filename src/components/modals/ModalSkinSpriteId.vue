@@ -31,10 +31,10 @@ const skinSpriteOptions = Object.fromEntries(
 )
 
 const type = ref<'general' | 'engine' | 'custom'>('general')
-const generalSpriteId = ref<number>(SkinSprite.NoteHeadNeutral)
-const engineId = ref<number>(0)
-const engineSpriteId = ref<number>(0)
-const customId = ref<number>(0)
+const generalSpriteId = ref(SkinSprite.NoteHeadNeutral)
+const engineId = ref(0)
+const engineSpriteId = ref(0)
+const customId = ref(0)
 
 const value = computed(() => {
     switch (type.value) {

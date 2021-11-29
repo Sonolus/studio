@@ -31,10 +31,10 @@ const effectClipOptions = Object.fromEntries(
 )
 
 const type = ref<'general' | 'engine' | 'custom'>('general')
-const generalClipId = ref<number>(EffectClip.Miss)
-const engineId = ref<number>(0)
-const engineClipId = ref<number>(0)
-const customId = ref<number>(0)
+const generalClipId = ref(EffectClip.Miss)
+const engineId = ref(0)
+const engineClipId = ref(0)
+const customId = ref(0)
 
 const value = computed(() => {
     switch (type.value) {
