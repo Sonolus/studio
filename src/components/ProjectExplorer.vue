@@ -210,13 +210,15 @@ const tree = computed(() => {
 })
 
 function onClick(item: { path: string[] }) {
-    if (resolveViewInfo(project.value, item.path)) {
+    if (
+        resolveViewInfo(project.value, item.path) &&
+        !isPathCurrentView(item.path)
+    ) {
         view.value = item.path
-
         isExplorerOpened.value = false
-    } else {
-        toggleOpened(item.path)
+        return
     }
+    toggleOpened(item.path)
 }
 
 const { show } = useModals()
