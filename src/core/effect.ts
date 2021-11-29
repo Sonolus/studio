@@ -36,6 +36,13 @@ export function newEffect(): Effect {
     }
 }
 
+export function newEffectClip(id: EffectClip): Effect['data']['clips'][number] {
+    return {
+        id,
+        clip: '',
+    }
+}
+
 export function hasEffectClip(effect: Effect, id: number) {
     return effect.data.clips.some((c) => c.id === id)
 }

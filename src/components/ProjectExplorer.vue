@@ -4,7 +4,7 @@ import { computed, markRaw, reactive, watchEffect } from 'vue'
 import { useModals } from '../composables/modal'
 import { useState } from '../composables/state'
 import { newBackground } from '../core/background'
-import { formatEffectClipId, newEffect } from '../core/effect'
+import { formatEffectClipId, newEffect, newEffectClip } from '../core/effect'
 import { ProjectItemTypeOf } from '../core/project'
 import { newSkin } from '../core/skin'
 import { clone } from '../core/utils'
@@ -369,10 +369,7 @@ async function onNewEffectClip(name: string) {
     if (id === undefined) return
 
     const newEffect = clone(effect)
-    newEffect.data.clips.push({
-        id,
-        clip: '',
-    })
+    newEffect.data.clips.push(newEffectClip(id))
 
     const effects = new Map(project.value.effects)
     effects.set(name, newEffect)
