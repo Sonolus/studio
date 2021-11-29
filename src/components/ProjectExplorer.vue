@@ -6,7 +6,7 @@ import { useState } from '../composables/state'
 import { newBackground } from '../core/background'
 import { formatEffectClipId, newEffect, newEffectClip } from '../core/effect'
 import { ProjectItemTypeOf } from '../core/project'
-import { newSkin } from '../core/skin'
+import { newSkin, newSkinSprite } from '../core/skin'
 import { clone } from '../core/utils'
 import IconAngleDown from '../icons/angle-down-solid.svg?component'
 import IconAngleRight from '../icons/angle-right-solid.svg?component'
@@ -286,26 +286,7 @@ async function onNewSkinSprite(name: string) {
     if (id === undefined) return
 
     const newSkin = clone(skin)
-    newSkin.data.sprites.push({
-        id,
-        texture: '',
-        padding: {
-            left: true,
-            right: true,
-            top: true,
-            bottom: true,
-        },
-        transform: {
-            x1: { x1: 1 },
-            x2: { x2: 1 },
-            x3: { x3: 1 },
-            x4: { x4: 1 },
-            y1: { y1: 1 },
-            y2: { y2: 1 },
-            y3: { y3: 1 },
-            y4: { y4: 1 },
-        },
-    })
+    newSkin.data.sprites.push(newSkinSprite(id))
 
     const skins = new Map(project.value.skins)
     skins.set(name, newSkin)
