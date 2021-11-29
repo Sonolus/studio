@@ -13,6 +13,7 @@ import IconAngleRight from '../icons/angle-right-solid.svg?component'
 import IconDot from '../icons/dot-circle-regular.svg?component'
 import IconDrum from '../icons/drum-solid.svg?component'
 import IconFileAudio from '../icons/file-audio-solid.svg?component'
+import IconFileImage from '../icons/file-image-solid.svg?component'
 import IconFile from '../icons/file-solid.svg?component'
 import IconFolder from '../icons/folder-solid.svg?component'
 import IconImage from '../icons/image-solid.svg?component'
@@ -77,6 +78,7 @@ const tree = computed(() => {
         hasChildren: boolean
 
         icon: Component | string
+        fallback?: Component
         title: string
 
         onNew?: () => void
@@ -122,6 +124,7 @@ const tree = computed(() => {
                     path: ['skins', name, 'sprites', id.toString()],
                     hasChildren: false,
                     icon: texture,
+                    fallback: IconFileImage,
                     title: formatSkinSpriteId(id),
                     onDelete: () => onDeleteSkinSprite(name, id),
                 })
@@ -456,10 +459,14 @@ async function onDeleteEffectClip(name: string, id: number) {
                 v-if="typeof item.icon === 'string'"
                 class="flex-none icon"
                 :src="item.icon"
-                :fallback="IconFile"
+                :fallback="item.fallback || IconFile"
                 fill
             />
-            <component :is="item.icon" v-else class="flex-none icon" />
+            <component
+                :is="item.icon || item.fallback"
+                v-else
+                class="flex-none icon"
+            />
             <div class="flex-1 ml-2 text-left truncate">
                 {{ item.title }}
             </div>
