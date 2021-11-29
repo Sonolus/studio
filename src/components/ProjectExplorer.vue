@@ -13,7 +13,6 @@ import IconAngleRight from '../icons/angle-right-solid.svg?component'
 import IconDot from '../icons/dot-circle-regular.svg?component'
 import IconDrum from '../icons/drum-solid.svg?component'
 import IconFileAudio from '../icons/file-audio-solid.svg?component'
-import IconFileImage from '../icons/file-image-solid.svg?component'
 import IconFile from '../icons/file-solid.svg?component'
 import IconFolder from '../icons/folder-solid.svg?component'
 import IconImage from '../icons/image-solid.svg?component'
@@ -117,12 +116,12 @@ const tree = computed(() => {
             })
 
             if (!isOpened(['skins', name, 'sprites'])) return
-            skin.data.sprites.forEach(({ id }) => {
+            skin.data.sprites.forEach(({ id, texture }) => {
                 items.push({
                     level: 3,
                     path: ['skins', name, 'sprites', id.toString()],
                     hasChildren: false,
-                    icon: IconFileImage,
+                    icon: texture,
                     title: id.toString(),
                     onDelete: () => onDeleteSkinSprite(name, id),
                 })
@@ -289,6 +288,7 @@ async function onNewSkinSprite(name: string) {
     const newSkin = clone(skin)
     newSkin.data.sprites.push({
         id,
+        texture: '',
         transform: {
             x1: {},
             x2: {},

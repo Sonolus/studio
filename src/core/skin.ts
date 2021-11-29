@@ -10,6 +10,7 @@ export type Skin = {
         interpolation: boolean
         sprites: {
             id: SkinSprite
+            texture: string
             transform: SkinDataTransform
         }[]
     }
@@ -35,4 +36,5 @@ export function hasSkinSprite(skin: Skin, id: number) {
 
 export function addSkinToWhitelist(skin: Skin, whitelist: Set<string>) {
     whitelist.add(skin.thumbnail)
+    skin.data.sprites.forEach((s) => whitelist.add(s.texture))
 }
