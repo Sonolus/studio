@@ -3,6 +3,7 @@ import { useView } from '../../composables/view'
 import { Skin } from '../../core/skin'
 import MyField from '../ui/MyField.vue'
 import MyImageInput from '../ui/MyImageInput.vue'
+import MyNumberInput from '../ui/MyNumberInput.vue'
 import MySection from '../ui/MySection.vue'
 import MyToggle from '../ui/MyToggle.vue'
 
@@ -10,12 +11,17 @@ const props = defineProps<{
     data: Skin
 }>()
 
-const v = useView(props, 'skins', (v, view) => {
-    const index = props.data.data.sprites.findIndex(
-        ({ id }) => id === +view.value[3]
-    )
-    return v.value.data.sprites[index]
-})
+const v = useView(
+    props,
+    'skins',
+    (v, view) => {
+        const index = props.data.data.sprites.findIndex(
+            ({ id }) => id === +view.value[3]
+        )
+        return v.value.data.sprites[index]
+    },
+    (path) => (path.includes('transform') ? 0 : undefined)
+)
 </script>
 
 <template>
@@ -39,4 +45,15 @@ const v = useView(props, 'skins', (v, view) => {
             <MyToggle v-model="v.padding.bottom" :default-value="true" />
         </MyField>
     </MySection>
+
+    <MySection header="Transformation">
+        <MyField title="x1.x1">
+            <MyNumberInput
+                v-model="v.transform.x1.x1"
+                placeholder="Enter transformation x1.x1..."
+            />
+        </MyField>
+    </MySection>
+
+    {{ props.data }}
 </template>

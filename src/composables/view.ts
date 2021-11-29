@@ -1,13 +1,14 @@
 import { computed, Ref, toRef } from 'vue'
 import { ProjectItemTypeOf } from '../core/project'
-import { clone } from '../core/utils'
+import { clone, DeepRequired } from '../core/utils'
 import { useState } from './state'
 
 export function useView<T, U = T>(
     props: { data: T },
     type: ProjectItemTypeOf<T>,
-    getter?: (v: Ref<T>, view: Ref<string[]>) => U
-): Ref<U> {
+    getter?: (v: Ref<T>, view: Ref<string[]>) => U,
+    onMissing?: (path: string[]) => unknown
+): Ref<DeepRequired<U>> {
     const { project, push, view } = useState()
 
     const v = toRef(bind(props), 'data')
@@ -16,26 +17,26 @@ export function useView<T, U = T>(
     function bind<T extends Record<string, unknown>>(
         data: T,
         path = [] as string[]
-    ) {
-        const output = {}
-        for (const key in data) {
-            const keyPath = [...path, key]
-            Object.defineProperty(output, key, {
-                get: () => {
-                    const value = data[key]
-                    return typeof value === 'object'
-                        ? bind(value as Record<string, unknown>, keyPath)
-                        : value
-                },
-                set: (value) => {
-                    const oldValue = data[key]
-                    if (oldValue === value) return
+    ): T {
+        return new Proxy(data, {
+            get(target, prop, receiver) {
+                const keyPath = [...path, prop as string]
 
-                    update(keyPath, value)
-                },
-            })
-        }
-        return output as T
+                const value = Reflect.get(target, prop, receiver)
+                if (value === undefined) return onMissing?.(keyPath)
+
+                return typeof value === 'object'
+                    ? bind(value as Record<string, unknown>, keyPath)
+                    : value
+            },
+            set(target, prop, value, receiver) {
+                const oldValue = Reflect.get(target, prop, receiver)
+                if (oldValue === value) return true
+
+                update([...path, prop as string], value)
+                return true
+            },
+        })
     }
 
     function update(path: string[], value: unknown) {
