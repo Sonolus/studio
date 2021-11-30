@@ -6,6 +6,7 @@ import MyField from '../ui/MyField.vue'
 import MyImageInput from '../ui/MyImageInput.vue'
 import MySection from '../ui/MySection.vue'
 import MyToggle from '../ui/MyToggle.vue'
+import PreviewSkinSprite from './previews/PreviewSkinSprite.vue'
 
 const props = defineProps<{
     data: Skin
@@ -71,5 +72,9 @@ const keys = ['x1', 'x2', 'x3', 'x4', 'y1', 'y2', 'y3', 'y4'] as const
                 </tr>
             </tbody>
         </table>
+    </MySection>
+
+    <MySection header="Preview">
+        <PreviewSkinSprite :data="v" />
     </MySection>
 </template>
