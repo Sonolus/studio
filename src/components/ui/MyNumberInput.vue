@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { useMounted } from '@vueuse/core'
+import { computed, ref, watchEffect } from 'vue'
 import { validate, Validator } from '../../core/validation'
 import IconKeyboard from '../../icons/keyboard-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
@@ -10,6 +11,7 @@ const props = defineProps<{
     placeholder: string
     validate?: boolean
     validator?: Validator<number>
+    autoFocus?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -19,6 +21,14 @@ const emit = defineEmits<{
 }>()
 
 const el = ref<HTMLInputElement>()
+const mounted = useMounted()
+watchEffect(() => {
+    if (!props.autoFocus) return
+    if (!el.value) return
+    if (!mounted.value) return
+
+    el.value.focus()
+})
 
 const value = computed({
     get: () => props.modelValue.toString(),

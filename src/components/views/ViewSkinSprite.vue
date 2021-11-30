@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { useModals } from '../../composables/modal'
 import { useView } from '../../composables/view'
 import { Skin } from '../../core/skin'
+import IconVectorSquare from '../../icons/vector-square-solid.svg?component'
+import ModalSimpleTransform from '../modals/ModalSimpleTransform.vue'
+import MyButton from '../ui/MyButton.vue'
 import MyCellNumberInput from '../ui/MyCellNumberInput.vue'
 import MyField from '../ui/MyField.vue'
 import MyImageInput from '../ui/MyImageInput.vue'
@@ -21,6 +25,15 @@ const v = useView(
 )
 
 const keys = ['x1', 'x2', 'x3', 'x4', 'y1', 'y2', 'y3', 'y4'] as const
+
+const { show } = useModals()
+
+async function onSetSimpleTransform() {
+    const transform = await show(ModalSimpleTransform, null)
+    if (!transform) return
+
+    v.value.transform = transform
+}
 </script>
 
 <template>
@@ -72,6 +85,13 @@ const keys = ['x1', 'x2', 'x3', 'x4', 'y1', 'y2', 'y3', 'y4'] as const
                 </tr>
             </tbody>
         </table>
+
+        <MyButton
+            class="mt-4 mx-auto"
+            :icon="IconVectorSquare"
+            text="Set Simple Transform"
+            @click="onSetSimpleTransform()"
+        />
     </MySection>
 
     <MySection header="Preview">
