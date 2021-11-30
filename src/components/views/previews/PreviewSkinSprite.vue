@@ -5,12 +5,13 @@ import {
     useMouseInElement,
     useMousePressed,
 } from '@vueuse/core'
+import { SkinDataExpression } from 'sonolus-core'
 import { computed, ref, watch, watchEffect } from 'vue'
 import { Skin } from '../../../core/skin'
 import MyColorInput from '../../ui/MyColorInput.vue'
 import MyField from '../../ui/MyField.vue'
 
-defineProps<{
+const props = defineProps<{
     data: Skin['data']['sprites'][number]
 }>()
 
@@ -34,13 +35,38 @@ const canvasWidth = computed(() => elementWidth.value * pixelRatio.value)
 const canvasHeight = computed(() => elementHeight.value * pixelRatio.value)
 
 type Point = [number, number]
+type Rect = [Point, Point, Point, Point]
 
-const rect = ref<[Point, Point, Point, Point]>([
+const rect = ref<Rect>([
     [-0.5, -0.5],
     [-0.5, 0.5],
     [0.5, 0.5],
     [0.5, -0.5],
 ])
+
+const rectTransformed = computed<Rect>(() => {
+    const { x1, x2, x3, x4, y1, y2, y3, y4 } = props.data.transform
+    return [
+        [t(x1), t(y1)],
+        [t(x2), t(y2)],
+        [t(x3), t(y3)],
+        [t(x4), t(y4)],
+    ]
+
+    function t(expression: SkinDataExpression) {
+        const [[x1, y1], [x2, y2], [x3, y3], [x4, y4]] = rect.value
+        return (
+            x1 * (expression.x1 || 0) +
+            x2 * (expression.x2 || 0) +
+            x3 * (expression.x3 || 0) +
+            x4 * (expression.x4 || 0) +
+            y1 * (expression.y1 || 0) +
+            y2 * (expression.y2 || 0) +
+            y3 * (expression.y3 || 0) +
+            y4 * (expression.y4 || 0)
+        )
+    }
+})
 
 const draggingIndex = ref<number>()
 const hoverIndex = computed(() => {
@@ -79,18 +105,8 @@ watchEffect(() => {
     ctx.setTransform(w / 2, 0, 0, -h / 2, w / 2, h / 2)
     ctx.clearRect(-1, -1, 2, 2)
 
-    const [[x1, y1], [x2, y2], [x3, y3], [x4, y4]] = rect.value
-
-    ctx.beginPath()
-    ctx.moveTo(x1, y1)
-    ctx.lineTo(x2, y2)
-    ctx.lineTo(x3, y3)
-    ctx.lineTo(x4, y4)
-    ctx.lineTo(x1, y1)
-    ctx.closePath()
-    ctx.lineWidth = 4 / w
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.125)'
-    ctx.stroke()
+    drawRect(ctx, rectTransformed.value, 'rgba(255, 255, 255, 0.03125)')
+    drawRect(ctx, rect.value, 'rgba(255, 255, 255, 0.125)')
 
     for (let i = 0; i < rect.value.length; i++) {
         const [x, y] = rect.value[i]
@@ -99,6 +115,25 @@ watchEffect(() => {
         ctx.closePath()
         ctx.fillStyle = getFillStyle(i)
         ctx.fill()
+    }
+
+    function drawRect(
+        ctx: CanvasRenderingContext2D,
+        rect: Rect,
+        color: string
+    ) {
+        const [[x1, y1], [x2, y2], [x3, y3], [x4, y4]] = rect
+
+        ctx.beginPath()
+        ctx.moveTo(x1, y1)
+        ctx.lineTo(x2, y2)
+        ctx.lineTo(x3, y3)
+        ctx.lineTo(x4, y4)
+        ctx.lineTo(x1, y1)
+        ctx.closePath()
+        ctx.lineWidth = 4 / w
+        ctx.strokeStyle = color
+        ctx.stroke()
     }
 
     function getFillStyle(index: number) {
