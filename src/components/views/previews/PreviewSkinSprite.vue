@@ -70,49 +70,45 @@ watchEffect(() => {
     rect.value[draggingIndex.value] = position.value
 })
 
-watchEffect(
-    () => {
-        const ctx = context.value
-        if (!ctx) return
+watchEffect(() => {
+    const ctx = context.value
+    if (!ctx) return
 
-        const w = canvasWidth.value
-        const h = canvasHeight.value
-        ctx.setTransform(w / 2, 0, 0, -h / 2, w / 2, h / 2)
-        ctx.clearRect(-1, -1, 2, 2)
+    const w = canvasWidth.value
+    const h = canvasHeight.value
+    ctx.setTransform(w / 2, 0, 0, -h / 2, w / 2, h / 2)
+    ctx.clearRect(-1, -1, 2, 2)
 
-        const [[x1, y1], [x2, y2], [x3, y3], [x4, y4]] = rect.value
+    const [[x1, y1], [x2, y2], [x3, y3], [x4, y4]] = rect.value
 
+    ctx.beginPath()
+    ctx.moveTo(x1, y1)
+    ctx.lineTo(x2, y2)
+    ctx.lineTo(x3, y3)
+    ctx.lineTo(x4, y4)
+    ctx.lineTo(x1, y1)
+    ctx.closePath()
+    ctx.lineWidth = 4 / w
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.125)'
+    ctx.stroke()
+
+    for (let i = 0; i < rect.value.length; i++) {
+        const [x, y] = rect.value[i]
         ctx.beginPath()
-        ctx.moveTo(x1, y1)
-        ctx.lineTo(x2, y2)
-        ctx.lineTo(x3, y3)
-        ctx.lineTo(x4, y4)
-        ctx.lineTo(x1, y1)
+        ctx.arc(x, y, 0.02, 0, 2 * Math.PI)
         ctx.closePath()
-        ctx.lineWidth = 4 / w
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.125)'
-        ctx.stroke()
+        ctx.fillStyle = getFillStyle(i)
+        ctx.fill()
+    }
 
-        for (let i = 0; i < rect.value.length; i++) {
-            const [x, y] = rect.value[i]
-            ctx.beginPath()
-            ctx.arc(x, y, 0.02, 0, 2 * Math.PI)
-            ctx.closePath()
-            ctx.fillStyle = getFillStyle(i)
-            ctx.fill()
-        }
+    function getFillStyle(index: number) {
+        if (draggingIndex.value === index) return 'rgba(255, 255, 255, 0.0625)'
+        if (draggingIndex.value === undefined && hoverIndex.value === index)
+            return 'rgba(255, 255, 255, 0.25)'
 
-        function getFillStyle(index: number) {
-            if (draggingIndex.value === index)
-                return 'rgba(255, 255, 255, 0.0625)'
-            if (draggingIndex.value === undefined && hoverIndex.value === index)
-                return 'rgba(255, 255, 255, 0.25)'
-
-            return 'rgba(255, 255, 255, 0.125)'
-        }
-    },
-    { flush: 'post' }
-)
+        return 'rgba(255, 255, 255, 0.125)'
+    }
+})
 </script>
 
 <template>
