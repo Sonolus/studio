@@ -138,8 +138,8 @@ watchEffect(() => {
     ctx.setTransform(w / 2, 0, 0, -h / 2, w / 2, h / 2)
     ctx.clearRect(-1, -1, 2, 2)
 
-    drawRect(ctx, rectTransformed.value, 'rgba(255, 255, 255, 0.03125)')
-    drawRect(ctx, rect.value, 'rgba(255, 255, 255, 0.125)')
+    drawRect(ctx, rectTransformed.value, 'rgba(255, 255, 255, 0.25)')
+    drawRect(ctx, rect.value, 'rgba(255, 255, 255, 0.5)')
 
     for (let i = 0; i < rect.value.length; i++) {
         const [x, y] = rect.value[i]
@@ -170,11 +170,11 @@ watchEffect(() => {
     }
 
     function getFillStyle(index: number) {
-        if (draggingIndex.value === index) return 'rgba(255, 255, 255, 0.0625)'
+        if (draggingIndex.value === index) return 'rgba(255, 255, 255, 0.75)'
         if (draggingIndex.value === undefined && hoverIndex.value === index)
-            return 'rgba(255, 255, 255, 0.25)'
+            return 'rgba(255, 255, 255, 1)'
 
-        return 'rgba(255, 255, 255, 0.125)'
+        return 'rgba(255, 255, 255, 0.5)'
     }
 })
 
@@ -275,13 +275,23 @@ function cross(a: Point, b: Point) {
             <canvas
                 ref="elBack"
                 class="absolute top-0 left-0 w-full h-full"
+                :class="{ 'opacity-50': draggingIndex !== undefined }"
                 :style="{ backgroundColor }"
                 :width="canvasWidth"
                 :height="canvasHeight"
             />
             <canvas
                 ref="elTop"
-                class="absolute top-0 left-0 w-full h-full select-none"
+                class="
+                    absolute
+                    top-0
+                    left-0
+                    w-full
+                    h-full
+                    opacity-50
+                    select-none
+                    hover:opacity-100
+                "
                 :style="{ touchAction: 'none' }"
                 :width="canvasWidth"
                 :height="canvasHeight"
