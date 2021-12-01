@@ -8,7 +8,7 @@ import {
 } from 'sonolus-core'
 import { UnpackProcess } from './project'
 import { load } from './storage'
-import { unpackJson } from './utils'
+import { getBlob, getImageInfo, unpackJson } from './utils'
 
 export type Skin = {
     title: string
@@ -104,7 +104,7 @@ export function unpackSkins(process: UnpackProcess) {
 }
 
 function unpackSkin(
-    { project, tasks, getRaw, getJson }: UnpackProcess,
+    { project, tasks, canvas, getRaw, getJson }: UnpackProcess,
     name: string
 ) {
     tasks.push({
@@ -120,12 +120,25 @@ function unpackSkin(
             item.author = details.item.author
             item.description = details.description
 
+            let img: HTMLImageElement
+
             tasks.push({
                 description: `Unpacking skin "${name}" thumbnail...`,
                 async execute() {
                     item.thumbnail = load(
                         await getRaw(details.item.thumbnail.url, 'image/png')
                     )
+                },
+            })
+
+            tasks.push({
+                description: `Unpacking skin "${name}" texture...`,
+                async execute() {
+                    const url = URL.createObjectURL(
+                        await getRaw(details.item.texture.url, 'image/png')
+                    )
+                    img = (await getImageInfo(url)).img
+                    URL.revokeObjectURL(url)
                 },
             })
 
@@ -138,9 +151,29 @@ function unpackSkin(
 
                     item.data.interpolation = data.interpolation
 
-                    data.sprites.forEach(({ id, transform }) => {
+                    data.sprites.forEach(({ id, x, y, w, h, transform }) => {
                         const sprite = newSkinSprite(id)
                         sprite.transform = transform
+
+                        tasks.push({
+                            description: `Unpacking skin "${name}" sprite ${formatSkinSpriteId(
+                                id
+                            )}...`,
+                            async execute() {
+                                if (!img)
+                                    throw 'Unexpected missing skin texture'
+
+                                const ctx = canvas.getContext('2d')
+                                if (!ctx)
+                                    throw 'Failed to obtain canvas context'
+
+                                canvas.width = w
+                                canvas.height = h
+                                ctx.drawImage(img, x, y, w, h, 0, 0, w, h)
+
+                                sprite.texture = load(await getBlob(canvas))
+                            },
+                        })
 
                         item.data.sprites.push(sprite)
                     })

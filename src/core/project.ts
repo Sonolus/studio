@@ -135,13 +135,15 @@ export type UnpackProcess = {
         execute: () => Promise<void>
     }[]
 
+    canvas: HTMLCanvasElement
+
     getRaw: (path: string, mime?: string) => Promise<Blob>
     getJson: <T>(path: string) => Promise<T>
 
     finish: () => Promise<void>
 }
 
-export function unpackPackage(file: File) {
+export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
     const zipReader = new zip.ZipReader(new zip.BlobReader(file))
     let entries: zip.Entry[] = []
 
@@ -149,6 +151,8 @@ export function unpackPackage(file: File) {
         project: newProject(),
 
         tasks: [],
+
+        canvas,
 
         async getRaw(path: string, mime?: string) {
             return await get(path, new zip.BlobWriter(mime))

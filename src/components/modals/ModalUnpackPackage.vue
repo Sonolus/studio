@@ -16,13 +16,18 @@ const emit = defineEmits<{
     (e: 'close', result?: Project): void
 }>()
 
+const el = ref<HTMLCanvasElement>()
 const description = ref<string>()
 const aborted = ref(false)
 
 const { show } = useModals()
 
 onMounted(async () => {
-    const { project, tasks, finish } = unpackPackage(props.data)
+    while (!el.value) {
+        await nextTick()
+    }
+
+    const { project, tasks, finish } = unpackPackage(props.data, el.value)
 
     try {
         for (let i = 0; i < tasks.length; i++) {
@@ -52,6 +57,8 @@ onUnmounted(() => (aborted.value = true))
 <template>
     <ModalBase :icon="IconSpinner" title="Unpacking Package">
         {{ description }}
+
+        <canvas ref="el" class="hidden" />
 
         <template #actions>
             <MyButton

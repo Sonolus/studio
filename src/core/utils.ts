@@ -79,6 +79,12 @@ export function getImageBuffer(
     }
 }
 
+export function getBlob(canvas: HTMLCanvasElement) {
+    return new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((blob) => (blob ? resolve(blob) : reject()), 'image/png')
+    })
+}
+
 export async function packRaw(url: string) {
     if (!url) throw 'Missing file'
     const buffer = await (await fetch(url)).arrayBuffer()
