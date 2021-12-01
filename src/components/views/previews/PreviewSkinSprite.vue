@@ -8,6 +8,7 @@ import {
 import { SkinDataExpression } from 'sonolus-core'
 import { computed, ref, watch, watchEffect } from 'vue'
 import { Skin } from '../../../core/skin'
+import { getImageInfo } from '../../../core/utils'
 import MyColorInput from '../../ui/MyColorInput.vue'
 import MyField from '../../ui/MyField.vue'
 
@@ -20,13 +21,16 @@ const backgroundColor = useLocalStorage(
     '#000'
 )
 
-const el = ref<HTMLCanvasElement>()
+const elBack = ref<HTMLCanvasElement>()
+const elTop = ref<HTMLCanvasElement>()
+const elBuffer = ref<HTMLCanvasElement>()
 const { elementX, elementY, elementWidth, elementHeight } =
-    useMouseInElement(el)
-const { pressed } = useMousePressed({ target: el })
+    useMouseInElement(elTop)
+const { pressed } = useMousePressed({ target: elTop })
 const { pixelRatio } = useDevicePixelRatio()
 
-const context = computed(() => el.value?.getContext('2d'))
+const ctxBack = computed(() => elBack.value?.getContext('2d'))
+const ctxTop = computed(() => elTop.value?.getContext('2d'))
 const position = computed<Point>(() => [
     (elementX.value * 2) / elementWidth.value - 1,
     1 - (elementY.value * 2) / elementHeight.value,
@@ -68,6 +72,35 @@ const rectTransformed = computed<Rect>(() => {
     }
 })
 
+const imageBuffer = ref<{
+    buffer: Uint8ClampedArray
+    width: number
+    height: number
+}>()
+
+watchEffect(async () => {
+    imageBuffer.value = undefined
+
+    try {
+        const { img, width, height } = await getImageInfo(props.data.texture)
+
+        if (!elBuffer.value) return
+        elBuffer.value.width = width
+        elBuffer.value.height = height
+        const ctxBuffer = elBuffer.value.getContext('2d')
+        if (!ctxBuffer) return
+
+        ctxBuffer.drawImage(img, 0, 0, width, height)
+        imageBuffer.value = {
+            buffer: ctxBuffer.getImageData(0, 0, width, height).data,
+            width,
+            height,
+        }
+    } catch (error) {
+        imageBuffer.value = undefined
+    }
+})
+
 const draggingIndex = ref<number>()
 const hoverIndex = computed(() => {
     const [tx, ty] = position.value
@@ -97,7 +130,7 @@ watchEffect(() => {
 })
 
 watchEffect(() => {
-    const ctx = context.value
+    const ctx = ctxTop.value
     if (!ctx) return
 
     const w = canvasWidth.value
@@ -144,6 +177,88 @@ watchEffect(() => {
         return 'rgba(255, 255, 255, 0.125)'
     }
 })
+
+watchEffect(() => {
+    if (draggingIndex.value !== undefined) return
+
+    const r = rectTransformed.value
+    const w = canvasWidth.value
+    const h = canvasHeight.value
+
+    const ctx = ctxBack.value
+    if (!ctx) return
+    ctx.clearRect(0, 0, w, h)
+
+    if (!imageBuffer.value) return
+    const { buffer, width, height } = imageBuffer.value
+
+    const imageData = ctx.getImageData(0, 0, w, h)
+    const data = imageData.data
+
+    for (let i = 0; i < w; i++) {
+        const x = ((i + 0.5) / w) * 2 - 1
+        for (let j = 0; j < h; j++) {
+            const y = (((j + 0.5) / w) * 2 - 1) * -1
+
+            const [u, v] = inverseBilinear([x, y], r)
+            if (u < 0 || v < 0 || u > 1 || v > 1) continue
+
+            const dIndex = (j * w + i) * 4
+            const bIndex =
+                (Math.round(v * height) * width + Math.round(u * width)) * 4
+
+            data[dIndex + 0] = buffer[bIndex + 0]
+            data[dIndex + 1] = buffer[bIndex + 1]
+            data[dIndex + 2] = buffer[bIndex + 2]
+            data[dIndex + 3] = buffer[bIndex + 3]
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0)
+
+    console.log('redraw')
+})
+
+function inverseBilinear(p: Point, [d, a, b, c]: Rect): Point {
+    const e = subtract(b, a)
+    const f = subtract(d, a)
+    const g = add(subtract(a, b), subtract(c, d))
+    const h = subtract(p, a)
+
+    const k2 = cross(g, f)
+    const k1 = cross(e, f) + cross(h, g)
+    const k0 = cross(h, e)
+
+    if (Math.abs(k2) < 0.001)
+        return [(h[0] * k1 + f[0] * k0) / (e[0] * k1 - g[0] * k0), -k0 / k1]
+
+    const w2 = k1 * k1 - 4 * k0 * k2
+    if (w2 < 0) return [-1, -1]
+    const w = Math.sqrt(w2)
+
+    const ik2 = 0.5 / k2
+    let v = (-k1 - w) * ik2
+    let u = (h[0] - f[0] * v) / (e[0] + g[0] * v)
+
+    if (u < 0 || u > 1 || v < 0 || v > 1) {
+        v = (-k1 + w) * ik2
+        u = (h[0] - f[0] * v) / (e[0] + g[0] * v)
+    }
+
+    return [u, v]
+}
+
+function add(a: Point, b: Point): Point {
+    return [a[0] + b[0], a[1] + b[1]]
+}
+
+function subtract(a: Point, b: Point): Point {
+    return [a[0] - b[0], a[1] - b[1]]
+}
+
+function cross(a: Point, b: Point) {
+    return a[0] * b[1] - a[1] * b[0]
+}
 </script>
 
 <template>
@@ -158,12 +273,21 @@ watchEffect(() => {
     <div class="max-w-sm mx-auto my-4 border-4 border-sonolus-ui-text-normal">
         <div class="relative h-0 pt-[100%] overflow-hidden">
             <canvas
-                ref="el"
+                ref="elBack"
+                class="absolute top-0 left-0 w-full h-full"
+                :style="{ backgroundColor }"
+                :width="canvasWidth"
+                :height="canvasHeight"
+            />
+            <canvas
+                ref="elTop"
                 class="absolute top-0 left-0 w-full h-full select-none"
-                :style="{ backgroundColor, touchAction: 'none' }"
+                :style="{ touchAction: 'none' }"
                 :width="canvasWidth"
                 :height="canvasHeight"
             />
         </div>
     </div>
+
+    <canvas ref="elBuffer" class="hidden" />
 </template>

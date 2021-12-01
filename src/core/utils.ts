@@ -18,7 +18,11 @@ export function clone<T>(data: T): T {
 }
 
 export function getImageInfo(src: string) {
-    return new Promise<{ width: number; height: number }>((resolve, reject) => {
+    return new Promise<{
+        img: HTMLImageElement
+        width: number
+        height: number
+    }>((resolve, reject) => {
         if (!src) {
             reject()
             return
@@ -27,6 +31,7 @@ export function getImageInfo(src: string) {
         const img = new Image()
         img.onload = () =>
             resolve({
+                img,
                 width: img.naturalWidth,
                 height: img.naturalHeight,
             })
