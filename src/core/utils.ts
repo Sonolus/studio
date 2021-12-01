@@ -57,6 +57,28 @@ export function getAudioInfo(src: string) {
     })
 }
 
+export function getImageBuffer(
+    {
+        img,
+        width,
+        height,
+    }: { img: HTMLImageElement; width: number; height: number },
+    canvas: HTMLCanvasElement
+) {
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+    if (!ctx) throw 'Failed to obtain canvas context'
+
+    ctx.drawImage(img, 0, 0, width, height)
+
+    return {
+        buffer: ctx.getImageData(0, 0, width, height).data,
+        width,
+        height,
+    }
+}
+
 export async function packRaw(url: string) {
     if (!url) throw 'Missing file'
     const buffer = await (await fetch(url)).arrayBuffer()

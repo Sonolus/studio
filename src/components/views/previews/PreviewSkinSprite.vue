@@ -9,7 +9,7 @@ import { SkinDataExpression } from 'sonolus-core'
 import { computed, ref, watch, watchEffect } from 'vue'
 import { inverseBilinear } from '../../../core/bilinear-interpolation'
 import { Skin } from '../../../core/skin'
-import { getImageInfo } from '../../../core/utils'
+import { getImageBuffer, getImageInfo } from '../../../core/utils'
 import MyColorInput from '../../ui/MyColorInput.vue'
 import MyField from '../../ui/MyField.vue'
 
@@ -83,20 +83,11 @@ watchEffect(async () => {
     imageBuffer.value = undefined
 
     try {
-        const { img, width, height } = await getImageInfo(props.data.texture)
+        const imageInfo = await getImageInfo(props.data.texture)
 
         if (!elBuffer.value) return
-        elBuffer.value.width = width
-        elBuffer.value.height = height
-        const ctxBuffer = elBuffer.value.getContext('2d')
-        if (!ctxBuffer) return
 
-        ctxBuffer.drawImage(img, 0, 0, width, height)
-        imageBuffer.value = {
-            buffer: ctxBuffer.getImageData(0, 0, width, height).data,
-            width,
-            height,
-        }
+        imageBuffer.value = getImageBuffer(imageInfo, elBuffer.value)
     } catch (error) {
         imageBuffer.value = undefined
     }
