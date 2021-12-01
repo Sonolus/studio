@@ -220,12 +220,14 @@ watchEffect(() => {
     </MyField>
 
     <div class="max-w-sm mx-auto my-4 border-4 border-sonolus-ui-text-normal">
-        <div class="relative h-0 pt-[100%] overflow-hidden">
+        <div
+            class="relative h-0 pt-[100%] overflow-hidden"
+            :style="{ backgroundColor }"
+        >
             <canvas
                 ref="elBack"
                 class="absolute top-0 left-0 w-full h-full"
                 :class="{ 'opacity-50': draggingIndex !== undefined }"
-                :style="{ backgroundColor }"
                 :width="canvasWidth"
                 :height="canvasHeight"
             />
