@@ -215,8 +215,6 @@ watchEffect(() => {
     }
 
     ctx.putImageData(imageData, 0, 0)
-
-    console.log('redraw')
 })
 
 function inverseBilinear(p: Point, [d, a, b, c]: Rect): Point {
