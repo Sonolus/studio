@@ -12,7 +12,7 @@ import {
     packEffects,
     unpackEffects,
 } from './effect'
-import { addSkinToWhitelist, Skin } from './skin'
+import { addSkinToWhitelist, Skin, unpackSkins } from './skin'
 
 zip.configure({
     useWebWorkers: false,
@@ -169,6 +169,7 @@ export function unpackPackage(file: File) {
         },
     })
 
+    unpackSkins(process)
     unpackBackgrounds(process)
     unpackEffects(process)
 

@@ -1,4 +1,14 @@
-import { SkinDataTransform, SkinSprite } from 'sonolus-core'
+import {
+    ItemDetails,
+    ItemList,
+    SkinData,
+    SkinDataTransform,
+    SkinItem,
+    SkinSprite,
+} from 'sonolus-core'
+import { UnpackProcess } from './project'
+import { load } from './storage'
+import { unpackJson } from './utils'
 
 export type Skin = {
     title: string
@@ -79,4 +89,65 @@ export function formatSkinSpriteId(id: number) {
 export function addSkinToWhitelist(skin: Skin, whitelist: Set<string>) {
     whitelist.add(skin.thumbnail)
     skin.data.sprites.forEach((s) => whitelist.add(s.texture))
+}
+
+export function unpackSkins(process: UnpackProcess) {
+    const { tasks, getJson } = process
+
+    tasks.push({
+        description: 'Loading /skins/list...',
+        async execute() {
+            const list = await getJson<ItemList<SkinItem>>('/skins/list')
+            list.items.forEach(({ name }) => unpackSkin(process, name))
+        },
+    })
+}
+
+function unpackSkin(
+    { project, tasks, getRaw, getJson }: UnpackProcess,
+    name: string
+) {
+    tasks.push({
+        description: `Loading /skins/${name}...`,
+        async execute() {
+            const details = await getJson<ItemDetails<SkinItem>>(
+                `/skins/${name}`
+            )
+
+            const item = newSkin()
+            item.title = details.item.title
+            item.subtitle = details.item.subtitle
+            item.author = details.item.author
+            item.description = details.description
+
+            tasks.push({
+                description: `Unpacking skin "${name}" thumbnail...`,
+                async execute() {
+                    item.thumbnail = load(
+                        await getRaw(details.item.thumbnail.url, 'image/png')
+                    )
+                },
+            })
+
+            tasks.push({
+                description: `Unpacking skin "${name}" data...`,
+                async execute() {
+                    const data = await unpackJson<SkinData>(
+                        await getRaw(details.item.data.url)
+                    )
+
+                    item.data.interpolation = data.interpolation
+
+                    data.sprites.forEach(({ id, transform }) => {
+                        const sprite = newSkinSprite(id)
+                        sprite.transform = transform
+
+                        item.data.sprites.push(sprite)
+                    })
+                },
+            })
+
+            project.skins.set(name, item)
+        },
+    })
 }
