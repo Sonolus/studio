@@ -59,13 +59,15 @@ export type PackProcess = {
         execute: () => Promise<void>
     }[]
 
+    canvas: HTMLCanvasElement
+
     addRaw: (path: string, data: Uint8Array) => Promise<void>
     addJson: <T>(path: string, data: T) => Promise<void>
 
     finish: () => Promise<Blob>
 }
 
-export function packProject(project: Project) {
+export function packProject(project: Project, canvas: HTMLCanvasElement) {
     const blobWriter = new zip.BlobWriter('application/zip')
     const zipWriter = new zip.ZipWriter(blobWriter)
     const paths = new Set<string>()
@@ -76,6 +78,8 @@ export function packProject(project: Project) {
         effects: [],
 
         tasks: [],
+
+        canvas,
 
         async addRaw(path, data) {
             await add(path, new zip.Uint8ArrayReader(data))

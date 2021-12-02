@@ -7,6 +7,7 @@ import {
     SkinSprite,
 } from 'sonolus-core'
 import { PackProcess, Project, UnpackProcess } from './project'
+import { bakeSprite, tryCalculateLayout } from './sprite-sheet'
 import { load } from './storage'
 import {
     getBlob,
@@ -103,7 +104,7 @@ export function packSkins(process: PackProcess, project: Project) {
 }
 
 function packSkin(
-    { skins, tasks, addRaw, addJson }: PackProcess,
+    { skins, tasks, canvas, addRaw, addJson }: PackProcess,
     name: string,
     skin: Skin
 ) {
@@ -137,6 +138,53 @@ function packSkin(
         interpolation: skin.data.interpolation,
         sprites: [],
     }
+
+    tasks.push({
+        description: `Packing skin "${name}" texture...`,
+        async execute() {
+            const { size, layouts } = await tryCalculateLayout(skin)
+
+            skinData.width = size
+            skinData.height = size
+
+            canvas.width = size
+            canvas.height = size
+
+            const ctx = canvas.getContext('2d')
+            if (!ctx) throw 'Failed to obtain canvas context'
+
+            ctx.clearRect(0, 0, size, size)
+
+            for (const { id, x, y, w, h } of layouts) {
+                const sprite = skin.data.sprites.find(
+                    (sprite) => sprite.id === id
+                )
+                if (!sprite) throw 'Unexpected missing sprite'
+
+                skinData.sprites.push({
+                    id,
+                    x: x + (sprite.padding.left ? 1 : 0),
+                    y: y + (sprite.padding.top ? 1 : 0),
+                    w,
+                    h,
+                    transform: sprite.transform,
+                })
+
+                await bakeSprite(sprite, x, y, w, h, ctx)
+            }
+
+            const texture = URL.createObjectURL(await getBlob(canvas))
+
+            const { hash, data } = await packRaw(texture)
+
+            const path = `/repository/SkinTexture/${hash}`
+            item.texture.hash = hash
+            item.texture.url = path
+            await addRaw(path, data)
+
+            URL.revokeObjectURL(texture)
+        },
+    })
 
     tasks.push({
         description: `Packing skin "${name}" data...`,
