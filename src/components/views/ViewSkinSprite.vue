@@ -95,6 +95,9 @@ async function onSetSimpleTransform() {
     </MySection>
 
     <MySection header="Preview">
-        <PreviewSkinSprite :data="v" />
+        <PreviewSkinSprite
+            :sprite="v"
+            :interpolation="data.data.interpolation"
+        />
     </MySection>
 </template>

@@ -15,7 +15,8 @@ import MyColorInput from '../../ui/MyColorInput.vue'
 import MyField from '../../ui/MyField.vue'
 
 const props = defineProps<{
-    data: Skin['data']['sprites'][number]
+    sprite: Skin['data']['sprites'][number]
+    interpolation: boolean
 }>()
 
 const backgroundColor = useLocalStorage(
@@ -51,7 +52,7 @@ const rect = ref<Rect>([
 ])
 
 const rectTransformed = computed<Rect>(() => {
-    const { x1, x2, x3, x4, y1, y2, y3, y4 } = props.data.transform
+    const { x1, x2, x3, x4, y1, y2, y3, y4 } = props.sprite.transform
     return [
         [t(x1), t(y1)],
         [t(x2), t(y2)],
@@ -84,7 +85,7 @@ watchEffect(async () => {
     imageBuffer.value = undefined
 
     try {
-        const imageInfo = await getImageInfo(props.data.texture)
+        const imageInfo = await getImageInfo(props.sprite.texture)
 
         if (!elBuffer.value) return
 
@@ -196,7 +197,14 @@ watchEffect(() => {
             const [u, v] = inverseBilinear([x, y], rect)
             if (u < 0 || v < 0 || u > 1 || v > 1) continue
 
-            const [r, g, b, a] = sample(buffer, width, height, u, v)
+            const [r, g, b, a] = sample(
+                buffer,
+                width,
+                height,
+                u,
+                v,
+                props.interpolation
+            )
 
             const dIndex = (j * w + i) * 4
             data[dIndex + 0] = r
