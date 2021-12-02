@@ -6,9 +6,16 @@ import {
     SkinItem,
     SkinSprite,
 } from 'sonolus-core'
-import { UnpackProcess } from './project'
+import { PackProcess, Project, UnpackProcess } from './project'
 import { load } from './storage'
-import { getBlob, getImageInfo, unpackJson } from './utils'
+import {
+    getBlob,
+    getImageInfo,
+    packJson,
+    packRaw,
+    srl,
+    unpackJson,
+} from './utils'
 
 export type Skin = {
     title: string
@@ -89,6 +96,70 @@ export function formatSkinSpriteId(id: number) {
 export function addSkinToWhitelist(skin: Skin, whitelist: Set<string>) {
     whitelist.add(skin.thumbnail)
     skin.data.sprites.forEach((s) => whitelist.add(s.texture))
+}
+
+export function packSkins(process: PackProcess, project: Project) {
+    project.skins.forEach((skin, name) => packSkin(process, name, skin))
+}
+
+function packSkin(
+    { skins, tasks, addRaw, addJson }: PackProcess,
+    name: string,
+    skin: Skin
+) {
+    const item: SkinItem = {
+        name,
+        version: 2,
+        title: skin.title,
+        subtitle: skin.subtitle,
+        author: skin.author,
+        thumbnail: srl('SkinThumbnail'),
+        data: srl('SkinData'),
+        texture: srl('SkinTexture'),
+    }
+    skins.push(item)
+
+    tasks.push({
+        description: `Packing skin "${name}" thumbnail...`,
+        async execute() {
+            const { hash, data } = await packRaw(skin.thumbnail)
+
+            const path = `/repository/SkinThumbnail/${hash}`
+            item.thumbnail.hash = hash
+            item.thumbnail.url = path
+            await addRaw(path, data)
+        },
+    })
+
+    const skinData: SkinData = {
+        width: 0,
+        height: 0,
+        interpolation: skin.data.interpolation,
+        sprites: [],
+    }
+
+    tasks.push({
+        description: `Packing skin "${name}" data...`,
+        async execute() {
+            const { hash, data } = await packJson(skinData)
+
+            const path = `/repository/SkinData/${hash}`
+            item.data.hash = hash
+            item.data.url = path
+            await addRaw(path, data)
+        },
+    })
+
+    tasks.push({
+        description: `Generating /skins/${name}`,
+        async execute() {
+            await addJson<ItemDetails<SkinItem>>(`/skins/${name}`, {
+                item,
+                description: skin.description,
+                recommended: [],
+            })
+        },
+    })
 }
 
 export function unpackSkins(process: UnpackProcess) {

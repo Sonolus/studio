@@ -1,5 +1,5 @@
 import * as zip from '@zip.js/zip.js'
-import { BackgroundItem, EffectItem, ItemList } from 'sonolus-core'
+import { BackgroundItem, EffectItem, ItemList, SkinItem } from 'sonolus-core'
 import {
     addBackgroundToWhitelist,
     Background,
@@ -12,7 +12,7 @@ import {
     packEffects,
     unpackEffects,
 } from './effect'
-import { addSkinToWhitelist, Skin, unpackSkins } from './skin'
+import { addSkinToWhitelist, packSkins, Skin, unpackSkins } from './skin'
 
 zip.configure({
     useWebWorkers: false,
@@ -50,6 +50,7 @@ export function addProjectToWhitelist(
 }
 
 export type PackProcess = {
+    skins: SkinItem[]
     backgrounds: BackgroundItem[]
     effects: EffectItem[]
 
@@ -70,6 +71,7 @@ export function packProject(project: Project) {
     const paths = new Set<string>()
 
     const process: PackProcess = {
+        skins: [],
         backgrounds: [],
         effects: [],
 
@@ -88,8 +90,19 @@ export function packProject(project: Project) {
         },
     }
 
+    packSkins(process, project)
     packBackgrounds(process, project)
     packEffects(process, project)
+
+    process.tasks.push({
+        description: 'Generating /skins/list...',
+        async execute() {
+            await process.addJson<ItemList<SkinItem>>('/skins/list', {
+                pageCount: 1,
+                items: process.skins,
+            })
+        },
+    })
 
     process.tasks.push({
         description: 'Generating /backgrounds/list...',
