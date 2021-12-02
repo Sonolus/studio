@@ -13,7 +13,7 @@ export async function tryCalculateLayout(skin: Skin) {
             size *= 2
         }
     }
-    throw 'Maximum size exceeded'
+    throw 'Maximum texture size (4096x4096) exceeded'
 }
 
 async function calculateLayout(skin: Skin, size: number) {
