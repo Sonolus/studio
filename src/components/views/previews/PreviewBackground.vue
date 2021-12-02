@@ -6,7 +6,7 @@ import MyField from '../../ui/MyField.vue'
 import MyTextSelect from '../../ui/MyTextSelect.vue'
 
 const props = defineProps<{
-    data: Background
+    background: Background
 }>()
 
 const aspectRatio = useLocalStorage('preview.background.aspectRatio', '16:9')
@@ -21,9 +21,9 @@ const aspectRatioValue = computed(
 )
 
 const width = computed(() => {
-    const inverse = props.data.data.aspectRatio / aspectRatioValue.value
-    const isLarger = props.data.data.aspectRatio >= aspectRatioValue.value
-    switch (props.data.data.fit) {
+    const inverse = props.background.data.aspectRatio / aspectRatioValue.value
+    const isLarger = props.background.data.aspectRatio >= aspectRatioValue.value
+    switch (props.background.data.fit) {
         case 'width':
             return 1
         case 'height':
@@ -40,7 +40,7 @@ const width = computed(() => {
 const el = ref<HTMLDivElement>()
 const { height } = useElementBounding(el)
 const blurRadius = computed(
-    () => height.value * props.data.configuration.blur * 0.1
+    () => height.value * props.background.configuration.blur * 0.1
 )
 </script>
 
@@ -63,7 +63,7 @@ const blurRadius = computed(
             ref="el"
             class="relative h-0 overflow-hidden"
             :style="{
-                backgroundColor: data.data.color,
+                backgroundColor: background.data.color,
                 paddingTop: `calc(100% / ${aspectRatioValue})`,
             }"
         >
@@ -80,19 +80,19 @@ const blurRadius = computed(
                         top-1/2
                     "
                     :style="{
-                        paddingTop: `calc(100% / ${data.data.aspectRatio})`,
+                        paddingTop: `calc(100% / ${background.data.aspectRatio})`,
                     }"
                 >
                     <img
                         class="absolute top-0 left-0 w-full h-full"
                         :style="{ filter: `blur(${blurRadius}px)` }"
-                        :src="data.image"
+                        :src="background.image"
                     />
                 </div>
             </div>
             <div
                 class="absolute top-0 left-0 w-full h-full"
-                :style="{ backgroundColor: data.configuration.mask }"
+                :style="{ backgroundColor: background.configuration.mask }"
             />
         </div>
     </div>

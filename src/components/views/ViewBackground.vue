@@ -128,6 +128,6 @@ watchEffect(async () => {
     </MySection>
 
     <MySection header="Preview">
-        <PreviewBackground :data="data" />
+        <PreviewBackground :background="data" />
     </MySection>
 </template>
