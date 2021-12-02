@@ -14,7 +14,7 @@ import IconList from '../../icons/list-solid.svg?component'
         "
     >
         <div class="text-2xl font-semibold">Sonolus Studio</div>
-        <div>Version 0.3.0</div>
+        <div>Version 0.4.0</div>
         <div class="text-xs">For Sonolus {{ version.sonolus }}</div>
         <div class="mt-16">
             Use
