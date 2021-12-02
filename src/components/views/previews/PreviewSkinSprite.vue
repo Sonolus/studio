@@ -8,6 +8,7 @@ import {
 import { SkinDataExpression } from 'sonolus-core'
 import { computed, ref, watch, watchEffect } from 'vue'
 import { inverseBilinear } from '../../../core/bilinear-interpolation'
+import { sample } from '../../../core/sampling'
 import { Skin } from '../../../core/skin'
 import { getImageBuffer, getImageInfo } from '../../../core/utils'
 import MyColorInput from '../../ui/MyColorInput.vue'
@@ -173,7 +174,7 @@ watchEffect(() => {
 watchEffect(() => {
     if (draggingIndex.value !== undefined) return
 
-    const r = rectTransformed.value
+    const rect = rectTransformed.value
     const w = canvasWidth.value
     const h = canvasHeight.value
 
@@ -192,17 +193,16 @@ watchEffect(() => {
         for (let j = 0; j < h; j++) {
             const y = (((j + 0.5) / w) * 2 - 1) * -1
 
-            const [u, v] = inverseBilinear([x, y], r)
+            const [u, v] = inverseBilinear([x, y], rect)
             if (u < 0 || v < 0 || u > 1 || v > 1) continue
 
-            const dIndex = (j * w + i) * 4
-            const bIndex =
-                (Math.floor(v * height) * width + Math.floor(u * width)) * 4
+            const [r, g, b, a] = sample(buffer, width, height, u, v)
 
-            data[dIndex + 0] = buffer[bIndex + 0]
-            data[dIndex + 1] = buffer[bIndex + 1]
-            data[dIndex + 2] = buffer[bIndex + 2]
-            data[dIndex + 3] = buffer[bIndex + 3]
+            const dIndex = (j * w + i) * 4
+            data[dIndex + 0] = r
+            data[dIndex + 1] = g
+            data[dIndex + 2] = b
+            data[dIndex + 3] = a
         }
     }
 
