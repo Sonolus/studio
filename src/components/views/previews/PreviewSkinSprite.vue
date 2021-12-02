@@ -197,7 +197,7 @@ watchEffect(() => {
 
             const dIndex = (j * w + i) * 4
             const bIndex =
-                (Math.round(v * height) * width + Math.round(u * width)) * 4
+                (Math.floor(v * height) * width + Math.floor(u * width)) * 4
 
             data[dIndex + 0] = buffer[bIndex + 0]
             data[dIndex + 1] = buffer[bIndex + 1]
