@@ -90,7 +90,7 @@ const tree = computed(() => {
         path: ['skins'],
         hasChildren: true,
         icon: IconDot,
-        title: 'Skins',
+        title: `Skins (${project.value.skins.size})`,
         onNew: () =>
             onNew('skins', 'New Skin', 'Enter skin name...', newSkin()),
         onDelete: () => onDeleteAll('skins'),
@@ -112,7 +112,7 @@ const tree = computed(() => {
                 path: ['skins', name, 'sprites'],
                 hasChildren: true,
                 icon: IconFolder,
-                title: 'Sprites',
+                title: `Sprites (${skin.data.sprites.length})`,
                 onNew: () => onNewSkinSprite(name),
                 onDelete: () => onDeleteSkinSprites(name),
             })
@@ -137,7 +137,7 @@ const tree = computed(() => {
         path: ['backgrounds'],
         hasChildren: true,
         icon: IconImage,
-        title: 'Backgrounds',
+        title: `Backgrounds (${project.value.backgrounds.size})`,
         onNew: () =>
             onNew(
                 'backgrounds',
@@ -165,7 +165,7 @@ const tree = computed(() => {
         path: ['effects'],
         hasChildren: true,
         icon: IconDrum,
-        title: 'Effects',
+        title: `Effects (${project.value.effects.size})`,
         onNew: () =>
             onNew('effects', 'New Effect', 'Enter effect name...', newEffect()),
         onDelete: () => onDeleteAll('effects'),
@@ -187,7 +187,7 @@ const tree = computed(() => {
                 path: ['effects', name, 'clips'],
                 hasChildren: true,
                 icon: IconFolder,
-                title: 'Clips',
+                title: `Clips (${effect.data.clips.length})`,
                 onNew: () => onNewEffectClip(name),
                 onDelete: () => onDeleteEffectClips(name),
             })
