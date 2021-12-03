@@ -75,24 +75,27 @@ const rectTransformed = computed<Rect>(() => {
     }
 })
 
-const imageBuffer = ref<{
-    buffer: Uint8ClampedArray
+const imageInfo = ref<{
+    img: HTMLImageElement
     width: number
     height: number
 }>()
 
 watchEffect(async () => {
-    imageBuffer.value = undefined
+    imageInfo.value = undefined
 
     try {
-        const imageInfo = await getImageInfo(props.sprite.texture)
-
-        if (!elBuffer.value) return
-
-        imageBuffer.value = getImageBuffer(imageInfo, elBuffer.value)
+        imageInfo.value = await getImageInfo(props.sprite.texture)
     } catch (error) {
-        imageBuffer.value = undefined
+        imageInfo.value = undefined
     }
+})
+
+const imageBuffer = computed(() => {
+    if (!imageInfo.value) return
+    if (!elBuffer.value) return
+
+    return getImageBuffer(imageInfo.value, elBuffer.value)
 })
 
 const draggingIndex = ref<number>()
