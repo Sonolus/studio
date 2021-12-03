@@ -6,7 +6,7 @@ import {
     useMousePressed,
 } from '@vueuse/core'
 import { SkinDataExpression } from 'sonolus-core'
-import { computed, ref, watch, watchEffect } from 'vue'
+import { computed, ref, watch, watchEffect, watchPostEffect } from 'vue'
 import { inverseBilinear } from '../../../core/bilinear-interpolation'
 import { sample } from '../../../core/sampling'
 import { Skin } from '../../../core/skin'
@@ -126,7 +126,7 @@ watchEffect(() => {
     rect.value[draggingIndex.value] = position.value
 })
 
-watchEffect(() => {
+watchPostEffect(() => {
     const ctx = ctxTop.value
     if (!ctx) return
 
@@ -175,7 +175,7 @@ watchEffect(() => {
     }
 })
 
-watchEffect(() => {
+watchPostEffect(() => {
     if (draggingIndex.value !== undefined) return
 
     const rect = rectTransformed.value
