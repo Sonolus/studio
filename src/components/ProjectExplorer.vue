@@ -311,7 +311,7 @@ async function onRename<T>(
         await show(ModalTextInput, {
             icon: markRaw(IconRename),
             title,
-            defaultValue: '',
+            defaultValue: oldName,
             placeholder,
             validator(name) {
                 name = name.trim()
@@ -333,8 +333,6 @@ async function onRename<T>(
         view: [],
         [type]: items,
     })
-
-    isExplorerOpened.value = false
 }
 
 async function onNewSkinSprite(name: string) {
