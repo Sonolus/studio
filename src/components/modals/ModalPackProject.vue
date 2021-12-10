@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
-import { useModals } from '../../composables/modal'
+import { show } from '../../composables/modal'
 import { packProject, Project } from '../../core/project'
 import IconSpinner from '../../icons/spinner-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
@@ -19,8 +19,6 @@ const emit = defineEmits<{
 const el = ref<HTMLCanvasElement>()
 const description = ref<string>()
 const aborted = ref(false)
-
-const { show } = useModals()
 
 onMounted(async () => {
     while (!el.value) {

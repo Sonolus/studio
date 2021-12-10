@@ -13,25 +13,24 @@ const modals = reactive<
     }[]
 >([])
 
-export function useModals() {
+export function useModal() {
     const modal = computed(() => modals[0])
-
-    function show<T, U>(component: ModalComponent<T, U>, data: T) {
-        return new Promise<U | undefined>((resolve) => {
-            const modal = {
-                component: markRaw(component),
-                data,
-                resolve(result?: unknown) {
-                    modals.splice(modals.indexOf(modal), 1)
-                    resolve(result as U)
-                },
-            }
-            modals.push(modal)
-        })
-    }
 
     return {
         modal,
-        show,
     }
+}
+
+export function show<T, U>(component: ModalComponent<T, U>, data: T) {
+    return new Promise<U | undefined>((resolve) => {
+        const modal = {
+            component: markRaw(component),
+            data,
+            resolve(result?: unknown) {
+                modals.splice(modals.indexOf(modal), 1)
+                resolve(result as U)
+            },
+        }
+        modals.push(modal)
+    })
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue'
-import { useModals } from '../../composables/modal'
+import { show } from '../../composables/modal'
 import { load } from '../../core/storage'
 import { getAudioInfo } from '../../core/utils'
 import { validate } from '../../core/validation'
@@ -55,8 +55,6 @@ function onFileInput() {
 
     emit('update:modelValue', load(file))
 }
-
-const { show } = useModals()
 
 function open() {
     show(ModalAudio, { src: props.modelValue })

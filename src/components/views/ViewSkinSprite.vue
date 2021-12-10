@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useModals } from '../../composables/modal'
+import { show } from '../../composables/modal'
 import { useView } from '../../composables/view'
 import { Skin } from '../../core/skin'
 import IconVectorSquare from '../../icons/vector-square-solid.svg?component'
@@ -25,8 +25,6 @@ const v = useView(
 )
 
 const keys = ['x1', 'x2', 'x3', 'x4', 'y1', 'y2', 'y3', 'y4'] as const
-
-const { show } = useModals()
 
 async function onSetSimpleTransform() {
     const transform = await show(ModalSimpleTransform, null)

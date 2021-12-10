@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useModals } from '../composables/modal'
+import { useModal } from '../composables/modal'
 
-const { modal } = useModals()
+const { modal } = useModal()
 </script>
 
 <template>

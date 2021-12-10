@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 import { computed, markRaw, reactive, watchEffect } from 'vue'
-import { useModals } from '../composables/modal'
+import { show } from '../composables/modal'
 import { useState } from '../composables/state'
 import { newBackground } from '../core/background'
 import { formatEffectClipId, newEffect, newEffectClip } from '../core/effect'
@@ -243,8 +243,6 @@ function onClick(item: { path: string[] }) {
     }
     toggleOpened(item.path)
 }
-
-const { show } = useModals()
 
 async function onNew<T>(
     type: ProjectItemTypeOf<T>,

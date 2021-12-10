@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { saveAs } from 'file-saver'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { useModals } from '../composables/modal'
+import { show, useModal } from '../composables/modal'
 import { useState } from '../composables/state'
 import { newProject } from '../core/project'
 import IconList from '../icons/list-solid.svg?component'
@@ -19,7 +19,7 @@ const {
     redo,
     isExplorerOpened,
 } = useState()
-const { modal, show } = useModals()
+const { modal } = useModal()
 
 function toggleExplorer() {
     isExplorerOpened.value = !isExplorerOpened.value
