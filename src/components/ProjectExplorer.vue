@@ -18,6 +18,7 @@ import IconFile from '../icons/file-solid.svg?component'
 import IconFolder from '../icons/folder-solid.svg?component'
 import IconImage from '../icons/image-solid.svg?component'
 import IconPlus from '../icons/plus-solid.svg?component'
+import IconRename from '../icons/edit-solid.svg?component'
 import IconTrash from '../icons/trash-alt-solid.svg?component'
 import ModalEffectClipId from './modals/ModalEffectClipId.vue'
 import ModalSkinSpriteId from './modals/ModalSkinSpriteId.vue'
@@ -82,6 +83,7 @@ const tree = computed(() => {
         title: string
 
         onNew?: () => void
+        onRename?: () => void
         onDelete: () => void
     }[] = []
 
@@ -103,6 +105,13 @@ const tree = computed(() => {
                 hasChildren: true,
                 icon: skin.thumbnail,
                 title: name,
+                onRename: () =>
+                    onRename(
+                        'skins',
+                        'Rename Skin',
+                        'Enter new skin name...',
+                        name
+                    ),
                 onDelete: () => onDelete('skins', name),
             })
 
@@ -155,6 +164,13 @@ const tree = computed(() => {
                 hasChildren: false,
                 icon: background.thumbnail,
                 title: name,
+                onRename: () =>
+                    onRename(
+                        'backgrounds',
+                        'Rename Background',
+                        'Enter new background name...',
+                        name
+                    ),
                 onDelete: () => onDelete('backgrounds', name),
             })
         })
@@ -178,6 +194,13 @@ const tree = computed(() => {
                 hasChildren: true,
                 icon: effect.thumbnail,
                 title: name,
+                onRename: () =>
+                    onRename(
+                        'effects',
+                        'Rename Effect',
+                        'Enter new effect name...',
+                        name
+                    ),
                 onDelete: () => onDelete('effects', name),
             })
 
@@ -270,6 +293,40 @@ function onDeleteAll<T>(type: ProjectItemTypeOf<T>) {
 function onDelete<T>(type: ProjectItemTypeOf<T>, name: string) {
     const items = new Map(project.value[type] as never)
     items.delete(name)
+
+    push({
+        ...project.value,
+        view: [],
+        [type]: items,
+    })
+}
+
+async function onRename<T>(
+    type: ProjectItemTypeOf<T>,
+    title: string,
+    placeholder: string,
+    oldName: string
+) {
+    const newName = (
+        await show(ModalTextInput, {
+            icon: markRaw(IconRename),
+            title,
+            defaultValue: oldName,
+            placeholder,
+            validator(name) {
+                name = name.trim()
+                if (!name.length) return false
+                if (project.value[type].has(name)) return false
+                return true
+            },
+        })
+    )?.trim()
+    if (!newName) return
+
+    const items = new Map(project.value[type] as never)
+    const oldItem = items.get(oldName)
+    items.delete(oldName)
+    items.set(newName, oldItem as never)
 
     push({
         ...project.value,
@@ -486,6 +543,21 @@ async function onDeleteEffectClip(name: string, id: number) {
                 @click.stop="item.onNew?.()"
             >
                 <IconPlus class="icon" />
+            </button>
+            <button
+                v-if="item.onRename"
+                class="
+                    flex-none
+                    h-full
+                    px-2
+                    transition-opacity
+                    duration-200
+                    sm:opacity-0
+                    group-hover:opacity-100
+                "
+                @click.stop="item.onRename?.()"
+            >
+                <IconRename class="icon" />
             </button>
             <button
                 class="
