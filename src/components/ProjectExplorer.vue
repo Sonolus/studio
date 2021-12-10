@@ -12,13 +12,13 @@ import IconAngleDown from '../icons/angle-down-solid.svg?component'
 import IconAngleRight from '../icons/angle-right-solid.svg?component'
 import IconDot from '../icons/dot-circle-regular.svg?component'
 import IconDrum from '../icons/drum-solid.svg?component'
+import IconEdit from '../icons/edit-solid.svg?component'
 import IconFileAudio from '../icons/file-audio-solid.svg?component'
 import IconFileImage from '../icons/file-image-solid.svg?component'
 import IconFile from '../icons/file-solid.svg?component'
 import IconFolder from '../icons/folder-solid.svg?component'
 import IconImage from '../icons/image-solid.svg?component'
 import IconPlus from '../icons/plus-solid.svg?component'
-import IconRename from '../icons/edit-solid.svg?component'
 import IconTrash from '../icons/trash-alt-solid.svg?component'
 import ModalEffectClipId from './modals/ModalEffectClipId.vue'
 import ModalSkinSpriteId from './modals/ModalSkinSpriteId.vue'
@@ -309,7 +309,7 @@ async function onRename<T>(
 ) {
     const newName = (
         await show(ModalTextInput, {
-            icon: markRaw(IconRename),
+            icon: markRaw(IconEdit),
             title,
             defaultValue: oldName,
             placeholder,
@@ -557,7 +557,7 @@ async function onDeleteEffectClip(name: string, id: number) {
                 "
                 @click.stop="item.onRename?.()"
             >
-                <IconRename class="icon" />
+                <IconEdit class="icon" />
             </button>
             <button
                 class="
