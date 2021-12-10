@@ -68,6 +68,7 @@ export function addSkinItems(state: UseStateReturn, items: ExplorerItem[]) {
                 icon: texture,
                 fallback: IconFileImage,
                 title: formatSkinSpriteId(id),
+                onRename: () => onRenameSkinSprite(state, name, id),
                 onDelete: () => onDeleteSkinSprite(state, name, id),
             })
         })
@@ -141,6 +142,55 @@ async function onDeleteSkinSprite(
     push({
         ...project.value,
         view: [],
+        skins,
+    })
+}
+
+async function onRenameSkinSprite(
+    { project, view }: UseStateReturn,
+    name: string,
+    oldId: number
+) {
+    const skin = project.value.skins.get(name)
+    if (!skin) throw 'Skin not found'
+
+    const sprite = skin.data.sprites.find(({ id }) => id === oldId)
+    if (!sprite) throw 'Skin Sprite not found'
+
+    const newId = await show(ModalSkinSpriteId, {
+        icon: markRaw(IconPlus),
+        title: 'Rename Skin Sprite',
+        defaultValue: oldId,
+        validator: (value) => !skin.data.sprites.some(({ id }) => id === value),
+    })
+    if (newId === undefined) return
+
+    const newSprite = clone(sprite)
+    newSprite.id = newId
+
+    const newSkin = clone(skin)
+    newSkin.data.sprites = newSkin.data.sprites.map((sprite) =>
+        sprite.id === oldId ? newSprite : sprite
+    )
+
+    const skins = new Map(project.value.skins)
+    skins.set(name, newSkin)
+
+    push({
+        ...project.value,
+        view:
+            view.value[0] === 'skins' &&
+            view.value[1] === name &&
+            view.value[2] === 'sprites' &&
+            view.value[3] === oldId.toString()
+                ? [
+                      'skins',
+                      name,
+                      'sprites',
+                      newId.toString(),
+                      ...view.value.slice(4),
+                  ]
+                : view.value,
         skins,
     })
 }

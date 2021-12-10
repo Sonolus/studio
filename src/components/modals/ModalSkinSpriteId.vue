@@ -52,6 +52,24 @@ const value = computed(() => {
 const isError = computed(() => !props.data.validator(value.value))
 const validator = () => !isError.value
 
+initDefaultValue()
+
+function initDefaultValue() {
+    const id = props.data.defaultValue
+
+    if (SkinSprite[id]) {
+        type.value = 'general'
+        generalSpriteId.value = id
+    } else if (id >= 100000 && id < 200000) {
+        type.value = 'engine'
+        engineId.value = Math.floor(id / 100 - 1000)
+        engineSpriteId.value = id % 100
+    } else {
+        type.value = 'custom'
+        customId.value = id
+    }
+}
+
 function close(isSuccess?: boolean) {
     emit('close', isSuccess ? value.value : undefined)
 }
