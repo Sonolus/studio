@@ -2,6 +2,8 @@ import { computed, reactive, toRef, watchEffect } from 'vue'
 import { addProjectToWhitelist, newProject, Project } from '../core/project'
 import { purge } from '../core/storage'
 
+export type UseStateReturn = ReturnType<typeof useState>
+
 const state = reactive({
     index: 0,
     history: [newProject()],

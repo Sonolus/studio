@@ -1,4 +1,3 @@
-import { Ref } from 'vue'
 import {
     ExplorerItem,
     isOpened,
@@ -8,34 +7,32 @@ import {
     onRename,
 } from '.'
 import { newBackground } from '../../core/background'
-import { Project } from '../../core/project'
 import IconImage from '../../icons/image-solid.svg?component'
+import { UseStateReturn } from '../state'
 
 export function addBackgroundItems(
-    items: ExplorerItem[],
-    project: Project,
-    isExplorerOpened: Ref<boolean>
+    state: UseStateReturn,
+    items: ExplorerItem[]
 ) {
     items.push({
         level: 0,
         path: ['backgrounds'],
         hasChildren: true,
         icon: IconImage,
-        title: `Backgrounds (${project.backgrounds.size})`,
+        title: `Backgrounds (${state.project.value.backgrounds.size})`,
         onNew: () =>
             onNew(
-                project,
-                isExplorerOpened,
+                state,
                 'backgrounds',
                 'New Background',
                 'Enter background name...',
                 newBackground()
             ),
-        onDelete: () => onDeleteAll(project, 'backgrounds'),
+        onDelete: () => onDeleteAll(state, 'backgrounds'),
     })
 
     if (!isOpened(['backgrounds'])) return
-    project.backgrounds.forEach((background, name) => {
+    state.project.value.backgrounds.forEach((background, name) => {
         items.push({
             level: 1,
             path: ['backgrounds', name],
@@ -44,13 +41,13 @@ export function addBackgroundItems(
             title: name,
             onRename: () =>
                 onRename(
-                    project,
+                    state,
                     'backgrounds',
                     'Rename Background',
                     'Enter new background name...',
                     name
                 ),
-            onDelete: () => onDelete(project, 'backgrounds', name),
+            onDelete: () => onDelete(state, 'backgrounds', name),
         })
     })
 }

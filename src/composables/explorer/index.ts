@@ -1,10 +1,10 @@
-import { Component, computed, markRaw, reactive, Ref } from 'vue'
+import { Component, computed, markRaw, reactive } from 'vue'
 import ModalTextInput from '../../components/modals/ModalTextInput.vue'
-import { Project, ProjectItemTypeOf } from '../../core/project'
+import { ProjectItemTypeOf } from '../../core/project'
 import IconEdit from '../../icons/edit-solid.svg?component'
 import IconPlus from '../../icons/plus-solid.svg?component'
 import { show } from '../modal'
-import { push, useState } from '../state'
+import { push, useState, UseStateReturn } from '../state'
 import { addBackgroundItems } from './backgrounds'
 import { addEffectItems } from './effects'
 import { addSkinItems } from './skins'
@@ -26,14 +26,14 @@ export type ExplorerItem = {
 const openedPaths = reactive(new Map<string, true>())
 
 export function useExplorer() {
-    const { project, isExplorerOpened } = useState()
+    const state = useState()
 
     const tree = computed(() => {
         const items: ExplorerItem[] = []
 
-        addSkinItems(items, project.value, isExplorerOpened)
-        addBackgroundItems(items, project.value, isExplorerOpened)
-        addEffectItems(items, project.value, isExplorerOpened)
+        addSkinItems(state, items)
+        addBackgroundItems(state, items)
+        addEffectItems(state, items)
 
         return items
     })
@@ -69,8 +69,7 @@ export function toggle(path: string[]) {
 }
 
 export async function onNew<T>(
-    project: Project,
-    isExplorerOpened: Ref<boolean>,
+    { project, isExplorerOpened }: UseStateReturn,
     type: ProjectItemTypeOf<T>,
     title: string,
     placeholder: string,
@@ -85,18 +84,18 @@ export async function onNew<T>(
             validator(name) {
                 name = name.trim()
                 if (!name.length) return false
-                if (project[type].has(name)) return false
+                if (project.value[type].has(name)) return false
                 return true
             },
         })
     )?.trim()
     if (!name) return
 
-    const items = new Map(project[type] as never)
+    const items = new Map(project.value[type] as never)
     items.set(name, value as never)
 
     push({
-        ...project,
+        ...project.value,
         view: [type, name],
         [type]: items,
     })
@@ -104,33 +103,36 @@ export async function onNew<T>(
     isExplorerOpened.value = false
 }
 
-export function onDeleteAll<T>(project: Project, type: ProjectItemTypeOf<T>) {
-    if (!project[type].size) return
+export function onDeleteAll<T>(
+    { project }: UseStateReturn,
+    type: ProjectItemTypeOf<T>
+) {
+    if (!project.value[type].size) return
 
     push({
-        ...project,
+        ...project.value,
         view: [],
         [type]: new Map(),
     })
 }
 
 export function onDelete<T>(
-    project: Project,
+    { project }: UseStateReturn,
     type: ProjectItemTypeOf<T>,
     name: string
 ) {
-    const items = new Map(project[type] as never)
+    const items = new Map(project.value[type] as never)
     items.delete(name)
 
     push({
-        ...project,
+        ...project.value,
         view: [],
         [type]: items,
     })
 }
 
 export async function onRename<T>(
-    project: Project,
+    { project }: UseStateReturn,
     type: ProjectItemTypeOf<T>,
     title: string,
     placeholder: string,
@@ -145,20 +147,20 @@ export async function onRename<T>(
             validator(name) {
                 name = name.trim()
                 if (!name.length) return false
-                if (project[type].has(name)) return false
+                if (project.value[type].has(name)) return false
                 return true
             },
         })
     )?.trim()
     if (!newName) return
 
-    const items = new Map(project[type] as never)
+    const items = new Map(project.value[type] as never)
     const oldItem = items.get(oldName)
     items.delete(oldName)
     items.set(newName, oldItem as never)
 
     push({
-        ...project,
+        ...project.value,
         view: [],
         [type]: items,
     })
