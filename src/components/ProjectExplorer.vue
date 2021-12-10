@@ -2,7 +2,7 @@
 import type { Component } from 'vue'
 import { computed, markRaw, reactive, watchEffect } from 'vue'
 import { show } from '../composables/modal'
-import { useState } from '../composables/state'
+import { push, useState } from '../composables/state'
 import { newBackground } from '../core/background'
 import { formatEffectClipId, newEffect, newEffectClip } from '../core/effect'
 import { ProjectItemTypeOf } from '../core/project'
@@ -26,7 +26,7 @@ import ModalTextInput from './modals/ModalTextInput.vue'
 import MyImageIcon from './ui/MyImageIcon.vue'
 import { resolveViewInfo } from './ViewManager.vue'
 
-const { project, push, view, isExplorerOpened } = useState()
+const { project, view, isExplorerOpened } = useState()
 
 watchEffect(() => {
     if (!resolveViewInfo(project.value, view.value)) return

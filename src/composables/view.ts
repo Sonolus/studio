@@ -1,7 +1,7 @@
 import { computed, Ref, toRef } from 'vue'
 import { ProjectItemTypeOf } from '../core/project'
 import { clone, DeepRequired } from '../core/utils'
-import { useState } from './state'
+import { push, useState } from './state'
 
 export function useView<T, U = T>(
     props: { data: T },
@@ -9,7 +9,7 @@ export function useView<T, U = T>(
     getter?: (v: Ref<T>, view: Ref<string[]>) => U,
     onMissing?: (path: string[]) => unknown
 ): Ref<DeepRequired<U>> {
-    const { project, push, view } = useState()
+    const { project, view } = useState()
 
     const v = toRef(bind(props), 'data')
     return getter ? computed(() => getter(v, view)) : v

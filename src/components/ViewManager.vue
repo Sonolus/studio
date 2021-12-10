@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, markRaw, watch } from 'vue'
-import { useState } from '../composables/state'
+import { clearUpdater, useState } from '../composables/state'
 import { hasEffectClip } from '../core/effect'
 import { Project } from '../core/project'
 import { hasSkinSprite } from '../core/skin'
@@ -11,7 +11,7 @@ import ViewEffectClip from './views/ViewEffectClip.vue'
 import ViewSkin from './views/ViewSkin.vue'
 import ViewSkinSprite from './views/ViewSkinSprite.vue'
 
-const { project, clearUpdater, view } = useState()
+const { project, view } = useState()
 
 watch(view, () => {
     clearUpdater()

@@ -2,23 +2,14 @@
 import { saveAs } from 'file-saver'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { show, useModal } from '../composables/modal'
-import { useState } from '../composables/state'
+import { push, redo, replace, undo, useState } from '../composables/state'
 import { newProject } from '../core/project'
 import IconList from '../icons/list-solid.svg?component'
 import ModalConfirmation from './modals/ModalConfirmation.vue'
 import ModalPackProject from './modals/ModalPackProject.vue'
 import ModalUnpackPackage from './modals/ModalUnpackPackage.vue'
 
-const {
-    project,
-    push,
-    replace,
-    canUndo,
-    canRedo,
-    undo,
-    redo,
-    isExplorerOpened,
-} = useState()
+const { project, canUndo, canRedo, isExplorerOpened } = useState()
 const { modal } = useModal()
 
 function toggleExplorer() {
