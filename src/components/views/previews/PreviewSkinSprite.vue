@@ -227,6 +227,7 @@ watchPostEffect(() => {
             v-model="backgroundColor"
             default-value="#000"
             placeholder="Enter preview background color..."
+            validate
         />
     </MyField>
 
