@@ -48,6 +48,5 @@
 
 .reset {
     @apply rounded-none;
-    @apply outline-none;
     @apply appearance-none;
 }

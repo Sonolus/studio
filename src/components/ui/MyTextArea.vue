@@ -40,6 +40,7 @@ const isError = computed(() => !validate(props, (value) => !!value.length))
             w-full
             p-2
             overflow-y-scroll
+            outline-none
             resize-none
             reset
             clickable

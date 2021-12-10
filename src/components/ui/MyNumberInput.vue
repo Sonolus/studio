@@ -65,6 +65,7 @@ function reset() {
                 pl-8
                 pr-2
                 text-center
+                outline-none
                 reset
                 clickable
             "
