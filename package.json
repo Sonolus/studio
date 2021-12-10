@@ -9,7 +9,7 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "@vueuse/core": "^7.1.1",
+    "@vueuse/core": "^7.2.2",
     "@zip.js/zip.js": "^2.3.19",
     "file-saver": "^2.0.5",
     "pako": "^2.0.4",
