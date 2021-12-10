@@ -132,7 +132,7 @@ export function onDelete<T>(
 }
 
 export async function onRename<T>(
-    { project }: UseStateReturn,
+    { project, view }: UseStateReturn,
     type: ProjectItemTypeOf<T>,
     title: string,
     placeholder: string,
@@ -161,7 +161,10 @@ export async function onRename<T>(
 
     push({
         ...project.value,
-        view: [],
+        view:
+            view.value[0] === type && view.value[1] === oldName
+                ? [type, newName, ...view.value.slice(2)]
+                : view.value,
         [type]: items,
     })
 }
