@@ -27,6 +27,7 @@ export function useState() {
     const project = computed(() => state.history[state.index])
     const canUndo = computed(() => state.index > 0)
     const canRedo = computed(() => state.index < state.history.length - 1)
+    const isModified = computed(() => state.history.length > 1)
 
     const view = toRef(state, 'view')
     const isExplorerOpened = toRef(state, 'isExplorerOpened')
@@ -35,6 +36,7 @@ export function useState() {
         project,
         canUndo,
         canRedo,
+        isModified,
 
         view,
         isExplorerOpened,

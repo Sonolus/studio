@@ -9,7 +9,7 @@ import ModalConfirmation from './modals/ModalConfirmation.vue'
 import ModalPackProject from './modals/ModalPackProject.vue'
 import ModalUnpackPackage from './modals/ModalUnpackPackage.vue'
 
-const { project, canUndo, canRedo, isExplorerOpened } = useState()
+const { project, canUndo, canRedo, isModified, isExplorerOpened } = useState()
 const { modal } = useModal()
 
 function toggleExplorer() {
@@ -69,11 +69,13 @@ const menus = computed(() => [
 ])
 
 async function onNewProject() {
-    const result = await show(ModalConfirmation, {
-        message:
-            'Creating a new project will cause current project to be closed. Continue?',
-    })
-    if (!result) return
+    if (isModified.value) {
+        const result = await show(ModalConfirmation, {
+            message:
+                'Creating a new project will cause current project to be closed. Continue?',
+        })
+        if (!result) return
+    }
 
     replace(newProject())
 }
@@ -100,11 +102,13 @@ function selectFile(callback: (file: File) => void) {
 }
 
 async function onOpenProject() {
-    const result = await show(ModalConfirmation, {
-        message:
-            'Opening a project will cause current project to be closed. Continue?',
-    })
-    if (!result) return
+    if (isModified.value) {
+        const result = await show(ModalConfirmation, {
+            message:
+                'Opening a project will cause current project to be closed. Continue?',
+        })
+        if (!result) return
+    }
 
     selectFile(async (file) => {
         const selectedProject = await show(ModalUnpackPackage, file)
