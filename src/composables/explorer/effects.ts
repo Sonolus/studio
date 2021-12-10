@@ -1,3 +1,4 @@
+import { EffectClip } from 'sonolus-core'
 import { markRaw } from 'vue'
 import {
     ExplorerItem,
@@ -73,6 +74,7 @@ export function addEffectItems(state: UseStateReturn, items: ExplorerItem[]) {
                 hasChildren: false,
                 icon: IconFileAudio,
                 title: formatEffectClipId(id),
+                onRename: () => onRenameEffectClip(state, name, id),
                 onDelete: () => onDeleteEffectClip(state, name, id),
             })
         })
@@ -89,7 +91,7 @@ async function onNewEffectClip(
     const id = await show(ModalEffectClipId, {
         icon: markRaw(IconPlus),
         title: 'New Effect Clip',
-        defaultValue: 0,
+        defaultValue: EffectClip.Miss,
         validator: (value) => !effect.data.clips.some(({ id }) => id === value),
     })
     if (id === undefined) return
@@ -144,6 +146,55 @@ async function onDeleteEffectClip(
     push({
         ...project.value,
         view: [],
+        effects,
+    })
+}
+
+async function onRenameEffectClip(
+    { project, view }: UseStateReturn,
+    name: string,
+    oldId: number
+) {
+    const effect = project.value.effects.get(name)
+    if (!effect) throw 'Effect not found'
+
+    const clip = effect.data.clips.find(({ id }) => id === oldId)
+    if (!clip) throw 'Effect clip not found'
+
+    const newId = await show(ModalEffectClipId, {
+        icon: markRaw(IconPlus),
+        title: 'Rename Effect Clip',
+        defaultValue: oldId,
+        validator: (value) => !effect.data.clips.some(({ id }) => id === value),
+    })
+    if (newId === undefined) return
+
+    const newClip = clone(clip)
+    newClip.id = newId
+
+    const newEffect = clone(effect)
+    newEffect.data.clips = newEffect.data.clips.map((clip) =>
+        clip.id === oldId ? newClip : clip
+    )
+
+    const effects = new Map(project.value.effects)
+    effects.set(name, newEffect)
+
+    push({
+        ...project.value,
+        view:
+            view.value[0] === 'effects' &&
+            view.value[1] === name &&
+            view.value[2] === 'clips' &&
+            view.value[3] === oldId.toString()
+                ? [
+                      'effects',
+                      name,
+                      'clips',
+                      newId.toString(),
+                      ...view.value.slice(4),
+                  ]
+                : view.value,
         effects,
     })
 }
