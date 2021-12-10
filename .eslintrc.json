@@ -19,7 +19,8 @@
     ],
     "globals": {
         "defineProps": "readonly",
-        "defineEmits": "readonly"
+        "defineEmits": "readonly",
+        "VITE_APP_VERSION": "readonly"
     },
     "rules": {
         "prettier/prettier": "error"

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { version } from 'sonolus-core'
 import IconList from '../../icons/list-solid.svg?component'
+
+const appVersion = VITE_APP_VERSION
 </script>
 
 <template>
@@ -14,7 +16,7 @@ import IconList from '../../icons/list-solid.svg?component'
         "
     >
         <div class="text-2xl font-semibold">Sonolus Studio</div>
-        <div>Version 0.4.1</div>
+        <div>Version {{ appVersion }}</div>
         <div class="text-xs">For Sonolus {{ version.sonolus }}</div>
         <div class="mt-16">
             Use
