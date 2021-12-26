@@ -13,7 +13,7 @@
     "@zip.js/zip.js": "^2.3.19",
     "file-saver": "^2.0.5",
     "pako": "^2.0.4",
-    "sonolus-core": "^0.2.1",
+    "sonolus-core": "^0.2.2",
     "vue": "^3.2.16"
   },
   "devDependencies": {
