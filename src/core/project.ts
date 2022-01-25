@@ -156,6 +156,7 @@ export type UnpackProcess = {
 
     getRaw: (path: string, mime?: string) => Promise<Blob>
     getJson: <T>(path: string) => Promise<T>
+    getJsonOptional: <T>(path: string) => Promise<T | undefined>
 
     finish: () => Promise<void>
 }
@@ -177,6 +178,11 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
         async getJson(path: string) {
             return JSON.parse(await get(path, new zip.TextWriter()))
         },
+        async getJsonOptional(path: string) {
+            const data = await getOptional(path, new zip.TextWriter())
+            if (data === undefined) return
+            return JSON.parse(data)
+        },
 
         async finish() {
             await zipReader.close()
@@ -196,12 +202,20 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
 
     return process
 
-    function get(path: string, writer: zip.Writer) {
+    async function getOptional(path: string, writer: zip.Writer) {
         if (!path.startsWith('/')) throw `"${path}" not allowed`
-        const entry = entries.find((entry) => entry.filename === path.slice(1))
-        if (!entry) throw `"${path}" not found`
-        if (!entry.getData) throw 'Unexpected missing entry.getData'
 
-        return entry.getData(writer)
+        const entry = entries.find((entry) => entry.filename === path.slice(1))
+        if (!entry) return
+
+        if (!entry.getData) throw 'Unexpected missing entry.getData'
+        return await entry.getData(writer)
+    }
+
+    async function get(path: string, writer: zip.Writer) {
+        const data = await getOptional(path, writer)
+
+        if (data === undefined) throw `"${path}" not found`
+        return data
     }
 }

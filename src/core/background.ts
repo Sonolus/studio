@@ -133,14 +133,16 @@ function packBackground(
 }
 
 export function unpackBackgrounds(process: UnpackProcess) {
-    const { tasks, getJson } = process
+    const { tasks, getJsonOptional } = process
 
     tasks.push({
         description: 'Loading /backgrounds/list...',
         async execute() {
-            const list = await getJson<ItemList<BackgroundItem>>(
+            const list = await getJsonOptional<ItemList<BackgroundItem>>(
                 '/backgrounds/list'
             )
+            if (!list) return
+
             list.items.forEach(({ name }) => unpackBackground(process, name))
         },
     })

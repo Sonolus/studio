@@ -147,12 +147,16 @@ function packEffect(
 }
 
 export function unpackEffects(process: UnpackProcess) {
-    const { tasks, getJson } = process
+    const { tasks, getJsonOptional } = process
 
     tasks.push({
         description: 'Loading /effects/list...',
         async execute() {
-            const list = await getJson<ItemList<EffectItem>>('/effects/list')
+            const list = await getJsonOptional<ItemList<EffectItem>>(
+                '/effects/list'
+            )
+            if (!list) return
+
             list.items.forEach(({ name }) => unpackEffect(process, name))
         },
     })

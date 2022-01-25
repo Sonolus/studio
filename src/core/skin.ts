@@ -211,12 +211,16 @@ function packSkin(
 }
 
 export function unpackSkins(process: UnpackProcess) {
-    const { tasks, getJson } = process
+    const { tasks, getJsonOptional } = process
 
     tasks.push({
         description: 'Loading /skins/list...',
         async execute() {
-            const list = await getJson<ItemList<SkinItem>>('/skins/list')
+            const list = await getJsonOptional<ItemList<SkinItem>>(
+                '/skins/list'
+            )
+            if (!list) return
+
             list.items.forEach(({ name }) => unpackSkin(process, name))
         },
     })
