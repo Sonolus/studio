@@ -104,6 +104,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
             await process.addJson<ItemList<SkinItem>>('/skins/list', {
                 pageCount: 1,
                 items: process.skins,
+                search: { options: [] },
             })
         },
     })
@@ -116,6 +117,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
                 {
                     pageCount: 1,
                     items: process.backgrounds,
+                    search: { options: [] },
                 }
             )
         },
@@ -127,6 +129,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
             await process.addJson<ItemList<EffectItem>>('/effects/list', {
                 pageCount: 1,
                 items: process.effects,
+                search: { options: [] },
             })
         },
     })
