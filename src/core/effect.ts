@@ -1,3 +1,4 @@
+import JSZip from 'jszip'
 import {
     EffectClip,
     EffectData,
@@ -7,7 +8,7 @@ import {
 } from 'sonolus-core'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { load } from './storage'
-import { packJson, packRaw, srl, unpackJson } from './utils'
+import { packArrayBuffer, packJson, packRaw, srl, unpackJson } from './utils'
 
 export type Effect = {
     title: string
@@ -76,21 +77,24 @@ function packEffect(
 ) {
     const item: EffectItem = {
         name,
-        version: 2,
+        version: 3,
         title: effect.title,
         subtitle: effect.subtitle,
         author: effect.author,
         thumbnail: srl('EffectThumbnail'),
         data: srl('EffectData'),
+        audio: srl('EffectAudio'),
     }
     effects.push(item)
+
+    const effectAudio = new JSZip()
 
     tasks.push({
         description: `Packing effect "${name}" thumbnail...`,
         async execute() {
             const { hash, data } = await packRaw(effect.thumbnail)
 
-            const path = `/repository/EffectThumbnail/${hash}`
+            const path = `/sonolus/repository/EffectThumbnail/${hash}`
             item.thumbnail.hash = hash
             item.thumbnail.url = path
             addRaw(path, data)
@@ -101,7 +105,7 @@ function packEffect(
         clips: effect.data.clips.map(({ id, clip }) => {
             const output = {
                 id,
-                clip: srl('EffectClip'),
+                filename: `${id}`,
             }
 
             tasks.push({
@@ -109,12 +113,9 @@ function packEffect(
                     id
                 )}"...`,
                 async execute() {
-                    const { hash, data } = await packRaw(clip)
+                    const { data } = await packRaw(clip)
 
-                    const path = `/repository/EffectClip/${hash}`
-                    output.clip.hash = hash
-                    output.clip.url = path
-                    addRaw(path, data)
+                    effectAudio.file(`${id}`, data)
                 },
             })
 
@@ -123,11 +124,28 @@ function packEffect(
     }
 
     tasks.push({
+        description: `Packing effect "${name}" audio...`,
+        async execute() {
+            const { hash, data } = await packArrayBuffer(
+                await effectAudio.generateAsync({
+                    type: 'arraybuffer',
+                    compression: 'DEFLATE',
+                })
+            )
+
+            const path = `/sonolus/repository/EffectAudio/${hash}`
+            item.audio.hash = hash
+            item.audio.url = path
+            addRaw(path, data)
+        },
+    })
+
+    tasks.push({
         description: `Packing effect "${name}" data...`,
         async execute() {
             const { hash, data } = await packJson(effectData)
 
-            const path = `/repository/EffectData/${hash}`
+            const path = `/sonolus/repository/EffectData/${hash}`
             item.data.hash = hash
             item.data.url = path
             addRaw(path, data)
@@ -135,9 +153,9 @@ function packEffect(
     })
 
     tasks.push({
-        description: `Generating /effects/${name}`,
+        description: `Generating effect "${name}" details...`,
         async execute() {
-            addJson<ItemDetails<EffectItem>>(`/effects/${name}`, {
+            addJson<ItemDetails<EffectItem>>(`/sonolus/effects/${name}`, {
                 item,
                 description: effect.description,
                 recommended: [],
@@ -150,10 +168,10 @@ export function unpackEffects(process: UnpackProcess) {
     const { tasks, getJsonOptional } = process
 
     tasks.push({
-        description: 'Loading /effects/list...',
+        description: 'Loading effect list...',
         async execute() {
             const list = await getJsonOptional<ItemList<EffectItem>>(
-                '/effects/list'
+                '/sonolus/effects/list'
             )
             if (!list) return
 
@@ -167,10 +185,10 @@ function unpackEffect(
     name: string
 ) {
     tasks.push({
-        description: `Loading /effects/${name}...`,
+        description: `Loading effect "${name}" details...`,
         async execute() {
             const details = await getJson<ItemDetails<EffectItem>>(
-                `/effects/${name}`
+                `/sonolus/effects/${name}`
             )
 
             const item = newEffect()
@@ -178,6 +196,8 @@ function unpackEffect(
             item.subtitle = details.item.subtitle
             item.author = details.item.author
             item.description = details.description
+
+            let effectAudio: JSZip
 
             tasks.push({
                 description: `Unpacking effect "${name}" thumbnail...`,
@@ -189,21 +209,33 @@ function unpackEffect(
             })
 
             tasks.push({
+                description: `Unpacking effect "${name}" audio...`,
+                async execute() {
+                    effectAudio = await JSZip.loadAsync(
+                        await getRaw(details.item.audio.url)
+                    )
+                },
+            })
+
+            tasks.push({
                 description: `Unpacking effect "${name}" data...`,
                 async execute() {
                     const data = await unpackJson<EffectData>(
                         await getRaw(details.item.data.url)
                     )
 
-                    data.clips.forEach(({ id, clip }) => {
+                    data.clips.forEach(({ id, filename }) => {
                         tasks.push({
                             description: `Unpacking effect "${name}" clip "${formatEffectClipId(
                                 id
                             )}"...`,
                             async execute() {
+                                const file = effectAudio.file(filename)
+                                if (!file) throw `"${filename}" not found`
+
                                 item.data.clips.push({
                                     id,
-                                    clip: load(await getRaw(clip.url)),
+                                    clip: load(await file.async('blob')),
                                 })
                             },
                         })

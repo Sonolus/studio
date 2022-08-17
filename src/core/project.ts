@@ -95,9 +95,9 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
     packEffects(process, project)
 
     process.tasks.push({
-        description: 'Generating /skins/list...',
+        description: 'Generating skin list...',
         async execute() {
-            process.addJson<ItemList<SkinItem>>('/skins/list', {
+            process.addJson<ItemList<SkinItem>>('/sonolus/skins/list', {
                 pageCount: 1,
                 items: process.skins,
                 search: { options: [] },
@@ -106,20 +106,23 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
     })
 
     process.tasks.push({
-        description: 'Generating /backgrounds/list...',
+        description: 'Generating background list...',
         async execute() {
-            process.addJson<ItemList<BackgroundItem>>('/backgrounds/list', {
-                pageCount: 1,
-                items: process.backgrounds,
-                search: { options: [] },
-            })
+            process.addJson<ItemList<BackgroundItem>>(
+                '/sonolus/backgrounds/list',
+                {
+                    pageCount: 1,
+                    items: process.backgrounds,
+                    search: { options: [] },
+                }
+            )
         },
     })
 
     process.tasks.push({
-        description: 'Generating /effects/list...',
+        description: 'Generating effect list...',
         async execute() {
-            process.addJson<ItemList<EffectItem>>('/effects/list', {
+            process.addJson<ItemList<EffectItem>>('/sonolus/effects/list', {
                 pageCount: 1,
                 items: process.effects,
                 search: { options: [] },

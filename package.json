@@ -13,7 +13,7 @@
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "pako": "^2.0.4",
-    "sonolus-core": "^1.1.1",
+    "sonolus-core": "^2.0.0",
     "vue": "^3.2.37"
   },
   "devDependencies": {

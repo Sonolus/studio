@@ -128,7 +128,7 @@ function packSkin(
         async execute() {
             const { hash, data } = await packRaw(skin.thumbnail)
 
-            const path = `/repository/SkinThumbnail/${hash}`
+            const path = `/sonolus/repository/SkinThumbnail/${hash}`
             item.thumbnail.hash = hash
             item.thumbnail.url = path
             addRaw(path, data)
@@ -180,7 +180,7 @@ function packSkin(
 
             const { hash, data } = await packRaw(texture)
 
-            const path = `/repository/SkinTexture/${hash}`
+            const path = `/sonolus/repository/SkinTexture/${hash}`
             item.texture.hash = hash
             item.texture.url = path
             addRaw(path, data)
@@ -194,7 +194,7 @@ function packSkin(
         async execute() {
             const { hash, data } = await packJson(skinData)
 
-            const path = `/repository/SkinData/${hash}`
+            const path = `/sonolus/repository/SkinData/${hash}`
             item.data.hash = hash
             item.data.url = path
             addRaw(path, data)
@@ -202,9 +202,9 @@ function packSkin(
     })
 
     tasks.push({
-        description: `Generating /skins/${name}`,
+        description: `Generating skin "${name}" details...`,
         async execute() {
-            addJson<ItemDetails<SkinItem>>(`/skins/${name}`, {
+            addJson<ItemDetails<SkinItem>>(`/sonolus/skins/${name}`, {
                 item,
                 description: skin.description,
                 recommended: [],
@@ -217,10 +217,10 @@ export function unpackSkins(process: UnpackProcess) {
     const { tasks, getJsonOptional } = process
 
     tasks.push({
-        description: 'Loading /skins/list...',
+        description: 'Loading skin list...',
         async execute() {
             const list = await getJsonOptional<ItemList<SkinItem>>(
-                '/skins/list'
+                '/sonolus/skins/list'
             )
             if (!list) return
 
@@ -234,10 +234,10 @@ function unpackSkin(
     name: string
 ) {
     tasks.push({
-        description: `Loading /skins/${name}...`,
+        description: `Loading skin "${name}" details...`,
         async execute() {
             const details = await getJson<ItemDetails<SkinItem>>(
-                `/skins/${name}`
+                `/sonolus/skins/${name}`
             )
 
             const item = newSkin()

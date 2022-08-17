@@ -91,6 +91,13 @@ export async function packRaw(url: string) {
     }
 }
 
+export async function packArrayBuffer(buffer: ArrayBuffer) {
+    return {
+        hash: await hash(buffer),
+        data: new Uint8Array(buffer),
+    }
+}
+
 export async function packJson<T>(json: T) {
     const data = gzip(JSON.stringify(json), { level: 9 })
 
