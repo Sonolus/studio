@@ -131,7 +131,7 @@ function packSkin(
             const path = `/repository/SkinThumbnail/${hash}`
             item.thumbnail.hash = hash
             item.thumbnail.url = path
-            await addRaw(path, data)
+            addRaw(path, data)
         },
     })
 
@@ -183,7 +183,7 @@ function packSkin(
             const path = `/repository/SkinTexture/${hash}`
             item.texture.hash = hash
             item.texture.url = path
-            await addRaw(path, data)
+            addRaw(path, data)
 
             URL.revokeObjectURL(texture)
         },
@@ -197,14 +197,14 @@ function packSkin(
             const path = `/repository/SkinData/${hash}`
             item.data.hash = hash
             item.data.url = path
-            await addRaw(path, data)
+            addRaw(path, data)
         },
     })
 
     tasks.push({
         description: `Generating /skins/${name}`,
         async execute() {
-            await addJson<ItemDetails<SkinItem>>(`/skins/${name}`, {
+            addJson<ItemDetails<SkinItem>>(`/skins/${name}`, {
                 item,
                 description: skin.description,
                 recommended: [],
@@ -252,7 +252,7 @@ function unpackSkin(
                 description: `Unpacking skin "${name}" thumbnail...`,
                 async execute() {
                     item.thumbnail = load(
-                        await getRaw(details.item.thumbnail.url, 'image/png')
+                        await getRaw(details.item.thumbnail.url)
                     )
                 },
             })
@@ -261,7 +261,7 @@ function unpackSkin(
                 description: `Unpacking skin "${name}" texture...`,
                 async execute() {
                     const url = URL.createObjectURL(
-                        await getRaw(details.item.texture.url, 'image/png')
+                        await getRaw(details.item.texture.url)
                     )
                     img = (await getImageInfo(url)).img
                     URL.revokeObjectURL(url)

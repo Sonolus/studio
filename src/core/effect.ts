@@ -93,7 +93,7 @@ function packEffect(
             const path = `/repository/EffectThumbnail/${hash}`
             item.thumbnail.hash = hash
             item.thumbnail.url = path
-            await addRaw(path, data)
+            addRaw(path, data)
         },
     })
 
@@ -114,7 +114,7 @@ function packEffect(
                     const path = `/repository/EffectClip/${hash}`
                     output.clip.hash = hash
                     output.clip.url = path
-                    await addRaw(path, data)
+                    addRaw(path, data)
                 },
             })
 
@@ -130,14 +130,14 @@ function packEffect(
             const path = `/repository/EffectData/${hash}`
             item.data.hash = hash
             item.data.url = path
-            await addRaw(path, data)
+            addRaw(path, data)
         },
     })
 
     tasks.push({
         description: `Generating /effects/${name}`,
         async execute() {
-            await addJson<ItemDetails<EffectItem>>(`/effects/${name}`, {
+            addJson<ItemDetails<EffectItem>>(`/effects/${name}`, {
                 item,
                 description: effect.description,
                 recommended: [],
@@ -183,7 +183,7 @@ function unpackEffect(
                 description: `Unpacking effect "${name}" thumbnail...`,
                 async execute() {
                     item.thumbnail = load(
-                        await getRaw(details.item.thumbnail.url, 'image/png')
+                        await getRaw(details.item.thumbnail.url)
                     )
                 },
             })
@@ -203,9 +203,7 @@ function unpackEffect(
                             async execute() {
                                 item.data.clips.push({
                                     id,
-                                    clip: load(
-                                        await getRaw(clip.url, 'audio/mp3')
-                                    ),
+                                    clip: load(await getRaw(clip.url)),
                                 })
                             },
                         })

@@ -80,7 +80,7 @@ function packBackground(
             const path = `/repository/BackgroundThumbnail/${hash}`
             item.thumbnail.hash = hash
             item.thumbnail.url = path
-            await addRaw(path, data)
+            addRaw(path, data)
         },
     })
 
@@ -92,7 +92,7 @@ function packBackground(
             const path = `/repository/BackgroundImage/${hash}`
             item.image.hash = hash
             item.image.url = path
-            await addRaw(path, data)
+            addRaw(path, data)
         },
     })
 
@@ -104,7 +104,7 @@ function packBackground(
             const path = `/repository/BackgroundData/${hash}`
             item.data.hash = hash
             item.data.url = path
-            await addRaw(path, data)
+            addRaw(path, data)
         },
     })
 
@@ -116,14 +116,14 @@ function packBackground(
             const path = `/repository/BackgroundConfiguration/${hash}`
             item.configuration.hash = hash
             item.configuration.url = path
-            await addRaw(path, data)
+            addRaw(path, data)
         },
     })
 
     tasks.push({
         description: `Generating /backgrounds/${name}`,
         async execute() {
-            await addJson<ItemDetails<BackgroundItem>>(`/backgrounds/${name}`, {
+            addJson<ItemDetails<BackgroundItem>>(`/backgrounds/${name}`, {
                 item,
                 description: background.description,
                 recommended: [],
@@ -169,7 +169,7 @@ function unpackBackground(
                 description: `Unpacking background "${name}" thumbnail...`,
                 async execute() {
                     item.thumbnail = load(
-                        await getRaw(details.item.thumbnail.url, 'image/png')
+                        await getRaw(details.item.thumbnail.url)
                     )
                 },
             })
@@ -177,9 +177,7 @@ function unpackBackground(
             tasks.push({
                 description: `Unpacking background "${name}" image...`,
                 async execute() {
-                    item.image = load(
-                        await getRaw(details.item.image.url, 'image/png')
-                    )
+                    item.image = load(await getRaw(details.item.image.url))
                 },
             })
 
