@@ -84,6 +84,7 @@ export async function onNew<T>(
             validator(name) {
                 name = name.trim()
                 if (!name.length) return false
+                if (name !== encodeURIComponent(name)) return false
                 if (project.value[type].has(name)) return false
                 return true
             },
