@@ -31,7 +31,7 @@ function selectAll() {
         v-model="value"
         type="number"
         inputmode="decimal"
-        class="reset clickable h-8 w-full px-2 text-center outline-none"
+        class="clickable h-8 w-full border-none px-2 text-center"
         :placeholder="placeholder"
         @focus="selectAll()"
         @keydown.enter="$emit('enter')"

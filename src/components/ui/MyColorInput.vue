@@ -79,7 +79,7 @@ function reset() {
             ref="el"
             v-model="value"
             type="text"
-            class="reset clickable h-full w-full flex-grow pl-8 pr-2 text-center outline-none"
+            class="clickable h-full w-full flex-grow border-none pl-8 pr-2 text-center"
             :placeholder="placeholder"
             @focus="selectAll()"
             @keydown.enter="$emit('enter')"

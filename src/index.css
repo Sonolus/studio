@@ -45,8 +45,3 @@
     @apply disabled:cursor-not-allowed;
     @apply placeholder-sonolus-ui-text-disabled;
 }
-
-.reset {
-    @apply rounded-none;
-    @apply appearance-none;
-}

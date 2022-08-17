@@ -36,7 +36,7 @@ const isError = computed(() => !validate(props, (value) => !!value.length))
 <template>
     <textarea
         v-model="value"
-        class="reset clickable scrollbar w-full resize-none overflow-y-scroll p-2 outline-none"
+        class="clickable scrollbar w-full resize-none overflow-y-scroll border-none p-2"
         :class="{ 'ring-1 ring-sonolus-warning': isError }"
         :placeholder="placeholder"
         rows="4"

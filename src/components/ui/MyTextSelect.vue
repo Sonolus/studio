@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useMounted } from '@vueuse/core'
 import { computed, ref, watchEffect } from 'vue'
-import IconAngleDown from '../../icons/angle-down-solid.svg?component'
 import IconStream from '../../icons/stream-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
 
@@ -43,9 +42,8 @@ function reset() {
             <select
                 ref="el"
                 v-model="value"
-                class="reset clickable h-full w-full px-8 text-center"
+                class="clickable h-full w-full border-none px-8 py-0 text-center"
             >
-                <IconUndo class="icon" />
                 <option
                     v-for="(option, description) in options"
                     :key="option"
@@ -57,9 +55,6 @@ function reset() {
             </select>
             <IconStream
                 class="icon pointer-events-none absolute top-2 left-2"
-            />
-            <IconAngleDown
-                class="icon pointer-events-none absolute top-2 right-2"
             />
         </div>
         <button
