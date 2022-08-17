@@ -1,8 +1,5 @@
-import { SkinDataExpression, SkinDataTransform } from 'sonolus-core'
-import { DeepRequired } from './utils'
+import { Expression, Transform } from './skin'
 
-type Expression = Required<SkinDataExpression>
-type Transform = DeepRequired<SkinDataTransform>
 type Point = {
     x: Expression
     y: Expression

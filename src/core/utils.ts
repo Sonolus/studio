@@ -1,10 +1,6 @@
 import { gzip, ungzip } from 'pako'
 import { ResourceType } from 'sonolus-core'
 
-export type DeepRequired<T> = {
-    [K in keyof T]: Required<DeepRequired<T[K]>>
-}
-
 export function srl<T extends ResourceType>(type: T) {
     return {
         type,

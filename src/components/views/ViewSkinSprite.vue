@@ -20,8 +20,7 @@ const v = useView(
     props,
     'skins',
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    (v, view) => v.value.data.sprites.find(({ id }) => id === +view.value[3])!,
-    (path) => (path.includes('transform') ? 0 : undefined)
+    (v, view) => v.value.data.sprites.find(({ id }) => id === +view.value[3])!
 )
 
 const keys = ['x1', 'x2', 'x3', 'x4', 'y1', 'y2', 'y3', 'y4'] as const

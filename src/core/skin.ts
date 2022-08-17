@@ -2,7 +2,6 @@ import {
     ItemDetails,
     ItemList,
     SkinData,
-    SkinDataTransform,
     SkinItem,
     SkinSprite,
 } from 'sonolus-core'
@@ -17,6 +16,8 @@ import {
     srl,
     unpackJson,
 } from './utils'
+
+const allZero = { x1: 0, x2: 0, x3: 0, x4: 0, y1: 0, y2: 0, y3: 0, y4: 0 }
 
 export type Skin = {
     title: string
@@ -35,10 +36,12 @@ export type Skin = {
                 top: boolean
                 bottom: boolean
             }
-            transform: SkinDataTransform
+            transform: Transform
         }[]
     }
 }
+export type Transform = Record<`${'x' | 'y'}${1 | 2 | 3 | 4}`, Expression>
+export type Expression = Record<`${'x' | 'y'}${1 | 2 | 3 | 4}`, number>
 
 export function newSkin(): Skin {
     return {
@@ -65,14 +68,14 @@ export function newSkinSprite(id: SkinSprite): Skin['data']['sprites'][number] {
             bottom: true,
         },
         transform: {
-            x1: { x1: 1 },
-            x2: { x2: 1 },
-            x3: { x3: 1 },
-            x4: { x4: 1 },
-            y1: { y1: 1 },
-            y2: { y2: 1 },
-            y3: { y3: 1 },
-            y4: { y4: 1 },
+            x1: { ...allZero, x1: 1 },
+            x2: { ...allZero, x2: 1 },
+            x3: { ...allZero, x3: 1 },
+            x4: { ...allZero, x4: 1 },
+            y1: { ...allZero, y1: 1 },
+            y2: { ...allZero, y2: 1 },
+            y3: { ...allZero, y3: 1 },
+            y4: { ...allZero, y4: 1 },
         },
     }
 }
@@ -276,7 +279,16 @@ function unpackSkin(
 
                     data.sprites.forEach(({ id, x, y, w, h, transform }) => {
                         const sprite = newSkinSprite(id)
-                        sprite.transform = transform
+                        sprite.transform = {
+                            x1: { ...allZero, ...transform.x1 },
+                            x2: { ...allZero, ...transform.x2 },
+                            x3: { ...allZero, ...transform.x3 },
+                            x4: { ...allZero, ...transform.x4 },
+                            y1: { ...allZero, ...transform.y1 },
+                            y2: { ...allZero, ...transform.y2 },
+                            y3: { ...allZero, ...transform.y3 },
+                            y4: { ...allZero, ...transform.y4 },
+                        }
 
                         tasks.push({
                             description: `Unpacking skin "${name}" sprite ${formatSkinSpriteId(
