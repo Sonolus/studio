@@ -64,16 +64,16 @@ function clear() {
 
 <template>
     <div
-        class="relative flex items-center h-8"
+        class="relative flex h-8 items-center"
         :class="{ 'ring-1 ring-sonolus-warning': isError }"
     >
         <template v-if="modelValue">
             <button
-                class="flex items-center flex-grow w-full h-full px-2 clickable"
+                class="clickable flex h-full w-full flex-grow items-center px-2"
                 @click="open()"
             >
                 <MyImageIcon class="icon" :src="modelValue" :fill="fill" />
-                <div class="flex-grow ml-2 text-center">
+                <div class="ml-2 flex-grow text-center">
                     {{
                         imageInfo === undefined
                             ? 'Loading...'
@@ -84,7 +84,7 @@ function clear() {
                 </div>
             </button>
             <button
-                class="flex-none h-full px-2 clickable"
+                class="clickable h-full flex-none px-2"
                 tabindex="-1"
                 @click="clear()"
             >
@@ -93,11 +93,11 @@ function clear() {
         </template>
         <template v-else>
             <button
-                class="flex items-center flex-grow w-full h-full px-2 clickable"
+                class="clickable flex h-full w-full flex-grow items-center px-2"
                 @click="select()"
             >
-                <IconImage class="flex-none icon" />
-                <div class="flex-grow ml-2 text-center">Select Image...</div>
+                <IconImage class="icon flex-none" />
+                <div class="ml-2 flex-grow text-center">Select Image...</div>
             </button>
         </template>
 

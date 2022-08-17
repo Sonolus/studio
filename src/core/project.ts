@@ -1,5 +1,14 @@
-import * as zip from '@zip.js/zip.js'
-import { BackgroundItem, EffectItem, ItemList, SkinItem } from 'sonolus-core'
+import JSZip from 'jszip'
+import {
+    BackgroundItem,
+    EffectItem,
+    EngineItem,
+    ItemList,
+    LevelItem,
+    ParticleItem,
+    ServerInfo,
+    SkinItem,
+} from 'sonolus-core'
 import {
     addBackgroundToWhitelist,
     Background,
@@ -13,10 +22,6 @@ import {
     unpackEffects,
 } from './effect'
 import { addSkinToWhitelist, packSkins, Skin, unpackSkins } from './skin'
-
-zip.configure({
-    useWebWorkers: false,
-})
 
 export type Project = {
     view: string[]
@@ -61,16 +66,14 @@ export type PackProcess = {
 
     canvas: HTMLCanvasElement
 
-    addRaw: (path: string, data: Uint8Array) => Promise<void>
-    addJson: <T>(path: string, data: T) => Promise<void>
+    addRaw: (path: string, data: Uint8Array) => void
+    addJson: <T>(path: string, data: T) => void
 
     finish: () => Promise<Blob>
 }
 
 export function packProject(project: Project, canvas: HTMLCanvasElement) {
-    const blobWriter = new zip.BlobWriter('application/zip')
-    const zipWriter = new zip.ZipWriter(blobWriter)
-    const paths = new Set<string>()
+    const zip = new JSZip()
 
     const process: PackProcess = {
         skins: [],
@@ -81,16 +84,18 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
 
         canvas,
 
-        async addRaw(path, data) {
-            await add(path, new zip.Uint8ArrayReader(data))
+        addRaw(path, data) {
+            add(path, data)
         },
-        async addJson(path, data) {
-            await add(path, new zip.TextReader(JSON.stringify(data)))
+        addJson(path, data) {
+            add(path, JSON.stringify(data))
         },
 
         async finish() {
-            await zipWriter.close()
-            return blobWriter.getData()
+            return await zip.generateAsync({
+                type: 'blob',
+                compression: 'DEFLATE',
+            })
         },
     }
 
@@ -99,9 +104,52 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
     packEffects(process, project)
 
     process.tasks.push({
-        description: 'Generating /skins/list...',
+        description: 'Generating server information...',
         async execute() {
-            await process.addJson<ItemList<SkinItem>>('/skins/list', {
+            process.addJson<ServerInfo>('/sonolus/info', {
+                levels: {
+                    items: [],
+                    search: { options: [] },
+                },
+                skins: {
+                    items: process.skins.slice(0, 5),
+                    search: { options: [] },
+                },
+                backgrounds: {
+                    items: process.backgrounds.slice(0, 5),
+                    search: { options: [] },
+                },
+                effects: {
+                    items: process.effects.slice(0, 5),
+                    search: { options: [] },
+                },
+                particles: {
+                    items: [],
+                    search: { options: [] },
+                },
+                engines: {
+                    items: [],
+                    search: { options: [] },
+                },
+            })
+        },
+    })
+
+    process.tasks.push({
+        description: 'Generating level list...',
+        async execute() {
+            process.addJson<ItemList<LevelItem>>('/sonolus/levels/list', {
+                pageCount: 1,
+                items: [],
+                search: { options: [] },
+            })
+        },
+    })
+
+    process.tasks.push({
+        description: 'Generating skin list...',
+        async execute() {
+            process.addJson<ItemList<SkinItem>>('/sonolus/skins/list', {
                 pageCount: 1,
                 items: process.skins,
                 search: { options: [] },
@@ -110,10 +158,10 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
     })
 
     process.tasks.push({
-        description: 'Generating /backgrounds/list...',
+        description: 'Generating background list...',
         async execute() {
-            await process.addJson<ItemList<BackgroundItem>>(
-                '/backgrounds/list',
+            process.addJson<ItemList<BackgroundItem>>(
+                '/sonolus/backgrounds/list',
                 {
                     pageCount: 1,
                     items: process.backgrounds,
@@ -124,9 +172,9 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
     })
 
     process.tasks.push({
-        description: 'Generating /effects/list...',
+        description: 'Generating effect list...',
         async execute() {
-            await process.addJson<ItemList<EffectItem>>('/effects/list', {
+            process.addJson<ItemList<EffectItem>>('/sonolus/effects/list', {
                 pageCount: 1,
                 items: process.effects,
                 search: { options: [] },
@@ -134,16 +182,35 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
         },
     })
 
+    process.tasks.push({
+        description: 'Generating particle list...',
+        async execute() {
+            process.addJson<ItemList<ParticleItem>>('/sonolus/particles/list', {
+                pageCount: 1,
+                items: [],
+                search: { options: [] },
+            })
+        },
+    })
+
+    process.tasks.push({
+        description: 'Generating engine list...',
+        async execute() {
+            process.addJson<ItemList<EngineItem>>('/sonolus/engines/list', {
+                pageCount: 1,
+                items: [],
+                search: { options: [] },
+            })
+        },
+    })
+
     return process
 
-    function add(path: string, reader: zip.Reader) {
+    function add(path: string, data: unknown) {
         if (!path.startsWith('/')) throw `"${path}" not allowed`
         path = path.slice(1)
 
-        if (paths.has(path)) return
-        paths.add(path)
-
-        return zipWriter.add(path, reader)
+        zip.file(path, data)
     }
 }
 
@@ -157,7 +224,7 @@ export type UnpackProcess = {
 
     canvas: HTMLCanvasElement
 
-    getRaw: (path: string, mime?: string) => Promise<Blob>
+    getRaw: (path: string) => Promise<Blob>
     getJson: <T>(path: string) => Promise<T>
     getJsonOptional: <T>(path: string) => Promise<T | undefined>
 
@@ -165,8 +232,7 @@ export type UnpackProcess = {
 }
 
 export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
-    const zipReader = new zip.ZipReader(new zip.BlobReader(file))
-    let entries: zip.Entry[] = []
+    let zip: JSZip
 
     const process: UnpackProcess = {
         project: newProject(),
@@ -175,27 +241,28 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
 
         canvas,
 
-        async getRaw(path: string, mime?: string) {
-            return await get(path, new zip.BlobWriter(mime))
+        async getRaw(path: string) {
+            return await get(path).async('blob')
         },
         async getJson(path: string) {
-            return JSON.parse(await get(path, new zip.TextWriter()))
+            return JSON.parse(await get(path).async('string'))
         },
         async getJsonOptional(path: string) {
-            const data = await getOptional(path, new zip.TextWriter())
-            if (data === undefined) return
-            return JSON.parse(data)
+            const file = getOptional(path)
+            if (!file) return
+
+            return JSON.parse(await file.async('string'))
         },
 
         async finish() {
-            await zipReader.close()
+            // No cleanup needed
         },
     }
 
     process.tasks.push({
         description: 'Loading package...',
         async execute() {
-            entries = await zipReader.getEntries()
+            zip = await JSZip.loadAsync(file)
         },
     })
 
@@ -205,20 +272,16 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
 
     return process
 
-    async function getOptional(path: string, writer: zip.Writer) {
+    function getOptional(path: string) {
         if (!path.startsWith('/')) throw `"${path}" not allowed`
 
-        const entry = entries.find((entry) => entry.filename === path.slice(1))
-        if (!entry) return
-
-        if (!entry.getData) throw 'Unexpected missing entry.getData'
-        return await entry.getData(writer)
+        return zip.file(path.slice(1))
     }
 
-    async function get(path: string, writer: zip.Writer) {
-        const data = await getOptional(path, writer)
+    function get(path: string) {
+        const file = getOptional(path)
+        if (!file) throw `"${path}" not found`
 
-        if (data === undefined) throw `"${path}" not found`
-        return data
+        return file
     }
 }

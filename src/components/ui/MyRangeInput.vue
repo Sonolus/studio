@@ -72,46 +72,38 @@ function reset() {
 </script>
 
 <template>
-    <div class="relative flex items-center h-8">
-        <div class="flex-shrink-0 w-16 text-center">
+    <div class="relative flex h-8 items-center">
+        <div class="w-16 flex-shrink-0 text-center">
             {{
                 percentage
                     ? `${(value * 100).toFixed(digits || 0)}%`
                     : value.toFixed(digits || 0)
             }}
         </div>
-        <button class="flex-none h-full px-2 clickable" @click="decrease()">
+        <button class="clickable h-full flex-none px-2" @click="decrease()">
             <IconCaretLeft class="icon" />
         </button>
         <button
-            class="flex-grow w-full h-full p-2 clickable"
+            class="clickable h-full w-full flex-grow p-2"
             tabindex="-1"
             @mousedown="onDown"
             @mousemove="onMove"
         >
-            <div class="w-full h-full bg-[rgba(0,0,0,0.25)] p-1">
-                <div ref="el" class="w-full h-full">
+            <div class="h-full w-full bg-[rgba(0,0,0,0.25)] p-1">
+                <div ref="el" class="h-full w-full">
                     <div
-                        class="
-                            w-full
-                            h-full
-                            transition-transform
-                            duration-100
-                            origin-left
-                            transform
-                            bg-sonolus-ui-text-normal
-                        "
+                        class="h-full w-full origin-left transform bg-sonolus-ui-text-normal transition-transform duration-100"
                         :style="`--tw-scale-x: ${(value - min) / (max - min)}`"
                     />
                 </div>
             </div>
         </button>
-        <button class="flex-none h-full px-2 clickable" @click="increase()">
+        <button class="clickable h-full flex-none px-2" @click="increase()">
             <IconCaretRight class="icon" />
         </button>
         <button
             v-if="defaultValue !== undefined"
-            class="flex-none h-full px-2 clickable"
+            class="clickable h-full flex-none px-2"
             tabindex="-1"
             @click="reset()"
         >

@@ -68,30 +68,24 @@ const blurRadius = computed(
             }"
         >
             <div
-                class="absolute top-0 h-full -translate-x-1/2 left-1/2"
+                class="absolute top-0 left-1/2 h-full -translate-x-1/2"
                 :style="{ width: `calc(100% * ${width})` }"
             >
                 <div
-                    class="
-                        relative
-                        h-0
-                        overflow-hidden
-                        -translate-y-1/2
-                        top-1/2
-                    "
+                    class="relative top-1/2 h-0 -translate-y-1/2 overflow-hidden"
                     :style="{
                         paddingTop: `calc(100% / ${background.data.aspectRatio})`,
                     }"
                 >
                     <img
-                        class="absolute top-0 left-0 w-full h-full"
+                        class="absolute top-0 left-0 h-full w-full"
                         :style="{ filter: `blur(${blurRadius}px)` }"
                         :src="background.image"
                     />
                 </div>
             </div>
             <div
-                class="absolute top-0 left-0 w-full h-full"
+                class="absolute top-0 left-0 h-full w-full"
                 :style="{ backgroundColor: background.configuration.mask }"
             />
         </div>

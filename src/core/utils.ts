@@ -1,10 +1,6 @@
 import { gzip, ungzip } from 'pako'
 import { ResourceType } from 'sonolus-core'
 
-export type DeepRequired<T> = {
-    [K in keyof T]: Required<DeepRequired<T[K]>>
-}
-
 export function srl<T extends ResourceType>(type: T) {
     return {
         type,
@@ -89,6 +85,13 @@ export async function packRaw(url: string) {
     if (!url) throw 'Missing file'
     const buffer = await (await fetch(url)).arrayBuffer()
 
+    return {
+        hash: await hash(buffer),
+        data: new Uint8Array(buffer),
+    }
+}
+
+export async function packArrayBuffer(buffer: ArrayBuffer) {
     return {
         hash: await hash(buffer),
         data: new Uint8Array(buffer),

@@ -52,27 +52,7 @@ function onClick(item: { path: string[] }) {
 
 <template>
     <div
-        class="
-            fixed
-            bottom-0
-            left-0
-            z-10
-            w-full
-            overflow-y-auto
-            text-sm
-            transition-all
-            duration-200
-            -translate-x-full
-            opacity-0
-            sm:opacity-100
-            scrollbar
-            sm:w-48
-            md:w-64
-            lg:w-80
-            top-8
-            sm:translate-x-0
-            bg-sonolus-main
-        "
+        class="scrollbar fixed bottom-0 left-0 top-8 z-10 w-full -translate-x-full overflow-y-auto bg-sonolus-main text-sm opacity-0 transition-all duration-200 sm:w-48 sm:translate-x-0 sm:opacity-100 md:w-64 lg:w-80"
         :class="{
             'translate-x-0 opacity-100': isExplorerOpened,
         }"
@@ -80,14 +60,14 @@ function onClick(item: { path: string[] }) {
         <button
             v-for="item in tree"
             :key="toKey(item.path)"
-            class="flex items-center w-full h-8 group transparent-clickable"
+            class="transparent-clickable group flex h-8 w-full items-center"
             :class="{
                 'bg-sonolus-ui-button-normal': isPathCurrentView(item.path),
             }"
             @click="onClick(item)"
         >
             <button
-                class="flex-none h-full pr-2"
+                class="h-full flex-none pr-2"
                 :class="{
                     'pl-2': item.level === 0,
                     'pl-4': item.level === 1,
@@ -104,7 +84,7 @@ function onClick(item: { path: string[] }) {
             </button>
             <MyImageIcon
                 v-if="typeof item.icon === 'string'"
-                class="flex-none icon"
+                class="icon flex-none"
                 :src="item.icon"
                 :fallback="item.fallback || IconFile"
                 fill
@@ -112,51 +92,27 @@ function onClick(item: { path: string[] }) {
             <component
                 :is="item.icon || item.fallback"
                 v-else
-                class="flex-none icon"
+                class="icon flex-none"
             />
-            <div class="flex-1 ml-2 text-left truncate">
+            <div class="ml-2 flex-1 truncate text-left">
                 {{ item.title }}
             </div>
             <button
                 v-if="item.onNew"
-                class="
-                    flex-none
-                    h-full
-                    px-2
-                    transition-opacity
-                    duration-200
-                    sm:opacity-0
-                    group-hover:opacity-100
-                "
+                class="h-full flex-none px-2 transition-opacity duration-200 group-hover:opacity-100 sm:opacity-0"
                 @click.stop="item.onNew?.()"
             >
                 <IconPlus class="icon" />
             </button>
             <button
                 v-if="item.onRename"
-                class="
-                    flex-none
-                    h-full
-                    px-2
-                    transition-opacity
-                    duration-200
-                    sm:opacity-0
-                    group-hover:opacity-100
-                "
+                class="h-full flex-none px-2 transition-opacity duration-200 group-hover:opacity-100 sm:opacity-0"
                 @click.stop="item.onRename?.()"
             >
                 <IconEdit class="icon" />
             </button>
             <button
-                class="
-                    flex-none
-                    h-full
-                    px-2
-                    transition-opacity
-                    duration-200
-                    sm:opacity-0
-                    group-hover:opacity-100
-                "
+                class="h-full flex-none px-2 transition-opacity duration-200 group-hover:opacity-100 sm:opacity-0"
                 @click.stop="item.onDelete()"
             >
                 <IconTrash class="icon" />

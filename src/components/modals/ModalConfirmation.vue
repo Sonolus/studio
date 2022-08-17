@@ -28,7 +28,7 @@ defineEmits<{
                 @click="$emit('close', false)"
             />
             <MyButton
-                class="w-24 ml-4"
+                class="ml-4 w-24"
                 :icon="IconCheck"
                 text="Confirm"
                 auto-focus

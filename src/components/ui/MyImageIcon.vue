@@ -26,7 +26,7 @@ function onError() {
         <img
             :key="src"
             :src="src"
-            class="w-full h-full"
+            class="h-full w-full"
             :class="fill ? 'object-fill' : 'object-contain'"
             @error="onError()"
         />

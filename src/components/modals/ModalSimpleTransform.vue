@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { SkinDataTransform } from 'sonolus-core'
 import { ref } from 'vue'
 import { getSimpleTransform } from '../../core/simple-transform'
-import { DeepRequired } from '../../core/utils'
+import { Transform } from '../../core/skin'
 import IconCheck from '../../icons/check-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
 import IconVectorSquare from '../../icons/vector-square-solid.svg?component'
@@ -16,7 +15,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'close', result?: DeepRequired<SkinDataTransform>): void
+    (e: 'close', result?: Transform): void
 }>()
 
 const left = ref(0)
@@ -88,7 +87,7 @@ function close(isSuccess?: boolean) {
             <MyButton
                 :icon="IconCheck"
                 text="Confirm"
-                class="w-24 ml-4"
+                class="ml-4 w-24"
                 @click="close(true)"
             />
         </template>

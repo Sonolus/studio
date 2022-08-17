@@ -1,7 +1,6 @@
 module.exports = {
     mode: 'jit',
-    purge: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
-    darkMode: false,
+    content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
     theme: {
         extend: {
             colors: {
@@ -21,4 +20,5 @@ module.exports = {
             },
         },
     },
+    plugins: [require('@tailwindcss/forms')],
 }

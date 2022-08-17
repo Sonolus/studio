@@ -1,14 +1,13 @@
 import { computed, Ref, toRef } from 'vue'
 import { ProjectItemTypeOf } from '../core/project'
-import { clone, DeepRequired } from '../core/utils'
+import { clone } from '../core/utils'
 import { push, useState } from './state'
 
 export function useView<T, U = T>(
     props: { data: T },
     type: ProjectItemTypeOf<T>,
-    getter?: (v: Ref<T>, view: Ref<string[]>) => U,
-    onMissing?: (path: string[]) => unknown
-): Ref<DeepRequired<U>> {
+    getter?: (v: Ref<T>, view: Ref<string[]>) => U
+): Ref<U> {
     const { project, view } = useState()
 
     const v = toRef(bind(props), 'data')
@@ -23,7 +22,6 @@ export function useView<T, U = T>(
                 const keyPath = [...path, prop as string]
 
                 const value = Reflect.get(target, prop, receiver)
-                if (value === undefined) return onMissing?.(keyPath)
 
                 return typeof value === 'object'
                     ? bind(value as Record<string, unknown>, keyPath)

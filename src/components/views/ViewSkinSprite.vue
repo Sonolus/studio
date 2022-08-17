@@ -20,8 +20,7 @@ const v = useView(
     props,
     'skins',
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    (v, view) => v.value.data.sprites.find(({ id }) => id === +view.value[3])!,
-    (path) => (path.includes('transform') ? 0 : undefined)
+    (v, view) => v.value.data.sprites.find(({ id }) => id === +view.value[3])!
 )
 
 const keys = ['x1', 'x2', 'x3', 'x4', 'y1', 'y2', 'y3', 'y4'] as const
@@ -57,7 +56,7 @@ async function onSetSimpleTransform() {
     </MySection>
 
     <MySection header="Transformation">
-        <table class="block mx-auto overflow-x-auto text-center max-w-min">
+        <table class="mx-auto block max-w-min overflow-x-auto text-center">
             <thead>
                 <tr class="h-8">
                     <th class="p-0" />
@@ -85,7 +84,7 @@ async function onSetSimpleTransform() {
         </table>
 
         <MyButton
-            class="mt-4 mx-auto"
+            class="mx-auto mt-4"
             :icon="IconVectorSquare"
             text="Set Simple Transform"
             @click="onSetSimpleTransform()"

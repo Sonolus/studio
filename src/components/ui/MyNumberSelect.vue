@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { validate, Validator } from '../../core/validation'
-import IconAngleDown from '../../icons/angle-down-solid.svg?component'
 import IconStream from '../../icons/stream-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
 
@@ -34,16 +33,15 @@ function reset() {
 
 <template>
     <div
-        class="flex items-center h-8"
+        class="flex h-8 items-center"
         :class="{ 'ring-1 ring-sonolus-warning': isError }"
     >
-        <div class="relative flex-grow w-full h-full">
+        <div class="relative h-full w-full flex-grow">
             <select
                 ref="el"
                 v-model="value"
-                class="w-full h-full px-8 text-center reset clickable"
+                class="clickable h-full w-full border-none px-8 py-0 text-center"
             >
-                <IconUndo class="icon" />
                 <option
                     v-for="(option, description) in options"
                     :key="option"
@@ -54,15 +52,12 @@ function reset() {
                 </option>
             </select>
             <IconStream
-                class="absolute pointer-events-none icon top-2 left-2"
-            />
-            <IconAngleDown
-                class="absolute pointer-events-none icon top-2 right-2"
+                class="icon pointer-events-none absolute top-2 left-2"
             />
         </div>
         <button
             v-if="defaultValue !== undefined"
-            class="flex-none h-full px-2 clickable"
+            class="clickable h-full flex-none px-2"
             tabindex="-1"
             @click="reset()"
         >

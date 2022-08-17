@@ -77,10 +77,10 @@ function packBackground(
         async execute() {
             const { hash, data } = await packRaw(background.thumbnail)
 
-            const path = `/repository/BackgroundThumbnail/${hash}`
+            const path = `/sonolus/repository/BackgroundThumbnail/${hash}`
             item.thumbnail.hash = hash
             item.thumbnail.url = path
-            await addRaw(path, data)
+            addRaw(path, data)
         },
     })
 
@@ -89,10 +89,10 @@ function packBackground(
         async execute() {
             const { hash, data } = await packRaw(background.image)
 
-            const path = `/repository/BackgroundImage/${hash}`
+            const path = `/sonolus/repository/BackgroundImage/${hash}`
             item.image.hash = hash
             item.image.url = path
-            await addRaw(path, data)
+            addRaw(path, data)
         },
     })
 
@@ -101,10 +101,10 @@ function packBackground(
         async execute() {
             const { hash, data } = await packJson(background.data)
 
-            const path = `/repository/BackgroundData/${hash}`
+            const path = `/sonolus/repository/BackgroundData/${hash}`
             item.data.hash = hash
             item.data.url = path
-            await addRaw(path, data)
+            addRaw(path, data)
         },
     })
 
@@ -113,21 +113,24 @@ function packBackground(
         async execute() {
             const { hash, data } = await packJson(background.configuration)
 
-            const path = `/repository/BackgroundConfiguration/${hash}`
+            const path = `/sonolus/repository/BackgroundConfiguration/${hash}`
             item.configuration.hash = hash
             item.configuration.url = path
-            await addRaw(path, data)
+            addRaw(path, data)
         },
     })
 
     tasks.push({
-        description: `Generating /backgrounds/${name}`,
+        description: `Generating background "${name}" details...`,
         async execute() {
-            await addJson<ItemDetails<BackgroundItem>>(`/backgrounds/${name}`, {
-                item,
-                description: background.description,
-                recommended: [],
-            })
+            addJson<ItemDetails<BackgroundItem>>(
+                `/sonolus/backgrounds/${name}`,
+                {
+                    item,
+                    description: background.description,
+                    recommended: [],
+                }
+            )
         },
     })
 }
@@ -136,10 +139,10 @@ export function unpackBackgrounds(process: UnpackProcess) {
     const { tasks, getJsonOptional } = process
 
     tasks.push({
-        description: 'Loading /backgrounds/list...',
+        description: 'Loading background list...',
         async execute() {
             const list = await getJsonOptional<ItemList<BackgroundItem>>(
-                '/backgrounds/list'
+                '/sonolus/backgrounds/list'
             )
             if (!list) return
 
@@ -153,10 +156,10 @@ function unpackBackground(
     name: string
 ) {
     tasks.push({
-        description: `Loading /backgrounds/${name}...`,
+        description: `Loading background "${name}" details...`,
         async execute() {
             const details = await getJson<ItemDetails<BackgroundItem>>(
-                `/backgrounds/${name}`
+                `/sonolus/backgrounds/${name}`
             )
 
             const item = newBackground()
@@ -169,7 +172,7 @@ function unpackBackground(
                 description: `Unpacking background "${name}" thumbnail...`,
                 async execute() {
                     item.thumbnail = load(
-                        await getRaw(details.item.thumbnail.url, 'image/png')
+                        await getRaw(details.item.thumbnail.url)
                     )
                 },
             })
@@ -177,9 +180,7 @@ function unpackBackground(
             tasks.push({
                 description: `Unpacking background "${name}" image...`,
                 async execute() {
-                    item.image = load(
-                        await getRaw(details.item.image.url, 'image/png')
-                    )
+                    item.image = load(await getRaw(details.item.image.url))
                 },
             })
 

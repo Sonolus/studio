@@ -72,24 +72,14 @@ function reset() {
 
 <template>
     <div
-        class="relative flex items-center h-8"
+        class="relative flex h-8 items-center"
         :class="{ 'ring-1 ring-sonolus-warning': isError }"
     >
         <input
             ref="el"
             v-model="value"
             type="text"
-            class="
-                flex-grow
-                w-full
-                h-full
-                pl-8
-                pr-2
-                text-center
-                outline-none
-                reset
-                clickable
-            "
+            class="clickable h-full w-full flex-grow border-none pl-8 pr-2 text-center"
             :placeholder="placeholder"
             @focus="selectAll()"
             @keydown.enter="$emit('enter')"
@@ -97,27 +87,27 @@ function reset() {
         />
         <IconExclamation
             v-if="isError"
-            class="absolute pointer-events-none icon top-2 left-2"
+            class="icon pointer-events-none absolute top-2 left-2"
         />
         <div
             v-else
-            class="absolute pointer-events-none icon top-2 left-2"
+            class="icon pointer-events-none absolute top-2 left-2"
             :style="{ backgroundColor: modelValue }"
         />
-        <div class="relative flex-none h-full clickable">
+        <div class="clickable relative h-full flex-none">
             <input
                 v-model="colorValue"
-                class="w-8 h-full opacity-0"
+                class="h-full w-8 opacity-0"
                 type="color"
                 tabindex="-1"
             />
             <IconPalette
-                class="absolute pointer-events-none icon top-2 left-2"
+                class="icon pointer-events-none absolute top-2 left-2"
             />
         </div>
         <button
             v-if="defaultValue !== undefined"
-            class="flex-none h-full px-2 clickable"
+            class="clickable h-full flex-none px-2"
             tabindex="-1"
             @click="reset()"
         >

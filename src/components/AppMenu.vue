@@ -231,11 +231,11 @@ function onKeyDown(e: KeyboardEvent) {
 
 <template>
     <div
-        class="fixed top-0 z-50 flex w-full h-8 text-sm bg-sonolus-ui-surface"
+        class="fixed top-0 z-50 flex h-8 w-full bg-sonolus-ui-surface text-sm"
         @click.self="close()"
     >
         <button
-            class="flex-none h-full px-2 sm:hidden transparent-clickable"
+            class="transparent-clickable h-full flex-none px-2 sm:hidden"
             @click="toggleExplorer()"
         >
             <IconList class="icon" />
@@ -243,7 +243,7 @@ function onKeyDown(e: KeyboardEvent) {
         <button
             v-for="(menu, i) in menus"
             :key="i"
-            class="flex-none h-full px-3 transparent-clickable"
+            class="transparent-clickable h-full flex-none px-3"
             :class="{ 'bg-sonolus-ui-button-highlighted': openedIndex === i }"
             @click.self="open(i)"
             @mouseover.self="switchTo(i)"
@@ -251,47 +251,23 @@ function onKeyDown(e: KeyboardEvent) {
             {{ menu.title }}
             <div
                 v-if="openedIndex === i"
-                class="
-                    cursor-default
-                    absolute
-                    flex flex-col
-                    py-1
-                    bg-sonolus-ui-surface
-                    -ml-3
-                    top-8
-                    min-w-[8rem]
-                    sm:min-w-[12rem]
-                "
+                class="absolute top-8 -ml-3 flex min-w-[8rem] cursor-default flex-col bg-sonolus-ui-surface py-1 sm:min-w-[12rem]"
             >
                 <template v-for="(item, j) in menu.items" :key="j">
                     <button
                         v-if="item"
-                        class="
-                            flex
-                            items-center
-                            flex-none
-                            w-full
-                            px-3
-                            py-1
-                            text-left
-                            transparent-clickable
-                        "
+                        class="transparent-clickable flex w-full flex-none items-center px-3 py-1 text-left"
                         :disabled="!item.enabled"
                         @click="onClick(item)"
                     >
                         <div class="flex-grow">{{ item.title }}</div>
-                        <div class="flex-shrink-0 hidden text-xs sm:block ml-8">
+                        <div class="ml-8 hidden flex-shrink-0 text-xs sm:block">
                             Ctrl + {{ item.key.toUpperCase() }}
                         </div>
                     </button>
                     <hr
                         v-else
-                        class="
-                            flex-none
-                            w-full
-                            my-1
-                            border-sonolus-ui-text-disabled
-                        "
+                        class="my-1 w-full flex-none border-sonolus-ui-text-disabled"
                     />
                 </template>
             </div>
@@ -301,7 +277,7 @@ function onKeyDown(e: KeyboardEvent) {
 
     <div
         v-if="openedIndex !== undefined"
-        class="fixed z-40 w-full h-full"
+        class="fixed z-40 h-full w-full"
         @click="close()"
     />
 
