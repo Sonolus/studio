@@ -6,10 +6,10 @@ defineProps<{
 
 <template>
     <div class="my-4 sm:flex sm:items-start">
-        <div class="flex-grow flex-1 text-lg font-semibold text-left sm:py-0.5">
+        <div class="flex-1 flex-grow text-left text-lg font-semibold sm:py-0.5">
             {{ title }}
         </div>
-        <div class="flex-1 flex-grow-[2] mt-1 sm:mt-0 sm:ml-2">
+        <div class="mt-1 flex-1 flex-grow-[2] sm:mt-0 sm:ml-2">
             <slot />
         </div>
     </div>

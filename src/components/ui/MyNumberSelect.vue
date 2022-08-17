@@ -34,14 +34,14 @@ function reset() {
 
 <template>
     <div
-        class="flex items-center h-8"
+        class="flex h-8 items-center"
         :class="{ 'ring-1 ring-sonolus-warning': isError }"
     >
-        <div class="relative flex-grow w-full h-full">
+        <div class="relative h-full w-full flex-grow">
             <select
                 ref="el"
                 v-model="value"
-                class="w-full h-full px-8 text-center reset clickable"
+                class="reset clickable h-full w-full px-8 text-center"
             >
                 <IconUndo class="icon" />
                 <option
@@ -54,15 +54,15 @@ function reset() {
                 </option>
             </select>
             <IconStream
-                class="absolute pointer-events-none icon top-2 left-2"
+                class="icon pointer-events-none absolute top-2 left-2"
             />
             <IconAngleDown
-                class="absolute pointer-events-none icon top-2 right-2"
+                class="icon pointer-events-none absolute top-2 right-2"
             />
         </div>
         <button
             v-if="defaultValue !== undefined"
-            class="flex-none h-full px-2 clickable"
+            class="clickable h-full flex-none px-2"
             tabindex="-1"
             @click="reset()"
         >

@@ -145,7 +145,7 @@ function tryClose() {
                 :icon="IconCheck"
                 text="Confirm"
                 :disabled="isError"
-                class="w-24 ml-4"
+                class="ml-4 w-24"
                 @click="tryClose()"
             />
         </template>

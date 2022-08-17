@@ -231,30 +231,21 @@ watchPostEffect(() => {
         />
     </MyField>
 
-    <div class="max-w-sm mx-auto my-4 border-4 border-sonolus-ui-text-normal">
+    <div class="mx-auto my-4 max-w-sm border-4 border-sonolus-ui-text-normal">
         <div
-            class="relative h-0 pt-[100%] overflow-hidden"
+            class="relative h-0 overflow-hidden pt-[100%]"
             :style="{ backgroundColor }"
         >
             <canvas
                 ref="elBack"
-                class="absolute top-0 left-0 w-full h-full"
+                class="absolute top-0 left-0 h-full w-full"
                 :class="{ 'opacity-50': draggingIndex !== undefined }"
                 :width="canvasWidth"
                 :height="canvasHeight"
             />
             <canvas
                 ref="elTop"
-                class="
-                    absolute
-                    top-0
-                    left-0
-                    w-full
-                    h-full
-                    opacity-50
-                    select-none
-                    hover:opacity-100
-                "
+                class="absolute top-0 left-0 h-full w-full select-none opacity-50 hover:opacity-100"
                 :style="{ touchAction: 'none' }"
                 :width="canvasWidth"
                 :height="canvasHeight"

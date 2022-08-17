@@ -17,7 +17,7 @@ defineEmits<{
 
 <template>
     <ModalBase :icon="IconFileAudio" title="Audio">
-        <audio class="w-full h-8" :src="data.src" controls autoplay />
+        <audio class="h-8 w-full" :src="data.src" controls autoplay />
 
         <template #actions>
             <MyButton

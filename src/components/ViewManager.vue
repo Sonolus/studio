@@ -71,7 +71,7 @@ export function resolveViewInfo(project: Project, view: string[]) {
         leave-to-class="hidden"
     >
         <div :key="view.join('/')" class="sm:ml-48 md:ml-64 lg:ml-80">
-            <div class="max-w-3xl px-6 pb-6 mx-auto">
+            <div class="mx-auto max-w-3xl px-6 pb-6">
                 <component
                     :is="viewInfo.component"
                     v-if="viewInfo"

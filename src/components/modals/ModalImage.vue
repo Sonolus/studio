@@ -17,7 +17,7 @@ defineEmits<{
 
 <template>
     <ModalBase :icon="IconImage" title="Image">
-        <img class="w-full h-auto" :src="data.src" />
+        <img class="h-auto w-full" :src="data.src" />
 
         <template #actions>
             <MyButton

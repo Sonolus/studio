@@ -56,7 +56,7 @@ async function onSetSimpleTransform() {
     </MySection>
 
     <MySection header="Transformation">
-        <table class="block mx-auto overflow-x-auto text-center max-w-min">
+        <table class="mx-auto block max-w-min overflow-x-auto text-center">
             <thead>
                 <tr class="h-8">
                     <th class="p-0" />
@@ -84,7 +84,7 @@ async function onSetSimpleTransform() {
         </table>
 
         <MyButton
-            class="mt-4 mx-auto"
+            class="mx-auto mt-4"
             :icon="IconVectorSquare"
             text="Set Simple Transform"
             @click="onSetSimpleTransform()"

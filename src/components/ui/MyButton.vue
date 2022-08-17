@@ -21,8 +21,8 @@ watchEffect(() => {
 </script>
 
 <template>
-    <button ref="el" class="flex items-center h-8 px-2 clickable">
-        <component :is="icon" class="flex-none icon" />
-        <div class="flex-grow ml-2 text-center">{{ text }}</div>
+    <button ref="el" class="clickable flex h-8 items-center px-2">
+        <component :is="icon" class="icon flex-none" />
+        <div class="ml-2 flex-grow text-center">{{ text }}</div>
     </button>
 </template>

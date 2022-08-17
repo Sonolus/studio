@@ -9,20 +9,20 @@ defineProps<{
 
 <template>
     <div class="bg-sonolus-ui-surface">
-        <div class="flex items-center h-12 px-2">
-            <component :is="icon" class="flex-none w-6 h-6 fill-current" />
+        <div class="flex h-12 items-center px-2">
+            <component :is="icon" class="h-6 w-6 flex-none fill-current" />
             <div
-                class="flex-grow w-full mr-6 text-xl font-semibold text-center"
+                class="mr-6 w-full flex-grow text-center text-xl font-semibold"
             >
                 {{ title }}
             </div>
         </div>
 
-        <div class="px-4 my-8 text-center sm:px-8">
+        <div class="my-8 px-4 text-center sm:px-8">
             <slot />
         </div>
 
-        <div class="flex items-center justify-center h-12 px-2">
+        <div class="flex h-12 items-center justify-center px-2">
             <slot name="actions" />
         </div>
     </div>

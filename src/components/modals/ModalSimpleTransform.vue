@@ -87,7 +87,7 @@ function close(isSuccess?: boolean) {
             <MyButton
                 :icon="IconCheck"
                 text="Confirm"
-                class="w-24 ml-4"
+                class="ml-4 w-24"
                 @click="close(true)"
             />
         </template>

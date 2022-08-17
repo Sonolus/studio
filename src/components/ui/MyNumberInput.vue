@@ -50,7 +50,7 @@ function reset() {
 
 <template>
     <div
-        class="relative flex items-center h-8"
+        class="relative flex h-8 items-center"
         :class="{ 'ring-1 ring-sonolus-warning': isError }"
     >
         <input
@@ -58,26 +58,16 @@ function reset() {
             v-model="value"
             type="number"
             inputmode="decimal"
-            class="
-                flex-grow
-                w-full
-                h-full
-                pl-8
-                pr-2
-                text-center
-                outline-none
-                reset
-                clickable
-            "
+            class="reset clickable h-full w-full flex-grow pl-8 pr-2 text-center outline-none"
             :placeholder="placeholder"
             @focus="selectAll()"
             @keydown.enter="$emit('enter')"
             @keydown.escape="$emit('escape')"
         />
-        <IconKeyboard class="absolute pointer-events-none icon top-2 left-2" />
+        <IconKeyboard class="icon pointer-events-none absolute top-2 left-2" />
         <button
             v-if="defaultValue !== undefined"
-            class="flex-none h-full px-2 clickable"
+            class="clickable h-full flex-none px-2"
             tabindex="-1"
             @click="reset()"
         >

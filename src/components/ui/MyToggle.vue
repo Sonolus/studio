@@ -34,24 +34,24 @@ function reset() {
 </script>
 
 <template>
-    <div class="flex items-center h-8">
+    <div class="flex h-8 items-center">
         <div class="flex-grow" />
         <button
             ref="el"
-            class="flex-none w-16 h-full p-2 clickable"
+            class="clickable h-full w-16 flex-none p-2"
             @click="value = !value"
         >
             <div
-                class="w-1/2 h-full transition-all duration-200"
+                class="h-full w-1/2 transition-all duration-200"
                 :class="
                     value
-                        ? 'bg-sonolus-success translate-x-full'
+                        ? 'translate-x-full bg-sonolus-success'
                         : 'bg-sonolus-warning'
                 "
             />
         </button>
         <button
-            class="flex-none h-full px-2 ml-2 clickable"
+            class="clickable ml-2 h-full flex-none px-2"
             tabindex="-1"
             @click="reset()"
         >
