@@ -107,6 +107,12 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
         description: 'Generating server information...',
         async execute() {
             process.addJson<ServerInfo>('/sonolus/info', {
+                title: 'Sonolus Studio',
+                banner: {
+                    type: 'ServerBanner',
+                    hash: '',
+                    url: '',
+                },
                 levels: {
                     items: [],
                     search: { options: [] },
