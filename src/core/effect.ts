@@ -77,7 +77,7 @@ function packEffect(
 ) {
     const item: EffectItem = {
         name,
-        version: 3,
+        version: 4,
         title: effect.title,
         subtitle: effect.subtitle,
         author: effect.author,
