@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "vite --host",
     "lint": "vue-tsc --noEmit && eslint --ext .js,.ts,.vue src/",
-    "build": "vite build",
-    "serve": "vite preview"
+    "build": "vite build"
   },
   "dependencies": {
     "@vueuse/core": "^10.1.2",
