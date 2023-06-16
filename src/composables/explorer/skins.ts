@@ -1,7 +1,7 @@
 import { markRaw } from 'vue'
 import { ExplorerItem, isOpened, onDelete, onDeleteAll, onNew, onRename } from '.'
-import ModalSkinSpriteId from '../../components/modals/ModalSkinSpriteId.vue'
-import { formatSkinSpriteId, newSkin, newSkinSprite } from '../../core/skin'
+import ModalTextInput from '../../components/modals/ModalTextInput.vue'
+import { formatSkinSpriteName, newSkin, newSkinSprite } from '../../core/skin'
 import { clone } from '../../core/utils'
 import IconDot from '../../icons/dot-circle-regular.svg?component'
 import IconFileImage from '../../icons/file-image-solid.svg?component'
@@ -45,16 +45,16 @@ export function addSkinItems(state: UseStateReturn, items: ExplorerItem[]) {
         })
 
         if (!isOpened(['skins', name, 'sprites'])) return
-        skin.data.sprites.forEach(({ id, texture }) => {
+        skin.data.sprites.forEach(({ name: spriteName, texture }) => {
             items.push({
                 level: 3,
-                path: ['skins', name, 'sprites', id.toString()],
+                path: ['skins', name, 'sprites', spriteName],
                 hasChildren: false,
                 icon: texture,
                 fallback: IconFileImage,
-                title: formatSkinSpriteId(id),
-                onRename: () => onRenameSkinSprite(state, name, id),
-                onDelete: () => onDeleteSkinSprite(state, name, id),
+                title: formatSkinSpriteName(spriteName),
+                onRename: () => onRenameSkinSprite(state, name, spriteName),
+                onDelete: () => onDeleteSkinSprite(state, name, spriteName),
             })
         })
     })
@@ -64,23 +64,24 @@ async function onNewSkinSprite({ project, isExplorerOpened }: UseStateReturn, na
     const skin = project.value.skins.get(name)
     if (!skin) throw 'Skin not found'
 
-    const id = await show(ModalSkinSpriteId, {
+    const spriteName = await show(ModalTextInput, {
         icon: markRaw(IconPlus),
         title: 'New Skin Sprite',
-        defaultValue: 0,
-        validator: (value) => !skin.data.sprites.some(({ id }) => id === value),
+        defaultValue: '',
+        placeholder: '',
+        validator: (value) => !skin.data.sprites.some(({ name }) => name === value),
     })
-    if (id === undefined) return
+    if (!spriteName) return
 
     const newSkin = clone(skin)
-    newSkin.data.sprites.push(newSkinSprite(id))
+    newSkin.data.sprites.push(newSkinSprite(spriteName))
 
     const skins = new Map(project.value.skins)
     skins.set(name, newSkin)
 
     push({
         ...project.value,
-        view: ['skins', name, 'sprites', id.toString()],
+        view: ['skins', name, 'sprites', spriteName],
         skins,
     })
 
@@ -105,12 +106,12 @@ async function onDeleteSkinSprites({ project }: UseStateReturn, name: string) {
     })
 }
 
-async function onDeleteSkinSprite({ project }: UseStateReturn, name: string, id: number) {
+async function onDeleteSkinSprite({ project }: UseStateReturn, name: string, spriteName: string) {
     const skin = project.value.skins.get(name)
     if (!skin) throw 'Skin not found'
 
     const newSkin = clone(skin)
-    newSkin.data.sprites = newSkin.data.sprites.filter((sprite) => sprite.id !== id)
+    newSkin.data.sprites = newSkin.data.sprites.filter(({ name }) => name !== spriteName)
 
     const skins = new Map(project.value.skins)
     skins.set(name, newSkin)
@@ -122,27 +123,32 @@ async function onDeleteSkinSprite({ project }: UseStateReturn, name: string, id:
     })
 }
 
-async function onRenameSkinSprite({ project, view }: UseStateReturn, name: string, oldId: number) {
+async function onRenameSkinSprite(
+    { project, view }: UseStateReturn,
+    name: string,
+    spriteName: string,
+) {
     const skin = project.value.skins.get(name)
     if (!skin) throw 'Skin not found'
 
-    const sprite = skin.data.sprites.find(({ id }) => id === oldId)
+    const sprite = skin.data.sprites.find(({ name }) => name === spriteName)
     if (!sprite) throw 'Skin Sprite not found'
 
-    const newId = await show(ModalSkinSpriteId, {
+    const newName = await show(ModalTextInput, {
         icon: markRaw(IconPlus),
         title: 'Rename Skin Sprite',
-        defaultValue: oldId,
-        validator: (value) => !skin.data.sprites.some(({ id }) => id === value),
+        defaultValue: spriteName,
+        placeholder: '',
+        validator: (value) => !skin.data.sprites.some(({ name }) => name === value),
     })
-    if (newId === undefined) return
+    if (!newName) return
 
     const newSprite = clone(sprite)
-    newSprite.id = newId
+    newSprite.name = newName
 
     const newSkin = clone(skin)
     newSkin.data.sprites = newSkin.data.sprites.map((sprite) =>
-        sprite.id === oldId ? newSprite : sprite,
+        sprite.name === spriteName ? newSprite : sprite,
     )
 
     const skins = new Map(project.value.skins)
@@ -154,8 +160,8 @@ async function onRenameSkinSprite({ project, view }: UseStateReturn, name: strin
             view.value[0] === 'skins' &&
             view.value[1] === name &&
             view.value[2] === 'sprites' &&
-            view.value[3] === oldId.toString()
-                ? ['skins', name, 'sprites', newId.toString(), ...view.value.slice(4)]
+            view.value[3] === spriteName
+                ? ['skins', name, 'sprites', newName, ...view.value.slice(4)]
                 : view.value,
         skins,
     })

@@ -18,18 +18,18 @@ export async function tryCalculateLayout(skin: Skin) {
 
 async function calculateLayout(skin: Skin, size: number) {
     const sprites: {
-        id: number
+        name: string
         w: number
         h: number
         width: number
         height: number
     }[] = []
 
-    for (const { id, texture, padding } of skin.data.sprites) {
+    for (const { name, texture, padding } of skin.data.sprites) {
         const { width, height } = await getImageInfo(texture)
 
         sprites.push({
-            id,
+            name,
             w: width,
             h: height,
             width: width + (padding.left ? 1 : 0) + (padding.right ? 1 : 0),
@@ -45,7 +45,7 @@ async function calculateLayout(skin: Skin, size: number) {
                 b.width * b.height - a.width * a.height ||
                 b.width + b.height - (a.width + a.height),
         )
-        .map(({ id, w, h, width, height }) => {
+        .map(({ name, w, h, width, height }) => {
             const spaceIndex = spaces.findIndex(
                 (space) => space.width >= width && space.height >= height,
             )
@@ -73,7 +73,7 @@ async function calculateLayout(skin: Skin, size: number) {
             }
 
             return {
-                id,
+                name,
                 x: space.x,
                 y: space.y,
                 w,

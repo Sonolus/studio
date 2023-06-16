@@ -1,4 +1,4 @@
-import { ItemDetails, ItemList, SkinData, SkinItem, SkinSprite } from 'sonolus-core'
+import { ItemDetails, ItemList, SkinData, SkinItem } from 'sonolus-core'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { bakeSprite, tryCalculateLayout } from './sprite-sheet'
 import { load } from './storage'
@@ -15,7 +15,7 @@ export type Skin = {
     data: {
         interpolation: boolean
         sprites: {
-            id: SkinSprite
+            name: string
             texture: string
             padding: {
                 left: boolean
@@ -44,9 +44,9 @@ export function newSkin(): Skin {
     }
 }
 
-export function newSkinSprite(id: SkinSprite): Skin['data']['sprites'][number] {
+export function newSkinSprite(name: string): Skin['data']['sprites'][number] {
     return {
-        id,
+        name,
         texture: '',
         padding: {
             left: true,
@@ -67,21 +67,12 @@ export function newSkinSprite(id: SkinSprite): Skin['data']['sprites'][number] {
     }
 }
 
-export function hasSkinSprite(skin: Skin, id: number) {
-    return skin.data.sprites.some((s) => s.id === id)
+export function hasSkinSprite(skin: Skin, name: string) {
+    return skin.data.sprites.some((s) => s.name === name)
 }
 
-export function formatSkinSpriteId(id: number) {
-    const name = SkinSprite[id]
-    if (name) return name
-
-    if (id >= 100000 && id < 200000) {
-        const engineId = Math.floor(id / 100 - 1000)
-        const spriteId = id % 100
-        return `${engineId}: ${spriteId}`
-    }
-
-    return id.toString()
+export function formatSkinSpriteName(name: string) {
+    return `Name: ${name}`
 }
 
 export function addSkinToWhitelist(skin: Skin, whitelist: Set<string>) {
@@ -100,7 +91,7 @@ function packSkin(
 ) {
     const item: SkinItem = {
         name,
-        version: 2,
+        version: 3,
         title: skin.title,
         subtitle: skin.subtitle,
         author: skin.author,
@@ -145,12 +136,12 @@ function packSkin(
 
             ctx.clearRect(0, 0, size, size)
 
-            for (const { id, x, y, w, h } of layouts) {
-                const sprite = skin.data.sprites.find((sprite) => sprite.id === id)
+            for (const { name, x, y, w, h } of layouts) {
+                const sprite = skin.data.sprites.find((sprite) => sprite.name === name)
                 if (!sprite) throw 'Unexpected missing sprite'
 
                 skinData.sprites.push({
-                    id,
+                    name,
                     x: x + (sprite.padding.left ? 1 : 0),
                     y: y + (sprite.padding.top ? 1 : 0),
                     w,
@@ -249,8 +240,8 @@ function unpackSkin({ project, tasks, canvas, getRaw, getJson }: UnpackProcess, 
 
                     item.data.interpolation = data.interpolation
 
-                    data.sprites.forEach(({ id, x, y, w, h, transform }) => {
-                        const sprite = newSkinSprite(id)
+                    data.sprites.forEach(({ name: spriteName, x, y, w, h, transform }) => {
+                        const sprite = newSkinSprite(spriteName)
                         sprite.transform = {
                             x1: { ...allZero, ...transform.x1 },
                             x2: { ...allZero, ...transform.x2 },
@@ -263,8 +254,8 @@ function unpackSkin({ project, tasks, canvas, getRaw, getJson }: UnpackProcess, 
                         }
 
                         tasks.push({
-                            description: `Unpacking skin "${name}" sprite ${formatSkinSpriteId(
-                                id,
+                            description: `Unpacking skin "${name}" sprite ${formatSkinSpriteName(
+                                spriteName,
                             )}...`,
                             async execute() {
                                 if (!img) throw 'Unexpected missing skin texture'

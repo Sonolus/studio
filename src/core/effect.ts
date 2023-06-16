@@ -1,5 +1,5 @@
 import JSZip from 'jszip'
-import { EffectClip, EffectData, EffectItem, ItemDetails, ItemList } from 'sonolus-core'
+import { EffectData, EffectItem, ItemDetails, ItemList } from 'sonolus-core'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { load } from './storage'
 import { packArrayBuffer, packJson, packRaw, srl, unpackJson } from './utils'
@@ -12,8 +12,8 @@ export type Effect = {
     thumbnail: string
     data: {
         clips: {
-            id: EffectClip
-            clip: string
+            name: string
+            url: string
         }[]
     }
 }
@@ -31,33 +31,24 @@ export function newEffect(): Effect {
     }
 }
 
-export function newEffectClip(id: EffectClip): Effect['data']['clips'][number] {
+export function newEffectClip(name: string): Effect['data']['clips'][number] {
     return {
-        id,
-        clip: '',
+        name,
+        url: '',
     }
 }
 
-export function hasEffectClip(effect: Effect, id: number) {
-    return effect.data.clips.some((c) => c.id === id)
+export function hasEffectClip(effect: Effect, name: string) {
+    return effect.data.clips.some((c) => c.name === name)
 }
 
-export function formatEffectClipId(id: number) {
-    const name = EffectClip[id]
-    if (name) return name
-
-    if (id >= 100000 && id < 200000) {
-        const engineId = Math.floor(id / 100 - 1000)
-        const clipId = id % 100
-        return `${engineId}: ${clipId}`
-    }
-
-    return id.toString()
+export function formatEffectClipName(name: string) {
+    return `Name: ${name}`
 }
 
 export function addEffectToWhitelist(effect: Effect, whitelist: Set<string>) {
     whitelist.add(effect.thumbnail)
-    Object.values(effect.data.clips).forEach(({ clip }) => whitelist.add(clip))
+    Object.values(effect.data.clips).forEach(({ url }) => whitelist.add(url))
 }
 
 export function packEffects(process: PackProcess, project: Project) {
@@ -71,7 +62,7 @@ function packEffect(
 ) {
     const item: EffectItem = {
         name,
-        version: 4,
+        version: 5,
         title: effect.title,
         subtitle: effect.subtitle,
         author: effect.author,
@@ -96,18 +87,18 @@ function packEffect(
     })
 
     const effectData: EffectData = {
-        clips: effect.data.clips.map(({ id, clip }) => {
+        clips: effect.data.clips.map(({ name: clipName, url }, index) => {
             const output = {
-                id,
-                filename: `${id}`,
+                name: clipName,
+                filename: `${index}`,
             }
 
             tasks.push({
-                description: `Packing effect "${name}" clip "${formatEffectClipId(id)}"...`,
+                description: `Packing effect "${name}" clip "${formatEffectClipName(clipName)}"...`,
                 async execute() {
-                    const { data } = await packRaw(clip)
+                    const { data } = await packRaw(url)
 
-                    effectAudio.file(`${id}`, data)
+                    effectAudio.file(output.filename, data)
                 },
             })
 
@@ -203,18 +194,18 @@ function unpackEffect({ project, tasks, getRaw, getJson }: UnpackProcess, name: 
                 async execute() {
                     const data = await unpackJson<EffectData>(await getRaw(details.item.data.url))
 
-                    data.clips.forEach(({ id, filename }) => {
+                    data.clips.forEach(({ name: clipName, filename }) => {
                         tasks.push({
-                            description: `Unpacking effect "${name}" clip "${formatEffectClipId(
-                                id,
+                            description: `Unpacking effect "${name}" clip "${formatEffectClipName(
+                                clipName,
                             )}"...`,
                             async execute() {
                                 const file = effectAudio.file(filename)
                                 if (!file) throw `"${filename}" not found`
 
                                 item.data.clips.push({
-                                    id,
-                                    clip: load(await file.async('blob')),
+                                    name: clipName,
+                                    url: load(await file.async('blob')),
                                 })
                             },
                         })

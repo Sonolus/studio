@@ -32,7 +32,7 @@ export function resolveViewInfo(project: Project, view: string[]) {
                 case 2:
                     return { component: markRaw(ViewSkin), data }
                 case 4:
-                    if (!hasSkinSprite(data, +view[3])) return
+                    if (!hasSkinSprite(data, view[3])) return
                     return { component: markRaw(ViewSkinSprite), data }
                 default:
                     return
@@ -52,7 +52,7 @@ export function resolveViewInfo(project: Project, view: string[]) {
                 case 2:
                     return { component: markRaw(ViewEffect), data }
                 case 4:
-                    if (!hasEffectClip(data, +view[3])) return
+                    if (!hasEffectClip(data, view[3])) return
                     return { component: markRaw(ViewEffectClip), data }
                 default:
                     return

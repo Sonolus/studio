@@ -1,8 +1,7 @@
-import { EffectClip } from 'sonolus-core'
 import { markRaw } from 'vue'
 import { ExplorerItem, isOpened, onDelete, onDeleteAll, onNew, onRename } from '.'
-import ModalEffectClipId from '../../components/modals/ModalEffectClipId.vue'
-import { formatEffectClipId, newEffect, newEffectClip } from '../../core/effect'
+import ModalTextInput from '../../components/modals/ModalTextInput.vue'
+import { formatEffectClipName, newEffect, newEffectClip } from '../../core/effect'
 import { clone } from '../../core/utils'
 import IconDrum from '../../icons/drum-solid.svg?component'
 import IconFileAudio from '../../icons/file-audio-solid.svg?component'
@@ -47,15 +46,15 @@ export function addEffectItems(state: UseStateReturn, items: ExplorerItem[]) {
         })
 
         if (!isOpened(['effects', name, 'clips'])) return
-        effect.data.clips.forEach(({ id }) => {
+        effect.data.clips.forEach(({ name: clipName }) => {
             items.push({
                 level: 3,
-                path: ['effects', name, 'clips', id.toString()],
+                path: ['effects', name, 'clips', clipName],
                 hasChildren: false,
                 icon: IconFileAudio,
-                title: formatEffectClipId(id),
-                onRename: () => onRenameEffectClip(state, name, id),
-                onDelete: () => onDeleteEffectClip(state, name, id),
+                title: formatEffectClipName(clipName),
+                onRename: () => onRenameEffectClip(state, name, clipName),
+                onDelete: () => onDeleteEffectClip(state, name, clipName),
             })
         })
     })
@@ -65,23 +64,24 @@ async function onNewEffectClip({ project, isExplorerOpened }: UseStateReturn, na
     const effect = project.value.effects.get(name)
     if (!effect) throw 'Effect not found'
 
-    const id = await show(ModalEffectClipId, {
+    const newName = await show(ModalTextInput, {
         icon: markRaw(IconPlus),
         title: 'New Effect Clip',
-        defaultValue: EffectClip.Miss,
-        validator: (value) => !effect.data.clips.some(({ id }) => id === value),
+        defaultValue: '',
+        placeholder: '',
+        validator: (value) => !effect.data.clips.some(({ name }) => name === value),
     })
-    if (id === undefined) return
+    if (!newName) return
 
     const newEffect = clone(effect)
-    newEffect.data.clips.push(newEffectClip(id))
+    newEffect.data.clips.push(newEffectClip(newName))
 
     const effects = new Map(project.value.effects)
     effects.set(name, newEffect)
 
     push({
         ...project.value,
-        view: ['effects', name, 'clips', id.toString()],
+        view: ['effects', name, 'clips', newName],
         effects,
     })
 
@@ -106,12 +106,12 @@ async function onDeleteEffectClips({ project }: UseStateReturn, name: string) {
     })
 }
 
-async function onDeleteEffectClip({ project }: UseStateReturn, name: string, id: number) {
+async function onDeleteEffectClip({ project }: UseStateReturn, name: string, clipName: string) {
     const effect = project.value.effects.get(name)
     if (!effect) throw 'Effect not found'
 
     const newEffect = clone(effect)
-    newEffect.data.clips = newEffect.data.clips.filter((clip) => clip.id !== id)
+    newEffect.data.clips = newEffect.data.clips.filter(({ name }) => name !== clipName)
 
     const effects = new Map(project.value.effects)
     effects.set(name, newEffect)
@@ -123,26 +123,33 @@ async function onDeleteEffectClip({ project }: UseStateReturn, name: string, id:
     })
 }
 
-async function onRenameEffectClip({ project, view }: UseStateReturn, name: string, oldId: number) {
+async function onRenameEffectClip(
+    { project, view }: UseStateReturn,
+    name: string,
+    spriteName: string,
+) {
     const effect = project.value.effects.get(name)
     if (!effect) throw 'Effect not found'
 
-    const clip = effect.data.clips.find(({ id }) => id === oldId)
+    const clip = effect.data.clips.find(({ name }) => name === spriteName)
     if (!clip) throw 'Effect clip not found'
 
-    const newId = await show(ModalEffectClipId, {
+    const newName = await show(ModalTextInput, {
         icon: markRaw(IconPlus),
         title: 'Rename Effect Clip',
-        defaultValue: oldId,
-        validator: (value) => !effect.data.clips.some(({ id }) => id === value),
+        defaultValue: spriteName,
+        placeholder: '',
+        validator: (value) => !effect.data.clips.some(({ name }) => name === value),
     })
-    if (newId === undefined) return
+    if (!newName) return
 
     const newClip = clone(clip)
-    newClip.id = newId
+    newClip.name = newName
 
     const newEffect = clone(effect)
-    newEffect.data.clips = newEffect.data.clips.map((clip) => (clip.id === oldId ? newClip : clip))
+    newEffect.data.clips = newEffect.data.clips.map((clip) =>
+        clip.name === spriteName ? newClip : clip,
+    )
 
     const effects = new Map(project.value.effects)
     effects.set(name, newEffect)
@@ -153,8 +160,8 @@ async function onRenameEffectClip({ project, view }: UseStateReturn, name: strin
             view.value[0] === 'effects' &&
             view.value[1] === name &&
             view.value[2] === 'clips' &&
-            view.value[3] === oldId.toString()
-                ? ['effects', name, 'clips', newId.toString(), ...view.value.slice(4)]
+            view.value[3] === spriteName
+                ? ['effects', name, 'clips', newName, ...view.value.slice(4)]
                 : view.value,
         effects,
     })
