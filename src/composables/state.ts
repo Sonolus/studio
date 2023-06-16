@@ -1,5 +1,5 @@
 import { computed, reactive, toRef, watchEffect } from 'vue'
-import { addProjectToWhitelist, newProject, Project } from '../core/project'
+import { Project, addProjectToWhitelist, newProject } from '../core/project'
 import { purge } from '../core/storage'
 
 export type UseStateReturn = ReturnType<typeof useState>

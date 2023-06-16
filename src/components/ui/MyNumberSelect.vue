@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { validateInput, Validator } from '../../core/validation'
+import { Validator, validateInput } from '../../core/validation'
 import IconStream from '../../icons/stream-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
 

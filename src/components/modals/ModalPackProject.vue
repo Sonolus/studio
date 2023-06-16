@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { show } from '../../composables/modal'
-import { packProject, Project } from '../../core/project'
+import { Project, packProject } from '../../core/project'
 import IconSpinner from '../../icons/spinner-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
 import MyButton from '../ui/MyButton.vue'

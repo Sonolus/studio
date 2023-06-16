@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMounted } from '@vueuse/core'
 import { computed, ref, watchEffect } from 'vue'
-import { validateInput, Validator } from '../../core/validation'
+import { Validator, validateInput } from '../../core/validation'
 import IconKeyboard from '../../icons/keyboard-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
 

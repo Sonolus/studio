@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMounted } from '@vueuse/core'
 import { computed, ref, watchEffect } from 'vue'
-import { validateInput, Validator } from '../../core/validation'
+import { Validator, validateInput } from '../../core/validation'
 
 const props = defineProps<{
     modelValue: string

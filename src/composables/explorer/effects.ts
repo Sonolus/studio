@@ -9,7 +9,7 @@ import IconFileAudio from '../../icons/file-audio-solid.svg?component'
 import IconFolder from '../../icons/folder-solid.svg?component'
 import IconPlus from '../../icons/plus-solid.svg?component'
 import { show } from '../modal'
-import { push, UseStateReturn } from '../state'
+import { UseStateReturn, push } from '../state'
 
 export function addEffectItems(state: UseStateReturn, items: ExplorerItem[]) {
     items.push({

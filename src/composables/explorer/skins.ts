@@ -8,7 +8,7 @@ import IconFileImage from '../../icons/file-image-solid.svg?component'
 import IconFolder from '../../icons/folder-solid.svg?component'
 import IconPlus from '../../icons/plus-solid.svg?component'
 import { show } from '../modal'
-import { push, UseStateReturn } from '../state'
+import { UseStateReturn, push } from '../state'
 
 export function addSkinItems(state: UseStateReturn, items: ExplorerItem[]) {
     items.push({
