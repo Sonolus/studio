@@ -35,9 +35,7 @@ watchEffect(async () => {
     }
 })
 
-const isError = computed(
-    () => !validateInput(props, () => audioInfo.value !== false)
-)
+const isError = computed(() => !validateInput(props, () => audioInfo.value !== false))
 
 function select() {
     if (!el.value) return
@@ -66,10 +64,7 @@ function clear() {
 </script>
 
 <template>
-    <div
-        class="relative flex h-8 items-center"
-        :class="{ 'ring-1 ring-sonolus-warning': isError }"
-    >
+    <div class="relative flex h-8 items-center" :class="{ 'ring-1 ring-sonolus-warning': isError }">
         <template v-if="modelValue">
             <button
                 class="clickable flex h-full w-full flex-grow items-center px-2"
@@ -89,11 +84,7 @@ function clear() {
                     }}
                 </div>
             </button>
-            <button
-                class="clickable h-full flex-none px-2"
-                tabindex="-1"
-                @click="clear()"
-            >
+            <button class="clickable h-full flex-none px-2" tabindex="-1" @click="clear()">
                 <IconTimes class="icon" />
             </button>
         </template>

@@ -43,11 +43,11 @@ async function calculateLayout(skin: Skin, size: number) {
         .sort(
             (a, b) =>
                 b.width * b.height - a.width * a.height ||
-                b.width + b.height - (a.width + a.height)
+                b.width + b.height - (a.width + a.height),
         )
         .map(({ id, w, h, width, height }) => {
             const spaceIndex = spaces.findIndex(
-                (space) => space.width >= width && space.height >= height
+                (space) => space.width >= width && space.height >= height,
             )
             if (spaceIndex == -1) throw 'Insufficient size'
 
@@ -88,7 +88,7 @@ export async function bakeSprite(
     y: number,
     w: number,
     h: number,
-    ctx: CanvasRenderingContext2D
+    ctx: CanvasRenderingContext2D,
 ) {
     const { img } = await getImageInfo(texture)
 

@@ -1,11 +1,5 @@
 import JSZip from 'jszip'
-import {
-    EffectClip,
-    EffectData,
-    EffectItem,
-    ItemDetails,
-    ItemList,
-} from 'sonolus-core'
+import { EffectClip, EffectData, EffectItem, ItemDetails, ItemList } from 'sonolus-core'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { load } from './storage'
 import { packArrayBuffer, packJson, packRaw, srl, unpackJson } from './utils'
@@ -73,7 +67,7 @@ export function packEffects(process: PackProcess, project: Project) {
 function packEffect(
     { effects, tasks, addRaw, addJson }: PackProcess,
     name: string,
-    effect: Effect
+    effect: Effect,
 ) {
     const item: EffectItem = {
         name,
@@ -109,9 +103,7 @@ function packEffect(
             }
 
             tasks.push({
-                description: `Packing effect "${name}" clip "${formatEffectClipId(
-                    id
-                )}"...`,
+                description: `Packing effect "${name}" clip "${formatEffectClipId(id)}"...`,
                 async execute() {
                     const { data } = await packRaw(clip)
 
@@ -130,7 +122,7 @@ function packEffect(
                 await effectAudio.generateAsync({
                     type: 'arraybuffer',
                     compression: 'DEFLATE',
-                })
+                }),
             )
 
             const path = `/sonolus/repository/EffectAudio/${hash}`
@@ -170,9 +162,7 @@ export function unpackEffects(process: UnpackProcess) {
     tasks.push({
         description: 'Loading effect list...',
         async execute() {
-            const list = await getJsonOptional<ItemList<EffectItem>>(
-                '/sonolus/effects/list'
-            )
+            const list = await getJsonOptional<ItemList<EffectItem>>('/sonolus/effects/list')
             if (!list) return
 
             list.items.forEach(({ name }) => unpackEffect(process, name))
@@ -180,16 +170,11 @@ export function unpackEffects(process: UnpackProcess) {
     })
 }
 
-function unpackEffect(
-    { project, tasks, getRaw, getJson }: UnpackProcess,
-    name: string
-) {
+function unpackEffect({ project, tasks, getRaw, getJson }: UnpackProcess, name: string) {
     tasks.push({
         description: `Loading effect "${name}" details...`,
         async execute() {
-            const details = await getJson<ItemDetails<EffectItem>>(
-                `/sonolus/effects/${name}`
-            )
+            const details = await getJson<ItemDetails<EffectItem>>(`/sonolus/effects/${name}`)
 
             const item = newEffect()
             item.title = details.item.title
@@ -202,32 +187,26 @@ function unpackEffect(
             tasks.push({
                 description: `Unpacking effect "${name}" thumbnail...`,
                 async execute() {
-                    item.thumbnail = load(
-                        await getRaw(details.item.thumbnail.url)
-                    )
+                    item.thumbnail = load(await getRaw(details.item.thumbnail.url))
                 },
             })
 
             tasks.push({
                 description: `Unpacking effect "${name}" audio...`,
                 async execute() {
-                    effectAudio = await JSZip.loadAsync(
-                        await getRaw(details.item.audio.url)
-                    )
+                    effectAudio = await JSZip.loadAsync(await getRaw(details.item.audio.url))
                 },
             })
 
             tasks.push({
                 description: `Unpacking effect "${name}" data...`,
                 async execute() {
-                    const data = await unpackJson<EffectData>(
-                        await getRaw(details.item.data.url)
-                    )
+                    const data = await unpackJson<EffectData>(await getRaw(details.item.data.url))
 
                     data.clips.forEach(({ id, filename }) => {
                         tasks.push({
                             description: `Unpacking effect "${name}" clip "${formatEffectClipId(
-                                id
+                                id,
                             )}"...`,
                             async execute() {
                                 const file = effectAudio.file(filename)

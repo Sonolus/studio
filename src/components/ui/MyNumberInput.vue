@@ -49,10 +49,7 @@ function reset() {
 </script>
 
 <template>
-    <div
-        class="relative flex h-8 items-center"
-        :class="{ 'ring-1 ring-sonolus-warning': isError }"
-    >
+    <div class="relative flex h-8 items-center" :class="{ 'ring-1 ring-sonolus-warning': isError }">
         <input
             ref="el"
             v-model="value"

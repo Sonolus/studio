@@ -17,7 +17,7 @@ const aspectRatioValue = computed(
             '16:9': 16 / 9,
             '18:9': 18 / 9,
             '21:9': 21 / 9,
-        }[aspectRatio.value] || 16 / 9)
+        }[aspectRatio.value] || 16 / 9),
 )
 
 const width = computed(() => {
@@ -39,9 +39,7 @@ const width = computed(() => {
 
 const el = ref<HTMLDivElement>()
 const { height } = useElementBounding(el)
-const blurRadius = computed(
-    () => height.value * props.background.configuration.blur * 0.1
-)
+const blurRadius = computed(() => height.value * props.background.configuration.blur * 0.1)
 </script>
 
 <template>

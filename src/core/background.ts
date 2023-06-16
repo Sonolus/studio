@@ -40,24 +40,19 @@ export function newBackground(): Background {
     }
 }
 
-export function addBackgroundToWhitelist(
-    background: Background,
-    whitelist: Set<string>
-) {
+export function addBackgroundToWhitelist(background: Background, whitelist: Set<string>) {
     whitelist.add(background.thumbnail)
     whitelist.add(background.image)
 }
 
 export function packBackgrounds(process: PackProcess, project: Project) {
-    project.backgrounds.forEach((background, name) =>
-        packBackground(process, name, background)
-    )
+    project.backgrounds.forEach((background, name) => packBackground(process, name, background))
 }
 
 function packBackground(
     { backgrounds, tasks, addRaw, addJson }: PackProcess,
     name: string,
-    background: Background
+    background: Background,
 ) {
     const item: BackgroundItem = {
         name,
@@ -123,14 +118,11 @@ function packBackground(
     tasks.push({
         description: `Generating background "${name}" details...`,
         async execute() {
-            addJson<ItemDetails<BackgroundItem>>(
-                `/sonolus/backgrounds/${name}`,
-                {
-                    item,
-                    description: background.description,
-                    recommended: [],
-                }
-            )
+            addJson<ItemDetails<BackgroundItem>>(`/sonolus/backgrounds/${name}`, {
+                item,
+                description: background.description,
+                recommended: [],
+            })
         },
     })
 }
@@ -142,7 +134,7 @@ export function unpackBackgrounds(process: UnpackProcess) {
         description: 'Loading background list...',
         async execute() {
             const list = await getJsonOptional<ItemList<BackgroundItem>>(
-                '/sonolus/backgrounds/list'
+                '/sonolus/backgrounds/list',
             )
             if (!list) return
 
@@ -151,15 +143,12 @@ export function unpackBackgrounds(process: UnpackProcess) {
     })
 }
 
-function unpackBackground(
-    { project, tasks, getRaw, getJson }: UnpackProcess,
-    name: string
-) {
+function unpackBackground({ project, tasks, getRaw, getJson }: UnpackProcess, name: string) {
     tasks.push({
         description: `Loading background "${name}" details...`,
         async execute() {
             const details = await getJson<ItemDetails<BackgroundItem>>(
-                `/sonolus/backgrounds/${name}`
+                `/sonolus/backgrounds/${name}`,
             )
 
             const item = newBackground()
@@ -171,9 +160,7 @@ function unpackBackground(
             tasks.push({
                 description: `Unpacking background "${name}" thumbnail...`,
                 async execute() {
-                    item.thumbnail = load(
-                        await getRaw(details.item.thumbnail.url)
-                    )
+                    item.thumbnail = load(await getRaw(details.item.thumbnail.url))
                 },
             })
 
@@ -187,9 +174,7 @@ function unpackBackground(
             tasks.push({
                 description: `Unpacking background "${name}" data...`,
                 async execute() {
-                    item.data = await unpackJson(
-                        await getRaw(details.item.data.url)
-                    )
+                    item.data = await unpackJson(await getRaw(details.item.data.url))
                 },
             })
 
@@ -197,7 +182,7 @@ function unpackBackground(
                 description: `Unpacking background "${name}" configuration...`,
                 async execute() {
                     item.configuration = await unpackJson(
-                        await getRaw(details.item.configuration.url)
+                        await getRaw(details.item.configuration.url),
                     )
                 },
             })

@@ -17,9 +17,7 @@ const state = reactive({
 
 watchEffect(() => {
     const whitelist = new Set<string>()
-    state.history.forEach((project) =>
-        addProjectToWhitelist(project, whitelist)
-    )
+    state.history.forEach((project) => addProjectToWhitelist(project, whitelist))
     purge(whitelist)
 })
 
@@ -51,11 +49,7 @@ export function push(project: Project, updater = '') {
     state.history.length = state.index + 1
 
     const now = Date.now().valueOf()
-    if (
-        updater &&
-        state.updater === updater &&
-        now - state.updaterTime < 2000
-    ) {
+    if (updater && state.updater === updater && now - state.updaterTime < 2000) {
         state.history[state.index] = project
     } else {
         if (state.history.length > 50) state.history.shift()

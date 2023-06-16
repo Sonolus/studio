@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { watchEffect } from 'vue'
-import {
-    isOpened,
-    open,
-    toggle,
-    toKey,
-    useExplorer,
-} from '../composables/explorer'
+import { isOpened, open, toggle, toKey, useExplorer } from '../composables/explorer'
 import { useState } from '../composables/state'
 import IconAngleDown from '../icons/angle-down-solid.svg?component'
 import IconAngleRight from '../icons/angle-right-solid.svg?component'
@@ -32,16 +26,12 @@ watchEffect(() => {
 
 function isPathCurrentView(path: string[]) {
     return (
-        path.length === view.value.length &&
-        path.every((part, index) => part === view.value[index])
+        path.length === view.value.length && path.every((part, index) => part === view.value[index])
     )
 }
 
 function onClick(item: { path: string[] }) {
-    if (
-        resolveViewInfo(project.value, item.path) &&
-        !isPathCurrentView(item.path)
-    ) {
+    if (resolveViewInfo(project.value, item.path) && !isPathCurrentView(item.path)) {
         view.value = item.path
         isExplorerOpened.value = false
         return
@@ -89,11 +79,7 @@ function onClick(item: { path: string[] }) {
                 :fallback="item.fallback || IconFile"
                 fill
             />
-            <component
-                :is="item.icon || item.fallback"
-                v-else
-                class="icon flex-none"
-            />
+            <component :is="item.icon || item.fallback" v-else class="icon flex-none" />
             <div class="ml-2 flex-1 truncate text-left">
                 {{ item.title }}
             </div>

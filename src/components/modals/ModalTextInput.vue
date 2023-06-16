@@ -49,12 +49,7 @@ function tryClose() {
         />
 
         <template #actions>
-            <MyButton
-                :icon="IconTimes"
-                text="Cancel"
-                class="w-24"
-                @click="close()"
-            />
+            <MyButton :icon="IconTimes" text="Cancel" class="w-24" @click="close()" />
             <MyButton
                 :icon="IconCheck"
                 text="Confirm"

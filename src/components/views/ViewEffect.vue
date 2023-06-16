@@ -17,25 +17,13 @@ const v = useView(props, 'effects')
 <template>
     <MySection header="Info">
         <MyField title="Title">
-            <MyTextInput
-                v-model="v.title"
-                placeholder="Enter effect title..."
-                validate
-            />
+            <MyTextInput v-model="v.title" placeholder="Enter effect title..." validate />
         </MyField>
         <MyField title="Subtitle">
-            <MyTextInput
-                v-model="v.subtitle"
-                placeholder="Enter effect subtitle..."
-                validate
-            />
+            <MyTextInput v-model="v.subtitle" placeholder="Enter effect subtitle..." validate />
         </MyField>
         <MyField title="Author">
-            <MyTextInput
-                v-model="v.author"
-                placeholder="Enter effect author..."
-                validate
-            />
+            <MyTextInput v-model="v.author" placeholder="Enter effect author..." validate />
         </MyField>
         <MyField title="Description">
             <MyTextArea

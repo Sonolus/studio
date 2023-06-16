@@ -53,9 +53,7 @@ function reset() {
                     {{ description }}
                 </option>
             </select>
-            <IconStream
-                class="icon pointer-events-none absolute left-2 top-2"
-            />
+            <IconStream class="icon pointer-events-none absolute left-2 top-2" />
         </div>
         <button
             v-if="defaultValue !== undefined"

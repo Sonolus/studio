@@ -32,10 +32,7 @@ function reset() {
 </script>
 
 <template>
-    <div
-        class="flex h-8 items-center"
-        :class="{ 'ring-1 ring-sonolus-warning': isError }"
-    >
+    <div class="flex h-8 items-center" :class="{ 'ring-1 ring-sonolus-warning': isError }">
         <div class="relative h-full w-full flex-grow">
             <select
                 ref="el"
@@ -51,9 +48,7 @@ function reset() {
                     {{ description }}
                 </option>
             </select>
-            <IconStream
-                class="icon pointer-events-none absolute left-2 top-2"
-            />
+            <IconStream class="icon pointer-events-none absolute left-2 top-2" />
         </div>
         <button
             v-if="defaultValue !== undefined"

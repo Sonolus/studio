@@ -71,8 +71,7 @@ const menus = computed(() => [
 async function onNewProject() {
     if (isModified.value) {
         const result = await show(ModalConfirmation, {
-            message:
-                'Creating a new project will cause current project to be closed. Continue?',
+            message: 'Creating a new project will cause current project to be closed. Continue?',
         })
         if (!result) return
     }
@@ -104,8 +103,7 @@ function selectFile(callback: (file: File) => void) {
 async function onOpenProject() {
     if (isModified.value) {
         const result = await show(ModalConfirmation, {
-            message:
-                'Opening a project will cause current project to be closed. Continue?',
+            message: 'Opening a project will cause current project to be closed. Continue?',
         })
         if (!result) return
     }
@@ -126,17 +124,17 @@ async function onImportProject() {
         const skins = await merge(
             project.value.skins,
             selectedProject.skins,
-            (name) => `Skin "${name}" already exists. Overwrite?`
+            (name) => `Skin "${name}" already exists. Overwrite?`,
         )
         const backgrounds = await merge(
             project.value.backgrounds,
             selectedProject.backgrounds,
-            (name) => `Background "${name}" already exists. Overwrite?`
+            (name) => `Background "${name}" already exists. Overwrite?`,
         )
         const effects = await merge(
             project.value.effects,
             selectedProject.effects,
-            (name) => `Effect "${name}" already exists. Overwrite?`
+            (name) => `Effect "${name}" already exists. Overwrite?`,
         )
 
         push({
@@ -149,7 +147,7 @@ async function onImportProject() {
         async function merge<T>(
             source: Map<string, T>,
             target: Map<string, T>,
-            message: (name: string) => string
+            message: (name: string) => string,
         ) {
             const output = new Map(source)
 
@@ -197,9 +195,7 @@ function onClick(item: { command: () => void }) {
     close()
 }
 
-onMounted(() =>
-    document.addEventListener('keydown', onKeyDown, { passive: false })
-)
+onMounted(() => document.addEventListener('keydown', onKeyDown, { passive: false }))
 onUnmounted(() => document.removeEventListener('keydown', onKeyDown))
 
 const hotkeys = computed(() => {
@@ -265,21 +261,14 @@ function onKeyDown(e: KeyboardEvent) {
                             Ctrl + {{ item.key.toUpperCase() }}
                         </div>
                     </button>
-                    <hr
-                        v-else
-                        class="my-1 w-full flex-none border-sonolus-ui-text-disabled"
-                    />
+                    <hr v-else class="my-1 w-full flex-none border-sonolus-ui-text-disabled" />
                 </template>
             </div>
         </button>
     </div>
     <div class="h-8" />
 
-    <div
-        v-if="openedIndex !== undefined"
-        class="fixed z-40 h-full w-full"
-        @click="close()"
-    />
+    <div v-if="openedIndex !== undefined" class="fixed z-40 h-full w-full" @click="close()" />
 
     <input ref="el" class="hidden" type="file" @input="onFileInput()" />
 </template>

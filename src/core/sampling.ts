@@ -6,7 +6,7 @@ export function sample(
     h: number,
     x: number,
     y: number,
-    interpolation: boolean
+    interpolation: boolean,
 ) {
     return (interpolation ? sampleBilinear : sampleNearest)(buffer, w, h, x, y)
 }
@@ -16,15 +16,10 @@ function sampleNearest(
     w: number,
     h: number,
     x: number,
-    y: number
+    y: number,
 ): RGBA {
     const index = (Math.floor(y * h) * w + Math.floor(x * w)) * 4
-    return [
-        buffer[index + 0],
-        buffer[index + 1],
-        buffer[index + 2],
-        buffer[index + 3],
-    ]
+    return [buffer[index + 0], buffer[index + 1], buffer[index + 2], buffer[index + 3]]
 }
 
 function sampleBilinear(
@@ -32,7 +27,7 @@ function sampleBilinear(
     w: number,
     h: number,
     x: number,
-    y: number
+    y: number,
 ): RGBA {
     x *= w
     y *= h

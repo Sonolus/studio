@@ -1,21 +1,8 @@
-import {
-    ItemDetails,
-    ItemList,
-    SkinData,
-    SkinItem,
-    SkinSprite,
-} from 'sonolus-core'
+import { ItemDetails, ItemList, SkinData, SkinItem, SkinSprite } from 'sonolus-core'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { bakeSprite, tryCalculateLayout } from './sprite-sheet'
 import { load } from './storage'
-import {
-    getBlob,
-    getImageInfo,
-    packJson,
-    packRaw,
-    srl,
-    unpackJson,
-} from './utils'
+import { getBlob, getImageInfo, packJson, packRaw, srl, unpackJson } from './utils'
 
 const allZero = { x1: 0, x2: 0, x3: 0, x4: 0, y1: 0, y2: 0, y3: 0, y4: 0 }
 
@@ -109,7 +96,7 @@ export function packSkins(process: PackProcess, project: Project) {
 function packSkin(
     { skins, tasks, canvas, addRaw, addJson }: PackProcess,
     name: string,
-    skin: Skin
+    skin: Skin,
 ) {
     const item: SkinItem = {
         name,
@@ -159,9 +146,7 @@ function packSkin(
             ctx.clearRect(0, 0, size, size)
 
             for (const { id, x, y, w, h } of layouts) {
-                const sprite = skin.data.sprites.find(
-                    (sprite) => sprite.id === id
-                )
+                const sprite = skin.data.sprites.find((sprite) => sprite.id === id)
                 if (!sprite) throw 'Unexpected missing sprite'
 
                 skinData.sprites.push({
@@ -219,9 +204,7 @@ export function unpackSkins(process: UnpackProcess) {
     tasks.push({
         description: 'Loading skin list...',
         async execute() {
-            const list = await getJsonOptional<ItemList<SkinItem>>(
-                '/sonolus/skins/list'
-            )
+            const list = await getJsonOptional<ItemList<SkinItem>>('/sonolus/skins/list')
             if (!list) return
 
             list.items.forEach(({ name }) => unpackSkin(process, name))
@@ -229,16 +212,11 @@ export function unpackSkins(process: UnpackProcess) {
     })
 }
 
-function unpackSkin(
-    { project, tasks, canvas, getRaw, getJson }: UnpackProcess,
-    name: string
-) {
+function unpackSkin({ project, tasks, canvas, getRaw, getJson }: UnpackProcess, name: string) {
     tasks.push({
         description: `Loading skin "${name}" details...`,
         async execute() {
-            const details = await getJson<ItemDetails<SkinItem>>(
-                `/sonolus/skins/${name}`
-            )
+            const details = await getJson<ItemDetails<SkinItem>>(`/sonolus/skins/${name}`)
 
             const item = newSkin()
             item.title = details.item.title
@@ -251,18 +229,14 @@ function unpackSkin(
             tasks.push({
                 description: `Unpacking skin "${name}" thumbnail...`,
                 async execute() {
-                    item.thumbnail = load(
-                        await getRaw(details.item.thumbnail.url)
-                    )
+                    item.thumbnail = load(await getRaw(details.item.thumbnail.url))
                 },
             })
 
             tasks.push({
                 description: `Unpacking skin "${name}" texture...`,
                 async execute() {
-                    const url = URL.createObjectURL(
-                        await getRaw(details.item.texture.url)
-                    )
+                    const url = URL.createObjectURL(await getRaw(details.item.texture.url))
                     img = (await getImageInfo(url)).img
                     URL.revokeObjectURL(url)
                 },
@@ -271,9 +245,7 @@ function unpackSkin(
             tasks.push({
                 description: `Unpacking skin "${name}" data...`,
                 async execute() {
-                    const data = await unpackJson<SkinData>(
-                        await getRaw(details.item.data.url)
-                    )
+                    const data = await unpackJson<SkinData>(await getRaw(details.item.data.url))
 
                     item.data.interpolation = data.interpolation
 
@@ -292,15 +264,13 @@ function unpackSkin(
 
                         tasks.push({
                             description: `Unpacking skin "${name}" sprite ${formatSkinSpriteId(
-                                id
+                                id,
                             )}...`,
                             async execute() {
-                                if (!img)
-                                    throw 'Unexpected missing skin texture'
+                                if (!img) throw 'Unexpected missing skin texture'
 
                                 const ctx = canvas.getContext('2d')
-                                if (!ctx)
-                                    throw 'Failed to obtain canvas context'
+                                if (!ctx) throw 'Failed to obtain canvas context'
 
                                 canvas.width = w
                                 canvas.height = h

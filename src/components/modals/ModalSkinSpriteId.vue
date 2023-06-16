@@ -25,9 +25,7 @@ const emit = defineEmits<{
 }>()
 
 const skinSpriteOptions = Object.fromEntries(
-    Object.entries(SkinSprite).filter(
-        (kvp): kvp is [string, number] => typeof kvp[1] === 'number'
-    )
+    Object.entries(SkinSprite).filter((kvp): kvp is [string, number] => typeof kvp[1] === 'number'),
 )
 
 const type = ref<'general' | 'engine' | 'custom'>('general')
@@ -108,10 +106,7 @@ function tryClose() {
 
         <template v-else-if="type === 'engine'">
             <MyField title="Engine ID">
-                <MyNumberInput
-                    v-model="engineId"
-                    placeholder="Enter engine ID..."
-                />
+                <MyNumberInput v-model="engineId" placeholder="Enter engine ID..." />
             </MyField>
             <MyField title="Sprite ID">
                 <MyNumberInput
@@ -135,12 +130,7 @@ function tryClose() {
         </template>
 
         <template #actions>
-            <MyButton
-                :icon="IconTimes"
-                text="Cancel"
-                class="w-24"
-                @click="close()"
-            />
+            <MyButton :icon="IconTimes" text="Cancel" class="w-24" @click="close()" />
             <MyButton
                 :icon="IconCheck"
                 text="Confirm"

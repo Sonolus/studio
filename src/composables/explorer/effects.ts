@@ -1,13 +1,6 @@
 import { EffectClip } from 'sonolus-core'
 import { markRaw } from 'vue'
-import {
-    ExplorerItem,
-    isOpened,
-    onDelete,
-    onDeleteAll,
-    onNew,
-    onRename,
-} from '.'
+import { ExplorerItem, isOpened, onDelete, onDeleteAll, onNew, onRename } from '.'
 import ModalEffectClipId from '../../components/modals/ModalEffectClipId.vue'
 import { formatEffectClipId, newEffect, newEffectClip } from '../../core/effect'
 import { clone } from '../../core/utils'
@@ -25,14 +18,7 @@ export function addEffectItems(state: UseStateReturn, items: ExplorerItem[]) {
         hasChildren: true,
         icon: IconDrum,
         title: `Effects (${state.project.value.effects.size})`,
-        onNew: () =>
-            onNew(
-                state,
-                'effects',
-                'New Effect',
-                'Enter effect name...',
-                newEffect()
-            ),
+        onNew: () => onNew(state, 'effects', 'New Effect', 'Enter effect name...', newEffect()),
         onDelete: () => onDeleteAll(state, 'effects'),
     })
 
@@ -45,13 +31,7 @@ export function addEffectItems(state: UseStateReturn, items: ExplorerItem[]) {
             icon: effect.thumbnail,
             title: name,
             onRename: () =>
-                onRename(
-                    state,
-                    'effects',
-                    'Rename Effect',
-                    'Enter new effect name...',
-                    name
-                ),
+                onRename(state, 'effects', 'Rename Effect', 'Enter new effect name...', name),
             onDelete: () => onDelete(state, 'effects', name),
         })
 
@@ -81,10 +61,7 @@ export function addEffectItems(state: UseStateReturn, items: ExplorerItem[]) {
     })
 }
 
-async function onNewEffectClip(
-    { project, isExplorerOpened }: UseStateReturn,
-    name: string
-) {
+async function onNewEffectClip({ project, isExplorerOpened }: UseStateReturn, name: string) {
     const effect = project.value.effects.get(name)
     if (!effect) throw 'Effect not found'
 
@@ -129,11 +106,7 @@ async function onDeleteEffectClips({ project }: UseStateReturn, name: string) {
     })
 }
 
-async function onDeleteEffectClip(
-    { project }: UseStateReturn,
-    name: string,
-    id: number
-) {
+async function onDeleteEffectClip({ project }: UseStateReturn, name: string, id: number) {
     const effect = project.value.effects.get(name)
     if (!effect) throw 'Effect not found'
 
@@ -150,11 +123,7 @@ async function onDeleteEffectClip(
     })
 }
 
-async function onRenameEffectClip(
-    { project, view }: UseStateReturn,
-    name: string,
-    oldId: number
-) {
+async function onRenameEffectClip({ project, view }: UseStateReturn, name: string, oldId: number) {
     const effect = project.value.effects.get(name)
     if (!effect) throw 'Effect not found'
 
@@ -173,9 +142,7 @@ async function onRenameEffectClip(
     newClip.id = newId
 
     const newEffect = clone(effect)
-    newEffect.data.clips = newEffect.data.clips.map((clip) =>
-        clip.id === oldId ? newClip : clip
-    )
+    newEffect.data.clips = newEffect.data.clips.map((clip) => (clip.id === oldId ? newClip : clip))
 
     const effects = new Map(project.value.effects)
     effects.set(name, newEffect)
@@ -187,13 +154,7 @@ async function onRenameEffectClip(
             view.value[1] === name &&
             view.value[2] === 'clips' &&
             view.value[3] === oldId.toString()
-                ? [
-                      'effects',
-                      name,
-                      'clips',
-                      newId.toString(),
-                      ...view.value.slice(4),
-                  ]
+                ? ['effects', name, 'clips', newId.toString(), ...view.value.slice(4)]
                 : view.value,
         effects,
     })

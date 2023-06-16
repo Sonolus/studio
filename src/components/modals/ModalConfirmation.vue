@@ -21,12 +21,7 @@ defineEmits<{
         {{ data.message }}
 
         <template #actions>
-            <MyButton
-                class="w-24"
-                :icon="IconTimes"
-                text="Cancel"
-                @click="$emit('close', false)"
-            />
+            <MyButton class="w-24" :icon="IconTimes" text="Cancel" @click="$emit('close', false)" />
             <MyButton
                 class="ml-4 w-24"
                 :icon="IconCheck"

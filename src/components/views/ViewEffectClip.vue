@@ -13,7 +13,7 @@ const v = useView(
     props,
     'effects',
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    (v, view) => v.value.data.clips.find(({ id }) => id === +view.value[3])!
+    (v, view) => v.value.data.clips.find(({ id }) => id === +view.value[3])!,
 )
 </script>
 

@@ -36,25 +36,13 @@ function reset() {
 <template>
     <div class="flex h-8 items-center">
         <div class="flex-grow" />
-        <button
-            ref="el"
-            class="clickable h-full w-16 flex-none p-2"
-            @click="value = !value"
-        >
+        <button ref="el" class="clickable h-full w-16 flex-none p-2" @click="value = !value">
             <div
                 class="h-full w-1/2 transition-all duration-200"
-                :class="
-                    value
-                        ? 'translate-x-full bg-sonolus-success'
-                        : 'bg-sonolus-warning'
-                "
+                :class="value ? 'translate-x-full bg-sonolus-success' : 'bg-sonolus-warning'"
             />
         </button>
-        <button
-            class="clickable ml-2 h-full flex-none px-2"
-            tabindex="-1"
-            @click="reset()"
-        >
+        <button class="clickable ml-2 h-full flex-none px-2" tabindex="-1" @click="reset()">
             <IconUndo class="icon" />
         </button>
     </div>

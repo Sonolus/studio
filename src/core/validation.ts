@@ -6,7 +6,7 @@ export function validateInput<T>(
         validate?: boolean
         validator?: Validator<T>
     },
-    defaultValidator: Validator<T>
+    defaultValidator: Validator<T>,
 ) {
     if (!props.validate) return true
     return (props.validator || defaultValidator)(props.modelValue)

@@ -11,9 +11,7 @@ defineProps<{
     <div class="bg-sonolus-ui-surface">
         <div class="flex h-12 items-center px-2">
             <component :is="icon" class="h-6 w-6 flex-none fill-current" />
-            <div
-                class="mr-6 w-full flex-grow text-center text-xl font-semibold"
-            >
+            <div class="mr-6 w-full flex-grow text-center text-xl font-semibold">
                 {{ title }}
             </div>
         </div>

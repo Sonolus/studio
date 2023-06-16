@@ -1,12 +1,5 @@
 import { markRaw } from 'vue'
-import {
-    ExplorerItem,
-    isOpened,
-    onDelete,
-    onDeleteAll,
-    onNew,
-    onRename,
-} from '.'
+import { ExplorerItem, isOpened, onDelete, onDeleteAll, onNew, onRename } from '.'
 import ModalSkinSpriteId from '../../components/modals/ModalSkinSpriteId.vue'
 import { formatSkinSpriteId, newSkin, newSkinSprite } from '../../core/skin'
 import { clone } from '../../core/utils'
@@ -24,8 +17,7 @@ export function addSkinItems(state: UseStateReturn, items: ExplorerItem[]) {
         hasChildren: true,
         icon: IconDot,
         title: `Skins (${state.project.value.skins.size})`,
-        onNew: () =>
-            onNew(state, 'skins', 'New Skin', 'Enter skin name...', newSkin()),
+        onNew: () => onNew(state, 'skins', 'New Skin', 'Enter skin name...', newSkin()),
         onDelete: () => onDeleteAll(state, 'skins'),
     })
 
@@ -37,14 +29,7 @@ export function addSkinItems(state: UseStateReturn, items: ExplorerItem[]) {
             hasChildren: true,
             icon: skin.thumbnail,
             title: name,
-            onRename: () =>
-                onRename(
-                    state,
-                    'skins',
-                    'Rename Skin',
-                    'Enter new skin name...',
-                    name
-                ),
+            onRename: () => onRename(state, 'skins', 'Rename Skin', 'Enter new skin name...', name),
             onDelete: () => onDelete(state, 'skins', name),
         })
 
@@ -75,10 +60,7 @@ export function addSkinItems(state: UseStateReturn, items: ExplorerItem[]) {
     })
 }
 
-async function onNewSkinSprite(
-    { project, isExplorerOpened }: UseStateReturn,
-    name: string
-) {
+async function onNewSkinSprite({ project, isExplorerOpened }: UseStateReturn, name: string) {
     const skin = project.value.skins.get(name)
     if (!skin) throw 'Skin not found'
 
@@ -123,18 +105,12 @@ async function onDeleteSkinSprites({ project }: UseStateReturn, name: string) {
     })
 }
 
-async function onDeleteSkinSprite(
-    { project }: UseStateReturn,
-    name: string,
-    id: number
-) {
+async function onDeleteSkinSprite({ project }: UseStateReturn, name: string, id: number) {
     const skin = project.value.skins.get(name)
     if (!skin) throw 'Skin not found'
 
     const newSkin = clone(skin)
-    newSkin.data.sprites = newSkin.data.sprites.filter(
-        (sprite) => sprite.id !== id
-    )
+    newSkin.data.sprites = newSkin.data.sprites.filter((sprite) => sprite.id !== id)
 
     const skins = new Map(project.value.skins)
     skins.set(name, newSkin)
@@ -146,11 +122,7 @@ async function onDeleteSkinSprite(
     })
 }
 
-async function onRenameSkinSprite(
-    { project, view }: UseStateReturn,
-    name: string,
-    oldId: number
-) {
+async function onRenameSkinSprite({ project, view }: UseStateReturn, name: string, oldId: number) {
     const skin = project.value.skins.get(name)
     if (!skin) throw 'Skin not found'
 
@@ -170,7 +142,7 @@ async function onRenameSkinSprite(
 
     const newSkin = clone(skin)
     newSkin.data.sprites = newSkin.data.sprites.map((sprite) =>
-        sprite.id === oldId ? newSprite : sprite
+        sprite.id === oldId ? newSprite : sprite,
     )
 
     const skins = new Map(project.value.skins)
@@ -183,13 +155,7 @@ async function onRenameSkinSprite(
             view.value[1] === name &&
             view.value[2] === 'sprites' &&
             view.value[3] === oldId.toString()
-                ? [
-                      'skins',
-                      name,
-                      'sprites',
-                      newId.toString(),
-                      ...view.value.slice(4),
-                  ]
+                ? ['skins', name, 'sprites', newId.toString(), ...view.value.slice(4)]
                 : view.value,
         skins,
     })
