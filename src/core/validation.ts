@@ -1,6 +1,6 @@
 export type Validator<T> = (value: T) => boolean
 
-export function validate<T>(
+export function validateInput<T>(
     props: {
         modelValue: T
         validate?: boolean

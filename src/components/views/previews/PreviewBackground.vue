@@ -68,7 +68,7 @@ const blurRadius = computed(
             }"
         >
             <div
-                class="absolute top-0 left-1/2 h-full -translate-x-1/2"
+                class="absolute left-1/2 top-0 h-full -translate-x-1/2"
                 :style="{ width: `calc(100% * ${width})` }"
             >
                 <div
@@ -78,14 +78,14 @@ const blurRadius = computed(
                     }"
                 >
                     <img
-                        class="absolute top-0 left-0 h-full w-full"
+                        class="absolute left-0 top-0 h-full w-full"
                         :style="{ filter: `blur(${blurRadius}px)` }"
                         :src="background.image"
                     />
                 </div>
             </div>
             <div
-                class="absolute top-0 left-0 h-full w-full"
+                class="absolute left-0 top-0 h-full w-full"
                 :style="{ backgroundColor: background.configuration.mask }"
             />
         </div>

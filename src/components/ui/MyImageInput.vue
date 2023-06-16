@@ -3,7 +3,7 @@ import { computed, ref, watchEffect } from 'vue'
 import { show } from '../../composables/modal'
 import { load } from '../../core/storage'
 import { getImageInfo } from '../../core/utils'
-import { validate } from '../../core/validation'
+import { validateInput } from '../../core/validation'
 import IconImage from '../../icons/image-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
 import ModalImage from '../modals/ModalImage.vue'
@@ -33,7 +33,7 @@ watchEffect(async () => {
 })
 
 const isError = computed(
-    () => !validate(props, () => imageInfo.value !== false)
+    () => !validateInput(props, () => imageInfo.value !== false)
 )
 
 function select() {

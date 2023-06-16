@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMounted } from '@vueuse/core'
 import { computed, ref, watchEffect } from 'vue'
-import { validate, Validator } from '../../core/validation'
+import { validateInput, Validator } from '../../core/validation'
 
 const props = defineProps<{
     modelValue: string
@@ -30,7 +30,7 @@ const value = computed({
     set: (value) => emit('update:modelValue', value),
 })
 
-const isError = computed(() => !validate(props, (value) => !!value.length))
+const isError = computed(() => !validateInput(props, (value) => !!value.length))
 </script>
 
 <template>

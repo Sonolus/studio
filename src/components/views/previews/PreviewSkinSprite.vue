@@ -238,14 +238,14 @@ watchPostEffect(() => {
         >
             <canvas
                 ref="elBack"
-                class="absolute top-0 left-0 h-full w-full"
+                class="absolute left-0 top-0 h-full w-full"
                 :class="{ 'opacity-50': draggingIndex !== undefined }"
                 :width="canvasWidth"
                 :height="canvasHeight"
             />
             <canvas
                 ref="elTop"
-                class="absolute top-0 left-0 h-full w-full select-none opacity-50 hover:opacity-100"
+                class="absolute left-0 top-0 h-full w-full select-none opacity-50 hover:opacity-100"
                 :style="{ touchAction: 'none' }"
                 :width="canvasWidth"
                 :height="canvasHeight"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMounted } from '@vueuse/core'
 import { computed, nextTick, ref, watchEffect } from 'vue'
-import { validate, Validator } from '../../core/validation'
+import { validateInput, Validator } from '../../core/validation'
 import IconKeyboard from '../../icons/keyboard-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
@@ -36,7 +36,7 @@ const value = computed({
     set: (value) => emit('update:modelValue', value),
 })
 
-const isError = computed(() => !validate(props, (value) => !!value.length))
+const isError = computed(() => !validateInput(props, (value) => !!value.length))
 
 function selectAll() {
     if (!el.value) return
@@ -72,7 +72,7 @@ async function clear() {
             @keydown.enter="$emit('enter')"
             @keydown.escape="$emit('escape')"
         />
-        <IconKeyboard class="icon pointer-events-none absolute top-2 left-2" />
+        <IconKeyboard class="icon pointer-events-none absolute left-2 top-2" />
         <button
             v-if="defaultValue !== undefined"
             class="clickable h-full flex-none px-2"

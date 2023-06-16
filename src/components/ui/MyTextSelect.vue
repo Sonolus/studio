@@ -54,7 +54,7 @@ function reset() {
                 </option>
             </select>
             <IconStream
-                class="icon pointer-events-none absolute top-2 left-2"
+                class="icon pointer-events-none absolute left-2 top-2"
             />
         </div>
         <button

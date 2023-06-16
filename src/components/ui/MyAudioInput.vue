@@ -3,7 +3,7 @@ import { computed, ref, watchEffect } from 'vue'
 import { show } from '../../composables/modal'
 import { load } from '../../core/storage'
 import { getAudioInfo } from '../../core/utils'
-import { validate } from '../../core/validation'
+import { validateInput } from '../../core/validation'
 import IconExclamation from '../../icons/exclamation-circle-solid.svg?component'
 import IconFileAudio from '../../icons/file-audio-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
@@ -36,7 +36,7 @@ watchEffect(async () => {
 })
 
 const isError = computed(
-    () => !validate(props, () => audioInfo.value !== false)
+    () => !validateInput(props, () => audioInfo.value !== false)
 )
 
 function select() {

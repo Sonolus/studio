@@ -75,7 +75,7 @@ export function resolveViewInfo(project: Project, view: string[]) {
                 <component
                     :is="viewInfo.component"
                     v-if="viewInfo"
-                    :data="viewInfo.data"
+                    :data="(viewInfo.data as never)"
                 />
                 <ViewDefault v-else />
             </div>

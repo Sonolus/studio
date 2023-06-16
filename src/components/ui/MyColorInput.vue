@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { validate } from '../../core/validation'
+import { validateInput } from '../../core/validation'
 import IconExclamation from '../../icons/exclamation-circle-solid.svg?component'
 import IconPalette from '../../icons/palette-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
@@ -57,7 +57,7 @@ const colorValue = computed({
         ),
 })
 
-const isError = computed(() => !validate(props, () => !!rgba.value))
+const isError = computed(() => !validateInput(props, () => !!rgba.value))
 
 function selectAll() {
     if (!el.value) return
@@ -87,11 +87,11 @@ function reset() {
         />
         <IconExclamation
             v-if="isError"
-            class="icon pointer-events-none absolute top-2 left-2"
+            class="icon pointer-events-none absolute left-2 top-2"
         />
         <div
             v-else
-            class="icon pointer-events-none absolute top-2 left-2"
+            class="icon pointer-events-none absolute left-2 top-2"
             :style="{ backgroundColor: modelValue }"
         />
         <div class="clickable relative h-full flex-none">
@@ -102,7 +102,7 @@ function reset() {
                 tabindex="-1"
             />
             <IconPalette
-                class="icon pointer-events-none absolute top-2 left-2"
+                class="icon pointer-events-none absolute left-2 top-2"
             />
         </div>
         <button

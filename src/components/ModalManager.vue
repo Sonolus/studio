@@ -13,7 +13,7 @@ const { modal } = useModal()
         leave-to-class="opacity-0"
         leave-active-class="transition-opacity duration-200 pointer-events-none mt-1"
     >
-        <div v-if="modal" class="fixed top-0 left-0 z-50 h-full w-full">
+        <div v-if="modal" class="fixed left-0 top-0 z-50 h-full w-full">
             <div class="absolute h-full w-full bg-sonolus-main opacity-90" />
             <div
                 class="absolute flex h-full w-full flex-col items-center justify-center p-4"
