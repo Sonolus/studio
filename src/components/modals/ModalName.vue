@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { customEffectClip, EffectClip } from 'sonolus-core'
 import { Component, computed, ref } from 'vue'
 import { Validator } from '../../core/validation'
 import IconCheck from '../../icons/check-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
 import MyButton from '../ui/MyButton.vue'
 import MyField from '../ui/MyField.vue'
-import MyNumberInput from '../ui/MyNumberInput.vue'
-import MyNumberSelect from '../ui/MyNumberSelect.vue'
+import MyTextInput from '../ui/MyTextInput.vue'
 import MyTextSelect from '../ui/MyTextSelect.vue'
 import ModalBase from './ModalBase.vue'
 
@@ -15,33 +13,28 @@ const props = defineProps<{
     data: {
         icon: Component
         title: string
-        defaultValue: number
-        validator: Validator<number>
+        names: Record<string, string>
+        defaultValue: string
+        validator: Validator<string>
     }
 }>()
 
 const emit = defineEmits<{
-    (e: 'close', result?: number): void
+    (e: 'close', result?: string): void
 }>()
 
-const effectClipOptions = Object.fromEntries(
-    Object.entries(EffectClip).filter((kvp): kvp is [string, number] => typeof kvp[1] === 'number'),
-)
+const options = computed(() => props.data.names)
 
-const type = ref<'general' | 'engine' | 'custom'>('general')
-const generalClipId = ref(EffectClip.Miss)
-const engineId = ref(0)
-const engineClipId = ref(0)
-const customId = ref(0)
+const type = ref<'general' | 'custom'>('general')
+const generalName = ref(Object.values(options.value)[0])
+const customName = ref('')
 
 const value = computed(() => {
     switch (type.value) {
         case 'general':
-            return generalClipId.value
-        case 'engine':
-            return customEffectClip(engineId.value, engineClipId.value)
+            return generalName.value
         case 'custom':
-            return customId.value
+            return customName.value
         default:
             throw 'Unexpected type'
     }
@@ -53,18 +46,14 @@ const validator = () => !isError.value
 initDefaultValue()
 
 function initDefaultValue() {
-    const id = props.data.defaultValue
+    const name = props.data.defaultValue
 
-    if (EffectClip[id]) {
+    if (Object.values(options.value).includes(name)) {
         type.value = 'general'
-        generalClipId.value = id
-    } else if (id >= 100000 && id < 200000) {
-        type.value = 'engine'
-        engineId.value = Math.floor(id / 100 - 1000)
-        engineClipId.value = id % 100
+        generalName.value = name
     } else {
         type.value = 'custom'
-        customId.value = id
+        customName.value = name
     }
 }
 
@@ -86,7 +75,6 @@ function tryClose() {
                 v-model="type"
                 :options="{
                     General: 'general',
-                    Engine: 'engine',
                     Custom: 'custom',
                 }"
                 auto-focus
@@ -94,24 +82,10 @@ function tryClose() {
         </MyField>
 
         <template v-if="type === 'general'">
-            <MyField title="Clip Type">
-                <MyNumberSelect
-                    v-model="generalClipId"
-                    :options="effectClipOptions"
-                    validate
-                    :validator="validator"
-                />
-            </MyField>
-        </template>
-
-        <template v-else-if="type === 'engine'">
-            <MyField title="Engine ID">
-                <MyNumberInput v-model="engineId" placeholder="Enter engine ID..." />
-            </MyField>
-            <MyField title="Clip ID">
-                <MyNumberInput
-                    v-model="engineClipId"
-                    placeholder="Enter clip ID..."
+            <MyField title="Name">
+                <MyTextSelect
+                    v-model="generalName"
+                    :options="options"
                     validate
                     :validator="validator"
                 />
@@ -119,12 +93,14 @@ function tryClose() {
         </template>
 
         <template v-else-if="type === 'custom'">
-            <MyField title="Clip ID">
-                <MyNumberInput
-                    v-model="customId"
-                    placeholder="Enter clip ID..."
+            <MyField title="Name">
+                <MyTextInput
+                    v-model="customName"
+                    placeholder="Enter name..."
                     validate
                     :validator="validator"
+                    @enter="tryClose()"
+                    @escape="close()"
                 />
             </MyField>
         </template>

@@ -1,6 +1,7 @@
+import { SkinSpriteName } from 'sonolus-core'
 import { markRaw } from 'vue'
 import { ExplorerItem, isOpened, onDelete, onDeleteAll, onNew, onRename } from '.'
-import ModalTextInput from '../../components/modals/ModalTextInput.vue'
+import ModalName from '../../components/modals/ModalName.vue'
 import { formatSkinSpriteName, newSkin, newSkinSprite } from '../../core/skin'
 import { clone } from '../../core/utils'
 import IconDot from '../../icons/dot-circle-regular.svg?component'
@@ -64,12 +65,12 @@ async function onNewSkinSprite({ project, isExplorerOpened }: UseStateReturn, na
     const skin = project.value.skins.get(name)
     if (!skin) throw 'Skin not found'
 
-    const spriteName = await show(ModalTextInput, {
+    const spriteName = await show(ModalName, {
         icon: markRaw(IconPlus),
         title: 'New Skin Sprite',
-        defaultValue: '',
-        placeholder: '',
-        validator: (value) => !skin.data.sprites.some(({ name }) => name === value),
+        names: SkinSpriteName,
+        defaultValue: SkinSpriteName.NoteHeadNeutral,
+        validator: (value) => !!value && !skin.data.sprites.some(({ name }) => name === value),
     })
     if (!spriteName) return
 
@@ -134,12 +135,12 @@ async function onRenameSkinSprite(
     const sprite = skin.data.sprites.find(({ name }) => name === spriteName)
     if (!sprite) throw 'Skin Sprite not found'
 
-    const newName = await show(ModalTextInput, {
+    const newName = await show(ModalName, {
         icon: markRaw(IconPlus),
         title: 'Rename Skin Sprite',
+        names: SkinSpriteName,
         defaultValue: spriteName,
-        placeholder: '',
-        validator: (value) => !skin.data.sprites.some(({ name }) => name === value),
+        validator: (value) => !!value && !skin.data.sprites.some(({ name }) => name === value),
     })
     if (!newName) return
 

@@ -1,6 +1,7 @@
+import { EffectClipName } from 'sonolus-core'
 import { markRaw } from 'vue'
 import { ExplorerItem, isOpened, onDelete, onDeleteAll, onNew, onRename } from '.'
-import ModalTextInput from '../../components/modals/ModalTextInput.vue'
+import ModalName from '../../components/modals/ModalName.vue'
 import { formatEffectClipName, newEffect, newEffectClip } from '../../core/effect'
 import { clone } from '../../core/utils'
 import IconDrum from '../../icons/drum-solid.svg?component'
@@ -64,12 +65,12 @@ async function onNewEffectClip({ project, isExplorerOpened }: UseStateReturn, na
     const effect = project.value.effects.get(name)
     if (!effect) throw 'Effect not found'
 
-    const newName = await show(ModalTextInput, {
+    const newName = await show(ModalName, {
         icon: markRaw(IconPlus),
         title: 'New Effect Clip',
-        defaultValue: '',
-        placeholder: '',
-        validator: (value) => !effect.data.clips.some(({ name }) => name === value),
+        names: EffectClipName,
+        defaultValue: EffectClipName.Miss,
+        validator: (value) => !!value && !effect.data.clips.some(({ name }) => name === value),
     })
     if (!newName) return
 
@@ -134,12 +135,12 @@ async function onRenameEffectClip(
     const clip = effect.data.clips.find(({ name }) => name === spriteName)
     if (!clip) throw 'Effect clip not found'
 
-    const newName = await show(ModalTextInput, {
+    const newName = await show(ModalName, {
         icon: markRaw(IconPlus),
         title: 'Rename Effect Clip',
+        names: EffectClipName,
         defaultValue: spriteName,
-        placeholder: '',
-        validator: (value) => !effect.data.clips.some(({ name }) => name === value),
+        validator: (value) => !!value && !effect.data.clips.some(({ name }) => name === value),
     })
     if (!newName) return
 
