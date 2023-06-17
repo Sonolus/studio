@@ -1,4 +1,5 @@
-import { ItemDetails, ItemList, SkinData, SkinItem } from 'sonolus-core'
+import { ItemDetails, ItemList, SkinData, SkinItem, SkinSpriteName } from 'sonolus-core'
+import { formatNameKey } from './names'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { bakeSprite, tryCalculateLayout } from './sprite-sheet'
 import { load } from './storage'
@@ -72,7 +73,10 @@ export function hasSkinSprite(skin: Skin, name: string) {
 }
 
 export function formatSkinSpriteName(name: string) {
-    return `Name: ${name}`
+    const kvp = Object.entries(SkinSpriteName).find(([, v]) => v === name)
+    if (!kvp) return `Custom: ${name}`
+
+    return formatNameKey(kvp[0])
 }
 
 export function addSkinToWhitelist(skin: Skin, whitelist: Set<string>) {

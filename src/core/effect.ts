@@ -1,5 +1,6 @@
 import JSZip from 'jszip'
-import { EffectData, EffectItem, ItemDetails, ItemList } from 'sonolus-core'
+import { EffectClipName, EffectData, EffectItem, ItemDetails, ItemList } from 'sonolus-core'
+import { formatNameKey } from './names'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { load } from './storage'
 import { packArrayBuffer, packJson, packRaw, srl, unpackJson } from './utils'
@@ -43,7 +44,10 @@ export function hasEffectClip(effect: Effect, name: string) {
 }
 
 export function formatEffectClipName(name: string) {
-    return `Name: ${name}`
+    const kvp = Object.entries(EffectClipName).find(([, v]) => v === name)
+    if (!kvp) return `Custom: ${name}`
+
+    return formatNameKey(kvp[0])
 }
 
 export function addEffectToWhitelist(effect: Effect, whitelist: Set<string>) {

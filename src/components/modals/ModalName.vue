@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Component, computed, ref } from 'vue'
+import { formatNameKey } from '../../core/names'
 import { Validator } from '../../core/validation'
 import IconCheck from '../../icons/check-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
@@ -23,7 +24,9 @@ const emit = defineEmits<{
     (e: 'close', result?: string): void
 }>()
 
-const options = computed(() => props.data.names)
+const options = computed(() =>
+    Object.fromEntries(Object.entries(props.data.names).map(([k, v]) => [formatNameKey(k), v])),
+)
 
 const type = ref<'general' | 'custom'>('general')
 const generalName = ref(Object.values(options.value)[0])
