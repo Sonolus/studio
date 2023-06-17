@@ -27,13 +27,8 @@ function close(isSuccess?: boolean) {
     emit(
         'close',
         isSuccess
-            ? getSimpleTransform(
-                  left.value,
-                  right.value,
-                  top.value,
-                  bottom.value
-              )
-            : undefined
+            ? getSimpleTransform(left.value, right.value, top.value, bottom.value)
+            : undefined,
     )
 }
 </script>
@@ -78,18 +73,8 @@ function close(isSuccess?: boolean) {
         </MyField>
 
         <template #actions>
-            <MyButton
-                class="w-24"
-                :icon="IconTimes"
-                text="Cancel"
-                @click="close()"
-            />
-            <MyButton
-                :icon="IconCheck"
-                text="Confirm"
-                class="ml-4 w-24"
-                @click="close(true)"
-            />
+            <MyButton class="w-24" :icon="IconTimes" text="Cancel" @click="close()" />
+            <MyButton :icon="IconCheck" text="Confirm" class="ml-4 w-24" @click="close(true)" />
         </template>
     </ModalBase>
 </template>

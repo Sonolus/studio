@@ -1,19 +1,9 @@
-import {
-    ExplorerItem,
-    isOpened,
-    onDelete,
-    onDeleteAll,
-    onNew,
-    onRename,
-} from '.'
+import { ExplorerItem, isOpened, onDelete, onDeleteAll, onNew, onRename } from '.'
 import { newBackground } from '../../core/background'
 import IconImage from '../../icons/image-solid.svg?component'
 import { UseStateReturn } from '../state'
 
-export function addBackgroundItems(
-    state: UseStateReturn,
-    items: ExplorerItem[]
-) {
+export function addBackgroundItems(state: UseStateReturn, items: ExplorerItem[]) {
     items.push({
         level: 0,
         path: ['backgrounds'],
@@ -26,7 +16,7 @@ export function addBackgroundItems(
                 'backgrounds',
                 'New Background',
                 'Enter background name...',
-                newBackground()
+                newBackground(),
             ),
         onDelete: () => onDeleteAll(state, 'backgrounds'),
     })
@@ -45,7 +35,7 @@ export function addBackgroundItems(
                     'backgrounds',
                     'Rename Background',
                     'Enter new background name...',
-                    name
+                    name,
                 ),
             onDelete: () => onDelete(state, 'backgrounds', name),
         })

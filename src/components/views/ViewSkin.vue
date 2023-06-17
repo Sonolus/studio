@@ -18,32 +18,16 @@ const v = useView(props, 'skins')
 <template>
     <MySection header="Info">
         <MyField title="Title">
-            <MyTextInput
-                v-model="v.title"
-                placeholder="Enter skin title..."
-                validate
-            />
+            <MyTextInput v-model="v.title" placeholder="Enter skin title..." validate />
         </MyField>
         <MyField title="Subtitle">
-            <MyTextInput
-                v-model="v.subtitle"
-                placeholder="Enter skin subtitle..."
-                validate
-            />
+            <MyTextInput v-model="v.subtitle" placeholder="Enter skin subtitle..." validate />
         </MyField>
         <MyField title="Author">
-            <MyTextInput
-                v-model="v.author"
-                placeholder="Enter skin author..."
-                validate
-            />
+            <MyTextInput v-model="v.author" placeholder="Enter skin author..." validate />
         </MyField>
         <MyField title="Description">
-            <MyTextArea
-                v-model="v.description"
-                placeholder="Enter skin description..."
-                validate
-            />
+            <MyTextArea v-model="v.description" placeholder="Enter skin description..." validate />
         </MyField>
     </MySection>
 

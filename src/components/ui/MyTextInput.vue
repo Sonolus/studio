@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMounted } from '@vueuse/core'
 import { computed, nextTick, ref, watchEffect } from 'vue'
-import { validate, Validator } from '../../core/validation'
+import { Validator, validateInput } from '../../core/validation'
 import IconKeyboard from '../../icons/keyboard-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
@@ -36,7 +36,7 @@ const value = computed({
     set: (value) => emit('update:modelValue', value),
 })
 
-const isError = computed(() => !validate(props, (value) => !!value.length))
+const isError = computed(() => !validateInput(props, (value) => !!value.length))
 
 function selectAll() {
     if (!el.value) return
@@ -58,10 +58,7 @@ async function clear() {
 </script>
 
 <template>
-    <div
-        class="relative flex h-8 items-center"
-        :class="{ 'ring-1 ring-sonolus-warning': isError }"
-    >
+    <div class="relative flex h-8 items-center" :class="{ 'ring-1 ring-sonolus-warning': isError }">
         <input
             ref="el"
             v-model="value"
@@ -72,7 +69,7 @@ async function clear() {
             @keydown.enter="$emit('enter')"
             @keydown.escape="$emit('escape')"
         />
-        <IconKeyboard class="icon pointer-events-none absolute top-2 left-2" />
+        <IconKeyboard class="icon pointer-events-none absolute left-2 top-2" />
         <button
             v-if="defaultValue !== undefined"
             class="clickable h-full flex-none px-2"
@@ -81,11 +78,7 @@ async function clear() {
         >
             <IconUndo class="icon" />
         </button>
-        <button
-            class="clickable h-full flex-none px-2"
-            tabindex="-1"
-            @click="clear()"
-        >
+        <button class="clickable h-full flex-none px-2" tabindex="-1" @click="clear()">
             <IconTimes class="icon" />
         </button>
     </div>

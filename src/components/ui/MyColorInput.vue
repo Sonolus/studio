@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { validate } from '../../core/validation'
+import { validateInput } from '../../core/validation'
 import IconExclamation from '../../icons/exclamation-circle-solid.svg?component'
 import IconPalette from '../../icons/palette-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
@@ -27,8 +27,7 @@ const value = computed({
 })
 
 const rgba = computed(() => {
-    if (!(props.alpha ? [5, 9] : [4, 7]).includes(props.modelValue.length))
-        return
+    if (!(props.alpha ? [5, 9] : [4, 7]).includes(props.modelValue.length)) return
     if (props.modelValue[0] !== '#') return
 
     const value = props.modelValue.slice(1).toLowerCase()
@@ -51,13 +50,10 @@ const rgba = computed(() => {
 const colorValue = computed({
     get: () => `#${rgba.value?.rgb || '000000'}`,
     set: (value) =>
-        emit(
-            'update:modelValue',
-            props.alpha ? `${value}${rgba.value?.a || '00'}` : value
-        ),
+        emit('update:modelValue', props.alpha ? `${value}${rgba.value?.a || '00'}` : value),
 })
 
-const isError = computed(() => !validate(props, () => !!rgba.value))
+const isError = computed(() => !validateInput(props, () => !!rgba.value))
 
 function selectAll() {
     if (!el.value) return
@@ -71,10 +67,7 @@ function reset() {
 </script>
 
 <template>
-    <div
-        class="relative flex h-8 items-center"
-        :class="{ 'ring-1 ring-sonolus-warning': isError }"
-    >
+    <div class="relative flex h-8 items-center" :class="{ 'ring-1 ring-sonolus-warning': isError }">
         <input
             ref="el"
             v-model="value"
@@ -85,25 +78,15 @@ function reset() {
             @keydown.enter="$emit('enter')"
             @keydown.escape="$emit('escape')"
         />
-        <IconExclamation
-            v-if="isError"
-            class="icon pointer-events-none absolute top-2 left-2"
-        />
+        <IconExclamation v-if="isError" class="icon pointer-events-none absolute left-2 top-2" />
         <div
             v-else
-            class="icon pointer-events-none absolute top-2 left-2"
+            class="icon pointer-events-none absolute left-2 top-2"
             :style="{ backgroundColor: modelValue }"
         />
         <div class="clickable relative h-full flex-none">
-            <input
-                v-model="colorValue"
-                class="h-full w-8 opacity-0"
-                type="color"
-                tabindex="-1"
-            />
-            <IconPalette
-                class="icon pointer-events-none absolute top-2 left-2"
-            />
+            <input v-model="colorValue" class="h-full w-8 opacity-0" type="color" tabindex="-1" />
+            <IconPalette class="icon pointer-events-none absolute left-2 top-2" />
         </div>
         <button
             v-if="defaultValue !== undefined"

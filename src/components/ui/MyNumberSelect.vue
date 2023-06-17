@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { validate, Validator } from '../../core/validation'
+import { Validator, validateInput } from '../../core/validation'
 import IconStream from '../../icons/stream-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
 
@@ -23,7 +23,7 @@ const value = computed({
     set: (value) => emit('update:modelValue', value),
 })
 
-const isError = computed(() => !validate(props, () => true))
+const isError = computed(() => !validateInput(props, () => true))
 
 function reset() {
     if (props.defaultValue === undefined) return
@@ -32,10 +32,7 @@ function reset() {
 </script>
 
 <template>
-    <div
-        class="flex h-8 items-center"
-        :class="{ 'ring-1 ring-sonolus-warning': isError }"
-    >
+    <div class="flex h-8 items-center" :class="{ 'ring-1 ring-sonolus-warning': isError }">
         <div class="relative h-full w-full flex-grow">
             <select
                 ref="el"
@@ -51,9 +48,7 @@ function reset() {
                     {{ description }}
                 </option>
             </select>
-            <IconStream
-                class="icon pointer-events-none absolute top-2 left-2"
-            />
+            <IconStream class="icon pointer-events-none absolute left-2 top-2" />
         </div>
         <button
             v-if="defaultValue !== undefined"

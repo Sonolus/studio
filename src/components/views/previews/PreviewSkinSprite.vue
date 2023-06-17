@@ -19,16 +19,12 @@ const props = defineProps<{
     interpolation: boolean
 }>()
 
-const backgroundColor = useLocalStorage(
-    'preview.skinSprite.backgroundColor',
-    '#000'
-)
+const backgroundColor = useLocalStorage('preview.skinSprite.backgroundColor', '#000')
 
 const elBack = ref<HTMLCanvasElement>()
 const elTop = ref<HTMLCanvasElement>()
 const elBuffer = ref<HTMLCanvasElement>()
-const { elementX, elementY, elementWidth, elementHeight } =
-    useMouseInElement(elTop)
+const { elementX, elementY, elementWidth, elementHeight } = useMouseInElement(elTop)
 const { pressed } = useMousePressed({ target: elTop })
 const { pixelRatio } = useDevicePixelRatio()
 
@@ -147,11 +143,7 @@ watchPostEffect(() => {
         ctx.fill()
     }
 
-    function drawRect(
-        ctx: CanvasRenderingContext2D,
-        rect: Rect,
-        color: string
-    ) {
+    function drawRect(ctx: CanvasRenderingContext2D, rect: Rect, color: string) {
         const [[x1, y1], [x2, y2], [x3, y3], [x4, y4]] = rect
 
         ctx.beginPath()
@@ -200,14 +192,7 @@ watchPostEffect(() => {
             const [u, v] = inverseBilinear([x, y], rect)
             if (u < 0 || v < 0 || u > 1 || v > 1) continue
 
-            const [r, g, b, a] = sample(
-                buffer,
-                width,
-                height,
-                u,
-                v,
-                props.interpolation
-            )
+            const [r, g, b, a] = sample(buffer, width, height, u, v, props.interpolation)
 
             const dIndex = (j * w + i) * 4
             data[dIndex + 0] = r
@@ -232,20 +217,17 @@ watchPostEffect(() => {
     </MyField>
 
     <div class="mx-auto my-4 max-w-sm border-4 border-sonolus-ui-text-normal">
-        <div
-            class="relative h-0 overflow-hidden pt-[100%]"
-            :style="{ backgroundColor }"
-        >
+        <div class="relative h-0 overflow-hidden pt-[100%]" :style="{ backgroundColor }">
             <canvas
                 ref="elBack"
-                class="absolute top-0 left-0 h-full w-full"
+                class="absolute left-0 top-0 h-full w-full"
                 :class="{ 'opacity-50': draggingIndex !== undefined }"
                 :width="canvasWidth"
                 :height="canvasHeight"
             />
             <canvas
                 ref="elTop"
-                class="absolute top-0 left-0 h-full w-full select-none opacity-50 hover:opacity-100"
+                class="absolute left-0 top-0 h-full w-full select-none opacity-50 hover:opacity-100"
                 :style="{ touchAction: 'none' }"
                 :width="canvasWidth"
                 :height="canvasHeight"

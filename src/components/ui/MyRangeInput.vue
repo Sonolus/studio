@@ -29,11 +29,9 @@ const value = computed({
                 props.min,
                 Math.min(
                     props.max,
-                    props.min +
-                        Math.round((value - props.min) / props.step) *
-                            props.step
-                )
-            )
+                    props.min + Math.round((value - props.min) / props.step) * props.step,
+                ),
+            ),
         ),
 })
 
@@ -74,11 +72,7 @@ function reset() {
 <template>
     <div class="relative flex h-8 items-center">
         <div class="w-16 flex-shrink-0 text-center">
-            {{
-                percentage
-                    ? `${(value * 100).toFixed(digits || 0)}%`
-                    : value.toFixed(digits || 0)
-            }}
+            {{ percentage ? `${(value * 100).toFixed(digits || 0)}%` : value.toFixed(digits || 0) }}
         </div>
         <button class="clickable h-full flex-none px-2" @click="decrease()">
             <IconCaretLeft class="icon" />

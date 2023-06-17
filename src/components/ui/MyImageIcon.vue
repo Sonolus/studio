@@ -13,7 +13,7 @@ const isError = ref(false)
 
 watch(
     () => props.src,
-    () => (isError.value = false)
+    () => (isError.value = false),
 )
 
 function onError() {

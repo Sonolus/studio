@@ -54,12 +54,8 @@ export function getAudioInfo(src: string) {
 }
 
 export function getImageBuffer(
-    {
-        img,
-        width,
-        height,
-    }: { img: HTMLImageElement; width: number; height: number },
-    canvas: HTMLCanvasElement
+    { img, width, height }: { img: HTMLImageElement; width: number; height: number },
+    canvas: HTMLCanvasElement,
 ) {
     canvas.width = width
     canvas.height = height
@@ -108,9 +104,7 @@ export async function packJson<T>(json: T) {
 }
 
 export async function unpackJson<T>(data: Blob): Promise<T> {
-    return JSON.parse(
-        ungzip(new Uint8Array(await toArrayBuffer(data)), { to: 'string' })
-    )
+    return JSON.parse(ungzip(new Uint8Array(await toArrayBuffer(data)), { to: 'string' }))
 }
 
 async function hash(data: BufferSource) {

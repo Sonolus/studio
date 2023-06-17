@@ -18,18 +18,18 @@ export async function tryCalculateLayout(skin: Skin) {
 
 async function calculateLayout(skin: Skin, size: number) {
     const sprites: {
-        id: number
+        name: string
         w: number
         h: number
         width: number
         height: number
     }[] = []
 
-    for (const { id, texture, padding } of skin.data.sprites) {
+    for (const { name, texture, padding } of skin.data.sprites) {
         const { width, height } = await getImageInfo(texture)
 
         sprites.push({
-            id,
+            name,
             w: width,
             h: height,
             width: width + (padding.left ? 1 : 0) + (padding.right ? 1 : 0),
@@ -43,11 +43,11 @@ async function calculateLayout(skin: Skin, size: number) {
         .sort(
             (a, b) =>
                 b.width * b.height - a.width * a.height ||
-                b.width + b.height - (a.width + a.height)
+                b.width + b.height - (a.width + a.height),
         )
-        .map(({ id, w, h, width, height }) => {
+        .map(({ name, w, h, width, height }) => {
             const spaceIndex = spaces.findIndex(
-                (space) => space.width >= width && space.height >= height
+                (space) => space.width >= width && space.height >= height,
             )
             if (spaceIndex == -1) throw 'Insufficient size'
 
@@ -73,7 +73,7 @@ async function calculateLayout(skin: Skin, size: number) {
             }
 
             return {
-                id,
+                name,
                 x: space.x,
                 y: space.y,
                 w,
@@ -88,7 +88,7 @@ export async function bakeSprite(
     y: number,
     w: number,
     h: number,
-    ctx: CanvasRenderingContext2D
+    ctx: CanvasRenderingContext2D,
 ) {
     const { img } = await getImageInfo(texture)
 

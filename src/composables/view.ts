@@ -6,17 +6,14 @@ import { push, useState } from './state'
 export function useView<T, U = T>(
     props: { data: T },
     type: ProjectItemTypeOf<T>,
-    getter?: (v: Ref<T>, view: Ref<string[]>) => U
+    getter?: (v: Ref<T>, view: Ref<string[]>) => U,
 ): Ref<U> {
     const { project, view } = useState()
 
     const v = toRef(bind(props), 'data')
     return getter ? computed(() => getter(v, view)) : v
 
-    function bind<T extends Record<string, unknown>>(
-        data: T,
-        path = [] as string[]
-    ): T {
+    function bind<T extends Record<string, unknown>>(data: T, path = [] as string[]): T {
         return new Proxy(data, {
             get(target, prop, receiver) {
                 const keyPath = [...path, prop as string]
@@ -40,10 +37,9 @@ export function useView<T, U = T>(
     function update(path: string[], value: unknown) {
         const newProps = clone(props)
         path.reduce(
-            (data, key, index) =>
-                index === path.length - 1 ? (data[key] = value) : data[key],
+            (data, key, index) => (index === path.length - 1 ? (data[key] = value) : data[key]),
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            newProps as any
+            newProps as any,
         )
 
         const items = new Map(project.value[type] as never)
@@ -55,7 +51,7 @@ export function useView<T, U = T>(
                 view: view.value,
                 [type]: items,
             },
-            path.join('.')
+            path.join('.'),
         )
     }
 }

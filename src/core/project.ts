@@ -10,18 +10,13 @@ import {
     SkinItem,
 } from 'sonolus-core'
 import {
-    addBackgroundToWhitelist,
     Background,
+    addBackgroundToWhitelist,
     packBackgrounds,
     unpackBackgrounds,
 } from './background'
-import {
-    addEffectToWhitelist,
-    Effect,
-    packEffects,
-    unpackEffects,
-} from './effect'
-import { addSkinToWhitelist, packSkins, Skin, unpackSkins } from './skin'
+import { Effect, addEffectToWhitelist, packEffects, unpackEffects } from './effect'
+import { Skin, addSkinToWhitelist, packSkins, unpackSkins } from './skin'
 
 export type Project = {
     view: string[]
@@ -43,14 +38,9 @@ export function newProject(): Project {
     }
 }
 
-export function addProjectToWhitelist(
-    project: Project,
-    whitelist: Set<string>
-) {
+export function addProjectToWhitelist(project: Project, whitelist: Set<string>) {
     project.skins.forEach((skin) => addSkinToWhitelist(skin, whitelist))
-    project.backgrounds.forEach((background) =>
-        addBackgroundToWhitelist(background, whitelist)
-    )
+    project.backgrounds.forEach((background) => addBackgroundToWhitelist(background, whitelist))
     project.effects.forEach((effect) => addEffectToWhitelist(effect, whitelist))
 }
 
@@ -166,14 +156,11 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
     process.tasks.push({
         description: 'Generating background list...',
         async execute() {
-            process.addJson<ItemList<BackgroundItem>>(
-                '/sonolus/backgrounds/list',
-                {
-                    pageCount: 1,
-                    items: process.backgrounds,
-                    search: { options: [] },
-                }
-            )
+            process.addJson<ItemList<BackgroundItem>>('/sonolus/backgrounds/list', {
+                pageCount: 1,
+                items: process.backgrounds,
+                search: { options: [] },
+            })
         },
     })
 

@@ -20,7 +20,7 @@ const v = useView(
     props,
     'skins',
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    (v, view) => v.value.data.sprites.find(({ id }) => id === +view.value[3])!
+    (v, view) => v.value.data.sprites.find(({ name }) => name === view.value[3])!,
 )
 
 const keys = ['x1', 'x2', 'x3', 'x4', 'y1', 'y2', 'y3', 'y4'] as const
@@ -60,11 +60,7 @@ async function onSetSimpleTransform() {
             <thead>
                 <tr class="h-8">
                     <th class="p-0" />
-                    <th
-                        v-for="i in keys"
-                        :key="i"
-                        class="p-0 text-lg font-semibold"
-                    >
+                    <th v-for="i in keys" :key="i" class="p-0 text-lg font-semibold">
                         {{ i }}
                     </th>
                 </tr>
@@ -92,9 +88,6 @@ async function onSetSimpleTransform() {
     </MySection>
 
     <MySection header="Preview">
-        <PreviewSkinSprite
-            :sprite="v"
-            :interpolation="data.data.interpolation"
-        />
+        <PreviewSkinSprite :sprite="v" :interpolation="data.data.interpolation" />
     </MySection>
 </template>

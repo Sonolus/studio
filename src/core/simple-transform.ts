@@ -9,7 +9,7 @@ export function getSimpleTransform(
     left: number,
     right: number,
     top: number,
-    bottom: number
+    bottom: number,
 ): Transform {
     const p = [
         {
@@ -79,19 +79,13 @@ function multiply(a: Point, b: number): Point {
 }
 
 function addExp(a: Expression, b: Expression) {
-    return Object.fromEntries(
-        keys.map((key) => [key, a[key] + b[key]])
-    ) as Expression
+    return Object.fromEntries(keys.map((key) => [key, a[key] + b[key]])) as Expression
 }
 
 function subtractExp(a: Expression, b: Expression) {
-    return Object.fromEntries(
-        keys.map((key) => [key, a[key] - b[key]])
-    ) as Expression
+    return Object.fromEntries(keys.map((key) => [key, a[key] - b[key]])) as Expression
 }
 
 function multiplyExp(a: Expression, b: number) {
-    return Object.fromEntries(
-        keys.map((key) => [key, a[key] * b])
-    ) as Expression
+    return Object.fromEntries(keys.map((key) => [key, a[key] * b])) as Expression
 }

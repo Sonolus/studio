@@ -11,8 +11,7 @@ export function inverseBilinear(p: Point, [d, a, b, c]: Rect): Point {
     const k1 = cross(e, f) + cross(h, g)
     const k0 = cross(h, e)
 
-    if (Math.abs(k2) < 0.001)
-        return [(h[0] * k1 + f[0] * k0) / (e[0] * k1 - g[0] * k0), -k0 / k1]
+    if (Math.abs(k2) < 0.001) return [(h[0] * k1 + f[0] * k0) / (e[0] * k1 - g[0] * k0), -k0 / k1]
 
     const w2 = k1 * k1 - 4 * k0 * k2
     if (w2 < 0) return [-1, -1]

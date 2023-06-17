@@ -4,7 +4,7 @@ import { ProjectItemTypeOf } from '../../core/project'
 import IconEdit from '../../icons/edit-solid.svg?component'
 import IconPlus from '../../icons/plus-solid.svg?component'
 import { show } from '../modal'
-import { push, useState, UseStateReturn } from '../state'
+import { UseStateReturn, push, useState } from '../state'
 import { addBackgroundItems } from './backgrounds'
 import { addEffectItems } from './effects'
 import { addSkinItems } from './skins'
@@ -73,7 +73,7 @@ export async function onNew<T>(
     type: ProjectItemTypeOf<T>,
     title: string,
     placeholder: string,
-    value: T
+    value: T,
 ) {
     const name = (
         await show(ModalTextInput, {
@@ -104,10 +104,7 @@ export async function onNew<T>(
     isExplorerOpened.value = false
 }
 
-export function onDeleteAll<T>(
-    { project }: UseStateReturn,
-    type: ProjectItemTypeOf<T>
-) {
+export function onDeleteAll<T>({ project }: UseStateReturn, type: ProjectItemTypeOf<T>) {
     if (!project.value[type].size) return
 
     push({
@@ -117,11 +114,7 @@ export function onDeleteAll<T>(
     })
 }
 
-export function onDelete<T>(
-    { project }: UseStateReturn,
-    type: ProjectItemTypeOf<T>,
-    name: string
-) {
+export function onDelete<T>({ project }: UseStateReturn, type: ProjectItemTypeOf<T>, name: string) {
     const items = new Map(project.value[type] as never)
     items.delete(name)
 
@@ -137,7 +130,7 @@ export async function onRename<T>(
     type: ProjectItemTypeOf<T>,
     title: string,
     placeholder: string,
-    oldName: string
+    oldName: string,
 ) {
     const newName = (
         await show(ModalTextInput, {

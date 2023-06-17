@@ -6,9 +6,7 @@ const appVersion = VITE_APP_VERSION
 </script>
 
 <template>
-    <div
-        class="flex h-[calc(100vh-3.5rem)] flex-col items-center justify-center text-center"
-    >
+    <div class="flex h-[calc(100vh-3.5rem)] flex-col items-center justify-center text-center">
         <div class="text-2xl font-semibold">Sonolus Studio</div>
         <div>Version {{ appVersion }}</div>
         <div class="text-xs">For Sonolus {{ version.sonolus }}</div>

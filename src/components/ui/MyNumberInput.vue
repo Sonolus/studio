@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMounted } from '@vueuse/core'
 import { computed, ref, watchEffect } from 'vue'
-import { validate, Validator } from '../../core/validation'
+import { Validator, validateInput } from '../../core/validation'
 import IconKeyboard from '../../icons/keyboard-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
 
@@ -35,7 +35,7 @@ const value = computed({
     set: (value) => emit('update:modelValue', +value || 0),
 })
 
-const isError = computed(() => !validate(props, () => true))
+const isError = computed(() => !validateInput(props, () => true))
 
 function selectAll() {
     if (!el.value) return
@@ -49,10 +49,7 @@ function reset() {
 </script>
 
 <template>
-    <div
-        class="relative flex h-8 items-center"
-        :class="{ 'ring-1 ring-sonolus-warning': isError }"
-    >
+    <div class="relative flex h-8 items-center" :class="{ 'ring-1 ring-sonolus-warning': isError }">
         <input
             ref="el"
             v-model="value"
@@ -64,7 +61,7 @@ function reset() {
             @keydown.enter="$emit('enter')"
             @keydown.escape="$emit('escape')"
         />
-        <IconKeyboard class="icon pointer-events-none absolute top-2 left-2" />
+        <IconKeyboard class="icon pointer-events-none absolute left-2 top-2" />
         <button
             v-if="defaultValue !== undefined"
             class="clickable h-full flex-none px-2"
