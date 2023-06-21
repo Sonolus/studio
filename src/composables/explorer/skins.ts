@@ -1,9 +1,10 @@
 import { SkinSpriteName } from 'sonolus-core'
 import { markRaw } from 'vue'
-import { ExplorerItem, isOpened, onDelete, onDeleteAll, onNew, onRename } from '.'
+import { ExplorerItem, isOpened, onClone, onDelete, onDeleteAll, onNew, onRename } from '.'
 import ModalName from '../../components/modals/ModalName.vue'
 import { formatSkinSpriteName, newSkin, newSkinSprite } from '../../core/skin'
 import { clone } from '../../core/utils'
+import IconClone from '../../icons/clone-solid.svg?component'
 import IconDot from '../../icons/dot-circle-regular.svg?component'
 import IconFileImage from '../../icons/file-image-solid.svg?component'
 import IconFolder from '../../icons/folder-solid.svg?component'
@@ -31,6 +32,7 @@ export function addSkinItems(state: UseStateReturn, items: ExplorerItem[]) {
             icon: skin.thumbnail,
             title: name,
             onRename: () => onRename(state, 'skins', 'Rename Skin', 'Enter new skin name...', name),
+            onClone: () => onClone(state, 'skins', 'Clone Skin', 'Enter new skin name...', name),
             onDelete: () => onDelete(state, 'skins', name),
         })
 
@@ -55,6 +57,7 @@ export function addSkinItems(state: UseStateReturn, items: ExplorerItem[]) {
                 fallback: IconFileImage,
                 title: formatSkinSpriteName(spriteName),
                 onRename: () => onRenameSkinSprite(state, name, spriteName),
+                onClone: () => onCloneSkinSprite(state, name, spriteName),
                 onDelete: () => onDeleteSkinSprite(state, name, spriteName),
             })
         })
@@ -151,6 +154,47 @@ async function onRenameSkinSprite(
     newSkin.data.sprites = newSkin.data.sprites.map((sprite) =>
         sprite.name === spriteName ? newSprite : sprite,
     )
+
+    const skins = new Map(project.value.skins)
+    skins.set(name, newSkin)
+
+    push({
+        ...project.value,
+        view:
+            view.value[0] === 'skins' &&
+            view.value[1] === name &&
+            view.value[2] === 'sprites' &&
+            view.value[3] === spriteName
+                ? ['skins', name, 'sprites', newName, ...view.value.slice(4)]
+                : view.value,
+        skins,
+    })
+}
+async function onCloneSkinSprite(
+    { project, view }: UseStateReturn,
+    name: string,
+    spriteName: string,
+) {
+    const skin = project.value.skins.get(name)
+    if (!skin) throw 'Skin not found'
+
+    const sprite = skin.data.sprites.find(({ name }) => name === spriteName)
+    if (!sprite) throw 'Skin Sprite not found'
+
+    const newName = await show(ModalName, {
+        icon: markRaw(IconClone),
+        title: 'Clone Skin Sprite',
+        names: SkinSpriteName,
+        defaultValue: spriteName,
+        validator: (value) => !!value && !skin.data.sprites.some(({ name }) => name === value),
+    })
+    if (!newName) return
+
+    const newSprite = clone(sprite)
+    newSprite.name = newName
+
+    const newSkin = clone(skin)
+    newSkin.data.sprites.push(newSprite)
 
     const skins = new Map(project.value.skins)
     skins.set(name, newSkin)

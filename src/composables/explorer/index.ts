@@ -1,6 +1,8 @@
 import { Component, computed, markRaw, reactive } from 'vue'
 import ModalTextInput from '../../components/modals/ModalTextInput.vue'
 import { ProjectItemTypeOf } from '../../core/project'
+import { clone } from '../../core/utils'
+import IconClone from '../../icons/clone-solid.svg?component'
 import IconEdit from '../../icons/edit-solid.svg?component'
 import IconPlus from '../../icons/plus-solid.svg?component'
 import { show } from '../modal'
@@ -20,6 +22,7 @@ export type ExplorerItem = {
 
     onNew?: () => void
     onRename?: () => void
+    onClone?: () => void
     onDelete: () => void
 }
 
@@ -152,6 +155,43 @@ export async function onRename<T>(
     const oldItem = items.get(oldName)
     items.delete(oldName)
     items.set(newName, oldItem as never)
+
+    push({
+        ...project.value,
+        view:
+            view.value[0] === type && view.value[1] === oldName
+                ? [type, newName, ...view.value.slice(2)]
+                : view.value,
+        [type]: items,
+    })
+}
+
+export async function onClone<T>(
+    { project, view }: UseStateReturn,
+    type: ProjectItemTypeOf<T>,
+    title: string,
+    placeholder: string,
+    oldName: string,
+) {
+    const newName = (
+        await show(ModalTextInput, {
+            icon: markRaw(IconClone),
+            title,
+            defaultValue: oldName,
+            placeholder,
+            validator(name) {
+                name = name.trim()
+                if (!name.length) return false
+                if (project.value[type].has(name)) return false
+                return true
+            },
+        })
+    )?.trim()
+    if (!newName) return
+
+    const items = new Map(project.value[type] as never)
+    const newItem = clone(items.get(oldName))
+    items.set(newName, newItem as never)
 
     push({
         ...project.value,
