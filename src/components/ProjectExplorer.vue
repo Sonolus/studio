@@ -4,6 +4,7 @@ import { isOpened, open, toggle, toKey, useExplorer } from '../composables/explo
 import { useState } from '../composables/state'
 import IconAngleDown from '../icons/angle-down-solid.svg?component'
 import IconAngleRight from '../icons/angle-right-solid.svg?component'
+import IconClone from '../icons/clone-solid.svg?component'
 import IconEdit from '../icons/edit-solid.svg?component'
 import IconFile from '../icons/file-solid.svg?component'
 import IconPlus from '../icons/plus-solid.svg?component'
@@ -89,6 +90,13 @@ function onClick(item: { path: string[] }) {
                 @click.stop="item.onNew?.()"
             >
                 <IconPlus class="icon" />
+            </button>
+            <button
+                v-if="item.onClone"
+                class="h-full flex-none px-2 transition-opacity duration-200 group-hover:opacity-100 sm:opacity-0"
+                @click.stop="item.onClone?.()"
+            >
+                <IconClone class="icon" />
             </button>
             <button
                 v-if="item.onRename"
