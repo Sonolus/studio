@@ -1,4 +1,4 @@
-import { ExplorerItem, isOpened, onDelete, onDeleteAll, onNew, onRename } from '.'
+import { ExplorerItem, isOpened, onClone, onDelete, onDeleteAll, onNew, onRename } from '.'
 import { newBackground } from '../../core/background'
 import IconImage from '../../icons/image-solid.svg?component'
 import { UseStateReturn } from '../state'
@@ -34,6 +34,14 @@ export function addBackgroundItems(state: UseStateReturn, items: ExplorerItem[])
                     state,
                     'backgrounds',
                     'Rename Background',
+                    'Enter new background name...',
+                    name,
+                ),
+            onClone: () =>
+                onClone(
+                    state,
+                    'backgrounds',
+                    'Clone Background',
                     'Enter new background name...',
                     name,
                 ),
