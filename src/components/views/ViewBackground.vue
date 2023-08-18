@@ -94,6 +94,9 @@ watchEffect(async () => {
     </MySection>
 
     <MySection header="Configuration">
+        <MyField title="Scope">
+            <MyTextInput v-model="v.configuration.scope" placeholder="Enter background scope..." />
+        </MyField>
         <MyField title="Blur">
             <MyRangeInput
                 v-model="v.configuration.blur"

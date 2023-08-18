@@ -17,7 +17,7 @@ export type Background = {
     thumbnail: string
     image: string
     data: BackgroundData
-    configuration: BackgroundConfiguration
+    configuration: Required<BackgroundConfiguration>
 }
 
 export function newBackground(): Background {
@@ -34,6 +34,7 @@ export function newBackground(): Background {
             color: '#000',
         },
         configuration: {
+            scope: '',
             blur: 0,
             mask: '#0000',
         },
