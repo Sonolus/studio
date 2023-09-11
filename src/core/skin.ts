@@ -95,7 +95,7 @@ function packSkin(
 ) {
     const item: SkinItem = {
         name,
-        version: 3,
+        version: 4,
         title: skin.title,
         subtitle: skin.subtitle,
         author: skin.author,
