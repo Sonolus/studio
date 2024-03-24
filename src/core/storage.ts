@@ -14,7 +14,6 @@ export function load(data: File | Blob) {
 }
 
 function add(url: string) {
-    console.log(url)
     urls.push(url)
     return url
 }

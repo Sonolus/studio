@@ -1,13 +1,23 @@
-import { Skin } from './skin'
 import { getImageInfo } from './utils'
 
-export async function tryCalculateLayout(skin: Skin) {
+export type SpriteLayout = {
+    name: string,
+    texture: string,
+    padding: {
+        left: boolean,
+        right: boolean,
+        top: boolean,
+        bottom: boolean
+    }
+}
+
+export async function tryCalculateLayout(sprite: SpriteLayout[]) {
     let size = 128
     while (size <= 4096) {
         try {
             return {
                 size,
-                layouts: await calculateLayout(skin, size),
+                layouts: await calculateLayout(sprite, size),
             }
         } catch (e) {
             size *= 2
@@ -16,7 +26,7 @@ export async function tryCalculateLayout(skin: Skin) {
     throw 'Maximum texture size (4096x4096) exceeded'
 }
 
-async function calculateLayout(skin: Skin, size: number) {
+async function calculateLayout(sprite: SpriteLayout[], size: number) {
     const sprites: {
         name: string
         w: number
@@ -25,7 +35,7 @@ async function calculateLayout(skin: Skin, size: number) {
         height: number
     }[] = []
 
-    for (const { name, texture, padding } of skin.data.sprites) {
+    for (const { name, texture, padding } of sprite) {
         const { width, height } = await getImageInfo(texture)
 
         sprites.push({
@@ -83,7 +93,7 @@ async function calculateLayout(skin: Skin, size: number) {
 }
 
 export async function bakeSprite(
-    { texture, padding }: Skin['data']['sprites'][number],
+    { texture, padding }: SpriteLayout,
     x: number,
     y: number,
     w: number,

@@ -17,7 +17,7 @@ import {
 } from './background'
 import { Effect, addEffectToWhitelist, packEffects, unpackEffects } from './effect'
 import { Skin, addSkinToWhitelist, packSkins, unpackSkins } from './skin'
-import { Particle, addParticleToWhitelist } from './particle'
+import { Particle, addParticleToWhitelist, packParticles, unpackParticles } from './particle'
 
 export type Project = {
     view: string[]
@@ -52,6 +52,7 @@ export type PackProcess = {
     skins: SkinItem[]
     backgrounds: BackgroundItem[]
     effects: EffectItem[]
+    particles: ParticleItem[]
 
     tasks: {
         description: string
@@ -73,6 +74,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
         skins: [],
         backgrounds: [],
         effects: [],
+        particles: [],
 
         tasks: [],
 
@@ -96,6 +98,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
     packSkins(process, project)
     packBackgrounds(process, project)
     packEffects(process, project)
+    packParticles(process, project)
 
     process.tasks.push({
         description: 'Generating server information...',
@@ -124,7 +127,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
                     search: { options: [] },
                 },
                 particles: {
-                    items: [],
+                    items: process.particles.slice(0, 5),
                     search: { options: [] },
                 },
                 engines: {
@@ -184,7 +187,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
         async execute() {
             process.addJson<ItemList<ParticleItem>>('/sonolus/particles/list', {
                 pageCount: 1,
-                items: [],
+                items: process.particles,
                 search: { options: [] },
             })
         },
@@ -266,6 +269,7 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
     unpackSkins(process)
     unpackBackgrounds(process)
     unpackEffects(process)
+    unpackParticles(process)
 
     return process
 
