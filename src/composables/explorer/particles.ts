@@ -47,7 +47,7 @@ export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
             onNew: () => onNewParticleEffect(state, name),
             onDelete: () => onDeleteParticleEffects(state, name),
         })
-        if (isOpened(['particles', name, 'effects']))
+        if (isOpened(['particles', name, 'effects'])) {
             particle.data.effects.forEach(({ name: effectName, groups: groups }) => {
                 items.push({
                     level: 3,
@@ -93,6 +93,7 @@ export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
                     }
                 }
             })
+        }
     })
 }
 
@@ -392,8 +393,8 @@ async function onCloneParticleEffectGroup(
             view.value[1] === name &&
             view.value[2] === 'effects' &&
             view.value[3] === effectName &&
-            view.value[4] === 'Group #' + groupId
-                ? ['particles', name, 'effects', effectName, 'Group #' + newEffect.groups.length, ...view.value.slice(4)]
+            view.value[4] == 'Group #' + groupId
+                ? ['particles', name, 'effects', effectName, 'Group #' + (newEffect.groups.length - 1), ...view.value.slice(5)]
                 : view.value,
         particles,
     })
@@ -440,9 +441,9 @@ async function onCloneParticleEffectGroupParticle(
             view.value[1] === name &&
             view.value[2] === 'effects' &&
             view.value[3] === effectName &&
-            view.value[4] === 'Group #' + groupId &&
-            view.value[5] === 'Sprite #' + particleId
-                ? ['particles', name, 'effects', effectName, 'Group #' + groupId, 'Sprite #' + newGroup.particles.length, ...view.value.slice(4)]
+            view.value[4] == 'Group #' + groupId &&
+            view.value[5] == 'Sprite #' + particleId
+                ? ['particles', name, 'effects', effectName, 'Group #' + groupId, 'Sprite #' + (newGroup.particles.length - 1), ...view.value.slice(6)]
                 : view.value,
         particles,
     })
