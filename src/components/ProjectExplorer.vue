@@ -63,7 +63,9 @@ function onClick(item: { path: string[] }) {
                     'pl-2': item.level === 0,
                     'pl-4': item.level === 1,
                     'pl-8': item.level === 2,
-                    'pl-10': item.level === 3,
+                    'pl-12': item.level === 3,
+                    'pl-16': item.level === 4,
+                    'pl-20': item.level === 5,
                     'pointer-events-none opacity-0': !item.hasChildren,
                 }"
                 @click.stop="toggle(item.path)"
