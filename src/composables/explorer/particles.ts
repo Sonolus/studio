@@ -135,8 +135,8 @@ async function onNewParticleEffectGroup({ project }: UseStateReturn, name: strin
     newEffect.groups.push(newParticleEffectGroup())
 
     const newParticle = clone(particle)
-    newParticle.data.effects = newParticle.data.effects.map((particle) =>
-        effect.name === effectName ? newEffect : particle,
+    newParticle.data.effects = newParticle.data.effects.map((effect) =>
+        effect.name === effectName ? newEffect : effect,
     )
 
     const particles = new Map(project.value.particles)
@@ -165,8 +165,8 @@ async function onNewParticleEffectGroupParticle({ project }: UseStateReturn, nam
     newEffect.groups[groupId] = newEffectGroup
 
     const newParticle = clone(particle)
-    newParticle.data.effects = newParticle.data.effects.map((particle) =>
-        effect.name === effectName ? newEffect : particle,
+    newParticle.data.effects = newParticle.data.effects.map((effect) =>
+        effect.name === effectName ? newEffect : effect,
     )
 
     const particles = new Map(project.value.particles)
@@ -227,8 +227,8 @@ async function onDeleteParticleEffectGroup({ project }: UseStateReturn, name: st
     newEffect.groups.splice(groupId, 1)
 
     const newParticle = clone(particle)
-    newParticle.data.effects = newParticle.data.effects.map((particle) =>
-        effect.name === effectName ? newEffect : particle,
+    newParticle.data.effects = newParticle.data.effects.map((effect) =>
+        effect.name === effectName ? newEffect : effect,
     )
 
     const particles = new Map(project.value.particles)
@@ -259,8 +259,8 @@ async function onDeleteParticleEffectGroupParticle({ project }: UseStateReturn, 
     newEffect.groups[groupId] = newGroup
 
     const newParticle = clone(particle)
-    newParticle.data.effects = newParticle.data.effects.map((particle) =>
-        effect.name === effectName ? newEffect : particle,
+    newParticle.data.effects = newParticle.data.effects.map((effect) =>
+        effect.name === effectName ? newEffect : effect,
     )
 
     const particles = new Map(project.value.particles)
@@ -294,11 +294,11 @@ async function onRenameParticleEffect(
     if (!newName) return
 
     const newEffect = clone(effect)
-    newEffect.name = newName
+    neweffect.name = newName
 
     const newParticle = clone(particle)
-    newParticle.data.effects = newParticle.data.effects.map((particle) =>
-        effect.name === effectName ? newEffect : particle,
+    newParticle.data.effects = newParticle.data.effects.map((effect) =>
+        effect.name === effectName ? newEffect : effect,
     )
 
     const particles = new Map(project.value.particles)
@@ -338,7 +338,7 @@ async function onCloneParticleEffect(
     if (!newName) return
 
     const newEffect = clone(effect)
-    newEffect.name = newName
+    neweffect.name = newName
 
     const newParticle = clone(particle)
     newParticle.data.effects.push(newEffect)
@@ -379,8 +379,8 @@ async function onCloneParticleEffectGroup(
     newEffect.groups.push(newGroup)
 
     const newParticle = clone(particle)
-    newParticle.data.effects = newParticle.data.effects.map((particle) =>
-        effect.name === effectName ? newEffect : particle,
+    newParticle.data.effects = newParticle.data.effects.map((effect) =>
+        effect.name === effectName ? newEffect : effect,
     )
 
     const particles = new Map(project.value.particles)
@@ -427,8 +427,8 @@ async function onCloneParticleEffectGroupParticle(
     newEffect.groups[groupId] = newGroup
 
     const newParticle = clone(particle)
-    newParticle.data.effects = newParticle.data.effects.map((particle) =>
-        effect.name === effectName ? newEffect : particle,
+    newParticle.data.effects = newParticle.data.effects.map((effect) =>
+        effect.name === effectName ? newEffect : effect,
     )
 
     const particles = new Map(project.value.particles)

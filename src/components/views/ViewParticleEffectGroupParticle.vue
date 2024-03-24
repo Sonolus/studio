@@ -17,9 +17,18 @@ const v = useView(
     props,
     'particles',
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    (v, view) => v.value.data.effects.find(({ name }) => name === view.value[3])
-        ?.groups[Number(view.value[4].substr("Group #".length))]
-        .particles[Number(view.value[5].substr("Sprite #".length))]!
+    (v, view) => {
+    	let res = v.value.data.effects.find(({ name }) => name === view.value[3])
+	        ?.groups[Number(view.value[4].substr("Group #".length))]
+	        .particles[Number(view.value[5].substr("Sprite #".length))]!
+	    if (res.x.ease == undefined) res.x.ease = "None"
+	    if (res.y.ease == undefined) res.y.ease = "None"
+	    if (res.w.ease == undefined) res.w.ease = "None"
+	    if (res.h.ease == undefined) res.h.ease = "None"
+	    if (res.r.ease == undefined) res.r.ease = "None"
+	    if (res.a.ease == undefined) res.a.ease = "None"
+	    return res
+	}
 )
 
 const validator = (value: string) => {

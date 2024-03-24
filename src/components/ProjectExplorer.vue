@@ -43,7 +43,7 @@ function onClick(item: { path: string[] }) {
 
 <template>
     <div
-        class="scrollbar fixed bottom-0 left-0 top-8 z-10 w-full -translate-x-full overflow-y-auto bg-sonolus-main text-sm opacity-0 transition-all duration-200 sm:w-48 sm:translate-x-0 sm:opacity-100 md:w-64 lg:w-80"
+        class="scrollbar fixed bottom-0 left-0 top-8 z-10 w-full -translate-x-full overflow-y-auto bg-sonolus-main text-sm opacity-0 transition-all duration-200 sm:w-60 sm:translate-x-0 sm:opacity-100 md:w-80 lg:w-100"
         :class="{
             'translate-x-0 opacity-100': isExplorerOpened,
         }"

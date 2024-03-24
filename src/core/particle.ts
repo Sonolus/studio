@@ -209,6 +209,8 @@ function stringToParticleExpression(value: string): ParticleDataGroupParticlePro
     let seperator = /\+|-/;
     let arr = value.split(seperator); 
     let res: ParticleDataGroupParticlePropertyExpression = {};
+    let sign = [];
+    for (let i = 0; i < value.length; i++) if (value[i] == '-' || value[i] == '+') sign.push(value[i]);
     for (let i = 0; i < arr.length; i++) {
         let arr2 = arr[i].split('*');
         let nan = 0; let name = 'c'; let val = 1;
@@ -221,7 +223,9 @@ function stringToParticleExpression(value: string): ParticleDataGroupParticlePro
         }
         if (val == 0) continue
         type Name = keyof ParticleDataGroupParticlePropertyExpression;
-        res[name as Name] = Number(res[name as Name]) + val;
+        if (isNaN(Number(res[name as Name]))) res[name as Name] = 0;
+        res[name as Name] = Number(res[name as Name]) + val * (i && sign[i - 1] == '-' ? -1 : 1);
+        console.log(res[name as Name]);
     }
     return res;
 }
