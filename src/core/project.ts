@@ -17,12 +17,14 @@ import {
 } from './background'
 import { Effect, addEffectToWhitelist, packEffects, unpackEffects } from './effect'
 import { Skin, addSkinToWhitelist, packSkins, unpackSkins } from './skin'
+import { Particle, addParticleToWhitelist } from './particle'
 
 export type Project = {
     view: string[]
     skins: Map<string, Skin>
     backgrounds: Map<string, Background>
     effects: Map<string, Effect>
+    particles: Map<string, Particle>
 }
 
 export type ProjectItemTypeOf<T> = {
@@ -35,6 +37,7 @@ export function newProject(): Project {
         skins: new Map(),
         backgrounds: new Map(),
         effects: new Map(),
+        particles: new Map(),
     }
 }
 
@@ -42,6 +45,7 @@ export function addProjectToWhitelist(project: Project, whitelist: Set<string>) 
     project.skins.forEach((skin) => addSkinToWhitelist(skin, whitelist))
     project.backgrounds.forEach((background) => addBackgroundToWhitelist(background, whitelist))
     project.effects.forEach((effect) => addEffectToWhitelist(effect, whitelist))
+    project.particles.forEach((particle) => addParticleToWhitelist(particle, whitelist))
 }
 
 export type PackProcess = {
