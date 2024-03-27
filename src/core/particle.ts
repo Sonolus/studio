@@ -205,7 +205,7 @@ export const ease = {
     None: 'None',
 }
 
-function stringToParticleExpression(value: string): ParticleDataGroupParticlePropertyExpression {
+export function stringToParticleExpression(value: string): ParticleDataGroupParticlePropertyExpression {
     let seperator = /\+|-/;
     let arr = value.split(seperator); 
     let res: ParticleDataGroupParticlePropertyExpression = {};
@@ -225,7 +225,7 @@ function stringToParticleExpression(value: string): ParticleDataGroupParticlePro
         type Name = keyof ParticleDataGroupParticlePropertyExpression;
         if (isNaN(Number(res[name as Name]))) res[name as Name] = 0;
         res[name as Name] = Number(res[name as Name]) + val * (i && sign[i - 1] == '-' ? -1 : 1);
-        console.log(res[name as Name]);
+        // console.log(res[name as Name]);
     }
     return res;
 }
