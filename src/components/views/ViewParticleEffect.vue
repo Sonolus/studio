@@ -9,6 +9,7 @@ import MyCellNumberInput from '../ui/MyCellNumberInput.vue'
 import MyField from '../ui/MyField.vue'
 import MySection from '../ui/MySection.vue'
 import MyToggle from '../ui/MyToggle.vue'
+import PreviewParticleEffect from './previews/PreviewParticleEffect.vue'
 
 const props = defineProps<{
     data: Particle
@@ -77,5 +78,9 @@ async function onSetSimpleTransform() {
             text="Set Simple Transform"
             @click="onSetSimpleTransform()"
         />
+    </MySection>
+
+    <MySection header="Preview">
+        <PreviewParticleEffect :effect="v" :interpolation="data.data.interpolation" />
     </MySection>
 </template>

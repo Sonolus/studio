@@ -21,12 +21,12 @@ const v = useView(
     	let res = v.value.data.effects.find(({ name }) => name === view.value[3])
 	        ?.groups[Number(view.value[4].substr("Group #".length))]
 	        .particles[Number(view.value[5].substr("Sprite #".length))]!
-	    if (res.x.ease == undefined) res.x.ease = "None"
-	    if (res.y.ease == undefined) res.y.ease = "None"
-	    if (res.w.ease == undefined) res.w.ease = "None"
-	    if (res.h.ease == undefined) res.h.ease = "None"
-	    if (res.r.ease == undefined) res.r.ease = "None"
-	    if (res.a.ease == undefined) res.a.ease = "None"
+	    if (res.x.ease == undefined) res.x.ease = "Linear"
+	    if (res.y.ease == undefined) res.y.ease = "Linear"
+	    if (res.w.ease == undefined) res.w.ease = "Linear"
+	    if (res.h.ease == undefined) res.h.ease = "Linear"
+	    if (res.r.ease == undefined) res.r.ease = "Linear"
+	    if (res.a.ease == undefined) res.a.ease = "Linear"
 	    return res
 	}
 )
