@@ -8,12 +8,12 @@ import ViewBackground from './views/ViewBackground.vue'
 import ViewDefault from './views/ViewDefault.vue'
 import ViewEffect from './views/ViewEffect.vue'
 import ViewEffectClip from './views/ViewEffectClip.vue'
-import ViewSkin from './views/ViewSkin.vue'
-import ViewSkinSprite from './views/ViewSkinSprite.vue'
 import ViewParticle from './views/ViewParticle.vue'
 import ViewParticleEffect from './views/ViewParticleEffect.vue'
 import ViewParticleEffectGroup from './views/ViewParticleEffectGroup.vue'
 import ViewParticleEffectGroupParticle from './views/ViewParticleEffectGroupParticle.vue'
+import ViewSkin from './views/ViewSkin.vue'
+import ViewSkinSprite from './views/ViewSkinSprite.vue'
 
 const { project, view } = useState()
 

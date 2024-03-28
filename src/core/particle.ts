@@ -1,4 +1,12 @@
-import { ItemDetails, ItemList, ParticleData, ParticleItem, ParticleEffectName, ParticleDataGroupParticleProperty, ParticleDataGroupParticlePropertyExpression } from 'sonolus-core'
+import {
+    ItemDetails,
+    ItemList,
+    ParticleData,
+    ParticleDataGroupParticleProperty,
+    ParticleDataGroupParticlePropertyExpression,
+    ParticleEffectName,
+    ParticleItem,
+} from 'sonolus-core'
 import { formatNameKey } from './names'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { SpriteLayout, bakeSprite, tryCalculateLayout } from './sprite-sheet'
@@ -32,33 +40,33 @@ export type Particle = {
                     start: number
                     duration: number
                     x: {
-                        from: string,
-                        to: string,
+                        from: string
+                        to: string
                         ease: string
                     }
                     y: {
-                        from: string,
-                        to: string,
+                        from: string
+                        to: string
                         ease: string
                     }
                     w: {
-                        from: string,
-                        to: string,
+                        from: string
+                        to: string
                         ease: string
                     }
                     h: {
-                        from: string,
-                        to: string,
+                        from: string
+                        to: string
                         ease: string
                     }
                     r: {
-                        from: string,
-                        to: string,
+                        from: string
+                        to: string
                         ease: string
                     }
                     a: {
-                        from: string,
-                        to: string,
+                        from: string
+                        to: string
                         ease: string
                     }
                 }[]
@@ -78,8 +86,8 @@ export function newParticle(): Particle {
         thumbnail: '',
         data: {
             interpolation: true,
-            effects: []
-        }
+            effects: [],
+        },
     }
 }
 
@@ -102,16 +110,16 @@ export function newParticleEffect(name: string): Particle['data']['effects'][num
             top: true,
             bottom: true,
         },
-        groups: []
+        groups: [],
     }
 }
-export function newParticleEffectGroup(): Particle['data']['effects'][number]["groups"][number] {
+export function newParticleEffectGroup(): Particle['data']['effects'][number]['groups'][number] {
     return {
         count: 0,
-        particles: []
+        particles: [],
     }
 }
-export function newParticleEffectGroupParticle(): Particle['data']['effects'][number]["groups"][number]["particles"][number] {
+export function newParticleEffectGroupParticle(): Particle['data']['effects'][number]['groups'][number]['particles'][number] {
     return {
         sprite: '',
         color: '#000000',
@@ -122,7 +130,7 @@ export function newParticleEffectGroupParticle(): Particle['data']['effects'][nu
         w: { from: '', to: '', ease: 'Linear' },
         h: { from: '', to: '', ease: 'Linear' },
         r: { from: '', to: '', ease: 'Linear' },
-        a: { from: '', to: '', ease: 'Linear' }
+        a: { from: '', to: '', ease: 'Linear' },
     }
 }
 
@@ -153,15 +161,31 @@ export function packParticles(process: PackProcess, project: Project) {
 }
 
 export const varName = [
-    "c",
-    "r1", "sinr1", "cosr1",
-    "r2", "sinr2", "cosr2",
-    "r3", "sinr3", "cosr3",
-    "r4", "sinr4", "cosr4",
-    "r5", "sinr5", "cosr5",
-    "r6", "sinr6", "cosr6",
-    "r7", "sinr7", "cosr7",
-    "r8", "sinr8", "cosr8",
+    'c',
+    'r1',
+    'sinr1',
+    'cosr1',
+    'r2',
+    'sinr2',
+    'cosr2',
+    'r3',
+    'sinr3',
+    'cosr3',
+    'r4',
+    'sinr4',
+    'cosr4',
+    'r5',
+    'sinr5',
+    'cosr5',
+    'r6',
+    'sinr6',
+    'cosr6',
+    'r7',
+    'sinr7',
+    'cosr7',
+    'r8',
+    'sinr8',
+    'cosr8',
 ] as const
 
 export const ease = {
@@ -205,46 +229,57 @@ export const ease = {
     None: 'None',
 }
 
-export function stringToParticleExpression(value: string): ParticleDataGroupParticlePropertyExpression {
-    let seperator = /\+|-/;
-    let arr = value.split(seperator); 
-    let res: ParticleDataGroupParticlePropertyExpression = {};
-    let sign = [];
-    for (let i = 0; i < value.length; i++) if (value[i] == '-' || value[i] == '+') sign.push(value[i]);
+export function stringToParticleExpression(
+    value: string,
+): ParticleDataGroupParticlePropertyExpression {
+    const seperator = /\+|-/
+    const arr = value.split(seperator)
+    const res: ParticleDataGroupParticlePropertyExpression = {}
+    const sign = []
+    for (let i = 0; i < value.length; i++)
+        if (value[i] == '-' || value[i] == '+') sign.push(value[i])
     for (let i = 0; i < arr.length; i++) {
-        let arr2 = arr[i].split('*');
-        let nan = 0; let name = 'c'; let val = 1;
+        const arr2 = arr[i].split('*')
+        let nan = 0
+        let name = 'c'
+        let val = 1
         for (let j = 0; j < arr2.length; j++) {
             if (isNaN(Number(arr2[j]))) {
-                if (varName.includes(arr2[j] as typeof varName[number]) == false) return {};
-                nan++; if (nan > 1) return {};
-                name = arr2[j];
-            } else val *= Number(arr2[j]);
+                if (varName.includes(arr2[j] as (typeof varName)[number]) == false) return {}
+                nan++
+                if (nan > 1) return {}
+                name = arr2[j]
+            } else val *= Number(arr2[j])
         }
         if (val == 0) continue
-        type Name = keyof ParticleDataGroupParticlePropertyExpression;
-        if (isNaN(Number(res[name as Name]))) res[name as Name] = 0;
-        res[name as Name] = Number(res[name as Name]) + val * (i && sign[i - 1] == '-' ? -1 : 1);
+        type Name = keyof ParticleDataGroupParticlePropertyExpression
+        if (isNaN(Number(res[name as Name]))) res[name as Name] = 0
+        res[name as Name] = Number(res[name as Name]) + val * (i && sign[i - 1] == '-' ? -1 : 1)
         // console.log(res[name as Name]);
     }
-    return res;
+    return res
 }
 
-function particleExpressionToString(value: ParticleDataGroupParticlePropertyExpression | undefined): string {
-    let res = '';
+function particleExpressionToString(
+    value: ParticleDataGroupParticlePropertyExpression | undefined,
+): string {
+    let res = ''
     for (let i = 0; i < varName.length; i++) {
-        let val = value == undefined ? 0 : Number(value[varName[i] as keyof ParticleDataGroupParticlePropertyExpression]);
-        if (val == 0 || Number.isNaN(val)) continue;
-        if (res != '') res += val > 0 ? '+' : '-';
-        res += val.toString() + '*' + varName[i];
+        const val =
+            value == undefined
+                ? 0
+                : Number(value[varName[i] as keyof ParticleDataGroupParticlePropertyExpression])
+        if (val == 0 || Number.isNaN(val)) continue
+        if (res != '') res += val > 0 ? '+' : '-'
+        res += val.toString() + '*' + varName[i]
     }
-    return res;
+    return res
 }
 
 function packParticle(
     { particles, tasks, canvas, addRaw, addJson }: PackProcess,
     name: string,
-    particle: Particle
+    particle: Particle,
 ) {
     const item: ParticleItem = {
         name,
@@ -275,13 +310,13 @@ function packParticle(
         height: 0,
         interpolation: particle.data.interpolation,
         sprites: [],
-        effects: []
+        effects: [],
     }
 
     tasks.push({
         description: `Packing particle "${name}" texture...`,
         async execute() {
-            let spritesArr: SpriteLayout[] = []
+            const spritesArr: SpriteLayout[] = []
             particle.data.effects.forEach((effect) => {
                 particleData.effects.push({
                     name: effect.name,
@@ -295,17 +330,17 @@ function packParticle(
                         y3: effect.transform.y3,
                         y4: effect.transform.y4,
                     },
-                    groups: []
-                });
+                    groups: [],
+                })
                 effect.groups.forEach((group) => {
                     particleData.effects[particleData.effects.length - 1].groups.push({
                         count: group.count,
-                        particles: []
+                        particles: [],
                     })
                     group.particles.forEach((particle) => {
-                        particleData.effects[particleData.effects.length - 1]
-                        .groups[particleData.effects[particleData.effects.length - 1]
-                        .groups.length - 1].particles.push({
+                        particleData.effects[particleData.effects.length - 1].groups[
+                            particleData.effects[particleData.effects.length - 1].groups.length - 1
+                        ].particles.push({
                             sprite: spritesArr.length,
                             color: particle.color,
                             start: particle.start,
@@ -313,43 +348,43 @@ function packParticle(
                             x: {
                                 from: stringToParticleExpression(particle.x.from),
                                 to: stringToParticleExpression(particle.x.to),
-                                ease: particle.x.ease as ParticleDataGroupParticleProperty["ease"]
+                                ease: particle.x.ease as ParticleDataGroupParticleProperty['ease'],
                             },
                             y: {
                                 from: stringToParticleExpression(particle.y.from),
                                 to: stringToParticleExpression(particle.y.to),
-                                ease: particle.y.ease as ParticleDataGroupParticleProperty["ease"]
+                                ease: particle.y.ease as ParticleDataGroupParticleProperty['ease'],
                             },
                             w: {
                                 from: stringToParticleExpression(particle.w.from),
                                 to: stringToParticleExpression(particle.w.to),
-                                ease: particle.w.ease as ParticleDataGroupParticleProperty["ease"]
+                                ease: particle.w.ease as ParticleDataGroupParticleProperty['ease'],
                             },
                             h: {
                                 from: stringToParticleExpression(particle.h.from),
                                 to: stringToParticleExpression(particle.h.to),
-                                ease: particle.h.ease as ParticleDataGroupParticleProperty["ease"]
+                                ease: particle.h.ease as ParticleDataGroupParticleProperty['ease'],
                             },
                             r: {
                                 from: stringToParticleExpression(particle.r.from),
                                 to: stringToParticleExpression(particle.r.to),
-                                ease: particle.r.ease as ParticleDataGroupParticleProperty["ease"]
+                                ease: particle.r.ease as ParticleDataGroupParticleProperty['ease'],
                             },
                             a: {
                                 from: stringToParticleExpression(particle.a.from),
                                 to: stringToParticleExpression(particle.a.to),
-                                ease: particle.a.ease as ParticleDataGroupParticleProperty["ease"]
-                            }
+                                ease: particle.a.ease as ParticleDataGroupParticleProperty['ease'],
+                            },
                         })
                         spritesArr.push({
                             name: spritesArr.length.toString(),
                             texture: particle.sprite,
-                            padding: effect.padding
+                            padding: effect.padding,
                         })
                     })
                 })
             })
-            const { size, layouts } = await tryCalculateLayout(spritesArr);
+            const { size, layouts } = await tryCalculateLayout(spritesArr)
 
             particleData.width = size
             particleData.height = size
@@ -370,7 +405,7 @@ function packParticle(
                     x: x + (sprite.padding.left ? 1 : 0),
                     y: y + (sprite.padding.top ? 1 : 0),
                     w,
-                    h
+                    h,
                 })
 
                 await bakeSprite(sprite, x, y, w, h, ctx)
@@ -386,7 +421,7 @@ function packParticle(
             addRaw(path, data)
 
             URL.revokeObjectURL(texture)
-        }
+        },
     })
 
     tasks.push({
@@ -464,8 +499,8 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
 
                     item.data.interpolation = data.interpolation
 
-                    let pt = 0; 
-                    let sprites: SpriteLayout[] = [];
+                    let pt = 0
+                    const sprites: SpriteLayout[] = []
                     data.sprites.forEach(({ x, y, w, h }) => {
                         const sprite: SpriteLayout = {
                             name: (pt++).toString(),
@@ -475,7 +510,7 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
                                 right: true,
                                 top: true,
                                 bottom: true,
-                            }
+                            },
                         }
 
                         tasks.push({
@@ -529,42 +564,66 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
                                                     start: particle.start,
                                                     duration: particle.duration,
                                                     x: {
-                                                        from: particleExpressionToString(particle.x.from),
-                                                        to: particleExpressionToString(particle.x.to),
-                                                        ease: particle.x.ease as string
+                                                        from: particleExpressionToString(
+                                                            particle.x.from,
+                                                        ),
+                                                        to: particleExpressionToString(
+                                                            particle.x.to,
+                                                        ),
+                                                        ease: particle.x.ease as string,
                                                     },
                                                     y: {
-                                                        from: particleExpressionToString(particle.y.from),
-                                                        to: particleExpressionToString(particle.y.to),
-                                                        ease: particle.y.ease as string
+                                                        from: particleExpressionToString(
+                                                            particle.y.from,
+                                                        ),
+                                                        to: particleExpressionToString(
+                                                            particle.y.to,
+                                                        ),
+                                                        ease: particle.y.ease as string,
                                                     },
                                                     w: {
-                                                        from: particleExpressionToString(particle.w.from),
-                                                        to: particleExpressionToString(particle.w.to),
-                                                        ease: particle.w.ease as string
+                                                        from: particleExpressionToString(
+                                                            particle.w.from,
+                                                        ),
+                                                        to: particleExpressionToString(
+                                                            particle.w.to,
+                                                        ),
+                                                        ease: particle.w.ease as string,
                                                     },
                                                     h: {
-                                                        from: particleExpressionToString(particle.h.from),
-                                                        to: particleExpressionToString(particle.h.to),
-                                                        ease: particle.h.ease as string
+                                                        from: particleExpressionToString(
+                                                            particle.h.from,
+                                                        ),
+                                                        to: particleExpressionToString(
+                                                            particle.h.to,
+                                                        ),
+                                                        ease: particle.h.ease as string,
                                                     },
                                                     r: {
-                                                        from: particleExpressionToString(particle.r.from),
-                                                        to: particleExpressionToString(particle.r.to),
-                                                        ease: particle.r.ease as string
+                                                        from: particleExpressionToString(
+                                                            particle.r.from,
+                                                        ),
+                                                        to: particleExpressionToString(
+                                                            particle.r.to,
+                                                        ),
+                                                        ease: particle.r.ease as string,
                                                     },
                                                     a: {
-                                                        from: particleExpressionToString(particle.a.from),
-                                                        to: particleExpressionToString(particle.a.to),
-                                                        ease: particle.a.ease as string
-                                                    }
+                                                        from: particleExpressionToString(
+                                                            particle.a.from,
+                                                        ),
+                                                        to: particleExpressionToString(
+                                                            particle.a.to,
+                                                        ),
+                                                        ease: particle.a.ease as string,
+                                                    },
                                                 }
-                                            })
+                                            }),
                                         }
-                                    })
+                                    }),
                                 }
                             })
-                        }
+                        },
                     })
                 },
             })

@@ -9,8 +9,8 @@ import { show } from '../modal'
 import { UseStateReturn, push, useState } from '../state'
 import { addBackgroundItems } from './backgrounds'
 import { addEffectItems } from './effects'
-import { addSkinItems } from './skins'
 import { addParticleItems } from './particles'
+import { addSkinItems } from './skins'
 
 export type ExplorerItem = {
     level: number

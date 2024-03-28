@@ -27,7 +27,11 @@ const v = useView(props, 'particles')
             <MyTextInput v-model="v.author" placeholder="Enter particle author..." validate />
         </MyField>
         <MyField title="Description">
-            <MyTextArea v-model="v.description" placeholder="Enter particle description..." validate />
+            <MyTextArea
+                v-model="v.description"
+                placeholder="Enter particle description..."
+                validate
+            />
         </MyField>
     </MySection>
 

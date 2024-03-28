@@ -2,7 +2,7 @@
 import { useView } from '../../composables/view'
 import { Particle } from '../../core/particle'
 import MyField from '../ui/MyField.vue'
-import MyNumberInput from '../ui/MyNumberInput.vue';
+import MyNumberInput from '../ui/MyNumberInput.vue'
 import MySection from '../ui/MySection.vue'
 
 const props = defineProps<{
@@ -13,7 +13,10 @@ const v = useView(
     props,
     'particles',
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    (v, view) => v.value.data.effects.find(({ name }) => name === view.value[3])?.groups[Number(view.value[4].substr("Group #".length))]!,
+    (v, view) =>
+        v.value.data.effects.find(({ name }) => name === view.value[3])!.groups[
+            Number(view.value[4].substr('Group #'.length))
+        ]!,
 )
 </script>
 

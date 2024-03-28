@@ -16,8 +16,8 @@ import {
     unpackBackgrounds,
 } from './background'
 import { Effect, addEffectToWhitelist, packEffects, unpackEffects } from './effect'
-import { Skin, addSkinToWhitelist, packSkins, unpackSkins } from './skin'
 import { Particle, addParticleToWhitelist, packParticles, unpackParticles } from './particle'
+import { Skin, addSkinToWhitelist, packSkins, unpackSkins } from './skin'
 
 export type Project = {
     view: string[]
