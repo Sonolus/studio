@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useView } from '../../composables/view'
-import { Particle, varName, ease } from '../../core/particle'
-import MyColorInput from '../ui/MyColorInput.vue';
+import { Particle, ease, varName } from '../../core/particle'
+import MyColorInput from '../ui/MyColorInput.vue'
 import MyField from '../ui/MyField.vue'
-import MyImageInput from '../ui/MyImageInput.vue';
-import MyNumberInput from '../ui/MyNumberInput.vue';
+import MyImageInput from '../ui/MyImageInput.vue'
+import MyNumberInput from '../ui/MyNumberInput.vue'
 import MySection from '../ui/MySection.vue'
-import MyTextInput from '../ui/MyTextInput.vue';
-import MyTextSelect from '../ui/MyTextSelect.vue';
+import MyTextInput from '../ui/MyTextInput.vue'
+import MyTextSelect from '../ui/MyTextSelect.vue'
 
 const props = defineProps<{
     data: Particle
@@ -18,35 +18,35 @@ const v = useView(
     'particles',
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     (v, view) => {
-    	let res = v.value.data.effects.find(({ name }) => name === view.value[3])
-	        ?.groups[Number(view.value[4].substr("Group #".length))]
-	        .particles[Number(view.value[5].substr("Sprite #".length))]!
-	    if (res.x.ease == undefined) res.x.ease = "Linear"
-	    if (res.y.ease == undefined) res.y.ease = "Linear"
-	    if (res.w.ease == undefined) res.w.ease = "Linear"
-	    if (res.h.ease == undefined) res.h.ease = "Linear"
-	    if (res.r.ease == undefined) res.r.ease = "Linear"
-	    if (res.a.ease == undefined) res.a.ease = "Linear"
-	    return res
-	}
+        let res = v.value.data.effects.find(({ name }) => name === view.value[3])!.groups[
+            Number(view.value[4].substr('Group #'.length))
+        ].particles[Number(view.value[5].substr('Sprite #'.length))]!
+        if (res.x.ease == undefined) res.x.ease = 'Linear'
+        if (res.y.ease == undefined) res.y.ease = 'Linear'
+        if (res.w.ease == undefined) res.w.ease = 'Linear'
+        if (res.h.ease == undefined) res.h.ease = 'Linear'
+        if (res.r.ease == undefined) res.r.ease = 'Linear'
+        if (res.a.ease == undefined) res.a.ease = 'Linear'
+        return res
+    },
 )
 
 const validator = (value: string) => {
-    let seperator = /\+|-/;
-    let arr = value.split(seperator);
+    let seperator = /\+|-/
+    let arr = value.split(seperator)
     for (let i = 0; i < arr.length; i++) {
-        let arr2 = arr[i].split('*');
-        let nan = 0;
+        let arr2 = arr[i].split('*')
+        let nan = 0
         for (let j = 0; j < arr2.length; j++) {
             if (isNaN(Number(arr2[j]))) {
-                nan++;
+                nan++
                 console.log(arr2[j])
-                if (varName.includes(arr2[j] as typeof varName[number]) == false) return false;
+                if (varName.includes(arr2[j] as (typeof varName)[number]) == false) return false
             }
         }
-        if (nan > 1) return false;
+        if (nan > 1) return false
     }
-    return true;
+    return true
 }
 </script>
 
@@ -56,7 +56,12 @@ const validator = (value: string) => {
             <MyImageInput v-model="v.sprite" validate />
         </MyField>
         <MyField title="Color">
-            <MyColorInput v-model="v.color" default-value="#000000" placeholder="Enter sprite color..." validate/>
+            <MyColorInput
+                v-model="v.color"
+                default-value="#000000"
+                placeholder="Enter sprite color..."
+                validate
+            />
         </MyField>
     </MySection>
 
@@ -71,10 +76,20 @@ const validator = (value: string) => {
 
     <MySection header="X Coordinate">
         <MyField title="From">
-            <MyTextInput v-model="v.x.from" placeholder="Enter sprite x coordinate from expression..." validate :validator="validator" />
+            <MyTextInput
+                v-model="v.x.from"
+                placeholder="Enter sprite x coordinate from expression..."
+                validate
+                :validator="validator"
+            />
         </MyField>
         <MyField title="To">
-            <MyTextInput v-model="v.x.to" placeholder="Enter sprite x coordinate to expression..." validate :validator="validator" />
+            <MyTextInput
+                v-model="v.x.to"
+                placeholder="Enter sprite x coordinate to expression..."
+                validate
+                :validator="validator"
+            />
         </MyField>
         <MyField title="Ease">
             <MyTextSelect v-model="v.x.ease" :options="ease" :default-value="v.x.ease" validate />
@@ -82,10 +97,20 @@ const validator = (value: string) => {
     </MySection>
     <MySection header="Y Coordinate">
         <MyField title="From">
-            <MyTextInput v-model="v.y.from" placeholder="Enter sprite y coordinate from expression..." validate :validator="validator" />
+            <MyTextInput
+                v-model="v.y.from"
+                placeholder="Enter sprite y coordinate from expression..."
+                validate
+                :validator="validator"
+            />
         </MyField>
         <MyField title="To">
-            <MyTextInput v-model="v.y.to" placeholder="Enter sprite y coordinate to expression..." validate :validator="validator" />
+            <MyTextInput
+                v-model="v.y.to"
+                placeholder="Enter sprite y coordinate to expression..."
+                validate
+                :validator="validator"
+            />
         </MyField>
         <MyField title="Ease">
             <MyTextSelect v-model="v.y.ease" :options="ease" :default-value="v.y.ease" validate />
@@ -93,10 +118,20 @@ const validator = (value: string) => {
     </MySection>
     <MySection header="Width">
         <MyField title="From">
-            <MyTextInput v-model="v.w.from" placeholder="Enter sprite width from expression..." validate :validator="validator" />
+            <MyTextInput
+                v-model="v.w.from"
+                placeholder="Enter sprite width from expression..."
+                validate
+                :validator="validator"
+            />
         </MyField>
         <MyField title="To">
-            <MyTextInput v-model="v.w.to" placeholder="Enter sprite width to expression..." validate :validator="validator" />
+            <MyTextInput
+                v-model="v.w.to"
+                placeholder="Enter sprite width to expression..."
+                validate
+                :validator="validator"
+            />
         </MyField>
         <MyField title="Ease">
             <MyTextSelect v-model="v.w.ease" :options="ease" :default-value="v.w.ease" validate />
@@ -104,10 +139,20 @@ const validator = (value: string) => {
     </MySection>
     <MySection header="Height">
         <MyField title="From">
-            <MyTextInput v-model="v.h.from" placeholder="Enter sprite height from expression..." validate :validator="validator" />
+            <MyTextInput
+                v-model="v.h.from"
+                placeholder="Enter sprite height from expression..."
+                validate
+                :validator="validator"
+            />
         </MyField>
         <MyField title="To">
-            <MyTextInput v-model="v.h.to" placeholder="Enter sprite height to expression..." validate :validator="validator" />
+            <MyTextInput
+                v-model="v.h.to"
+                placeholder="Enter sprite height to expression..."
+                validate
+                :validator="validator"
+            />
         </MyField>
         <MyField title="Ease">
             <MyTextSelect v-model="v.h.ease" :options="ease" :default-value="v.h.ease" validate />
@@ -115,10 +160,20 @@ const validator = (value: string) => {
     </MySection>
     <MySection header="Rotation">
         <MyField title="From">
-            <MyTextInput v-model="v.r.from" placeholder="Enter sprite rotation from expression..." validate :validator="validator" />
+            <MyTextInput
+                v-model="v.r.from"
+                placeholder="Enter sprite rotation from expression..."
+                validate
+                :validator="validator"
+            />
         </MyField>
         <MyField title="To">
-            <MyTextInput v-model="v.r.to" placeholder="Enter sprite rotation to expression..." validate :validator="validator" />
+            <MyTextInput
+                v-model="v.r.to"
+                placeholder="Enter sprite rotation to expression..."
+                validate
+                :validator="validator"
+            />
         </MyField>
         <MyField title="Ease">
             <MyTextSelect v-model="v.r.ease" :options="ease" :default-value="v.r.ease" validate />
@@ -126,10 +181,20 @@ const validator = (value: string) => {
     </MySection>
     <MySection header="Alpha">
         <MyField title="From">
-            <MyTextInput v-model="v.a.from" placeholder="Enter sprite alpha from expression..." validate :validator="validator" />
+            <MyTextInput
+                v-model="v.a.from"
+                placeholder="Enter sprite alpha from expression..."
+                validate
+                :validator="validator"
+            />
         </MyField>
         <MyField title="To">
-            <MyTextInput v-model="v.a.to" placeholder="Enter sprite alpha to expression..." validate :validator="validator" />
+            <MyTextInput
+                v-model="v.a.to"
+                placeholder="Enter sprite alpha to expression..."
+                validate
+                :validator="validator"
+            />
         </MyField>
         <MyField title="Ease">
             <MyTextSelect v-model="v.a.ease" :options="ease" :default-value="v.a.ease" validate />

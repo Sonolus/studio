@@ -1,12 +1,12 @@
 import { getImageInfo } from './utils'
 
 export type SpriteLayout = {
-    name: string,
-    texture: string,
+    name: string
+    texture: string
     padding: {
-        left: boolean,
-        right: boolean,
-        top: boolean,
+        left: boolean
+        right: boolean
+        top: boolean
         bottom: boolean
     }
 }
