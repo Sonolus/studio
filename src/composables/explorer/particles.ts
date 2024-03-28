@@ -294,7 +294,7 @@ async function onRenameParticleEffect(
     if (!newName) return
 
     const newEffect = clone(effect)
-    neweffect.name = newName
+    newEffect.name = newName
 
     const newParticle = clone(particle)
     newParticle.data.effects = newParticle.data.effects.map((effect) =>
@@ -338,7 +338,7 @@ async function onCloneParticleEffect(
     if (!newName) return
 
     const newEffect = clone(effect)
-    neweffect.name = newName
+    newEffect.name = newName
 
     const newParticle = clone(particle)
     newParticle.data.effects.push(newEffect)

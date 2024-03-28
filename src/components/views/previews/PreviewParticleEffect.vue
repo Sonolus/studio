@@ -8,9 +8,9 @@ import {
 import { computed, ref, watch, watchEffect, watchPostEffect, onUnmounted } from 'vue'
 import { inverseBilinear } from '../../../core/bilinear-interpolation'
 import { sample } from '../../../core/sampling'
-import { Particle, Expression, stringToParticleExpression } from '../../../core/particle'
+import { Particle, Expression, stringToParticleExpression, varName } from '../../../core/particle'
 import { getImageBuffer, getImageInfo } from '../../../core/utils'
-import { EaseFunction } from '../../../core/ease.ts'
+import { EaseFunction } from '../../../core/ease'
 import MyColorInput from '../../ui/MyColorInput.vue'
 import MyField from '../../ui/MyField.vue'
 import MyTextInput from '../../ui/MyTextInput.vue'
@@ -41,7 +41,7 @@ const canvasHeight = computed(() => elementHeight.value * pixelRatio.value)
 
 type Point = [number, number]
 type Rect = [Point, Point, Point, Point]
-let animationReq = undefined;
+let animationReq: number = 0;
 
 const rect = ref<Rect>([
     [-0.5, -0.5],
@@ -81,8 +81,9 @@ type imageInfo = {
 };
 
 let images: {
-	info: imageInfo,
-	buffer,
+	error: number,
+	info?: imageInfo,
+	buffer?: ReturnType<typeof getImageBuffer>,
 	color: string,
 	start: number,
 	duration: number,
@@ -119,7 +120,10 @@ let images: {
     }
 }[] = [];
 
-let randomValues = [];
+type Ease = {
+	[i in typeof varName[number]]?: number
+};
+let randomValues: Ease[] = [];
 
 watchEffect(async () => {
 	images.length = 0; let cnt = 0;
@@ -127,11 +131,47 @@ watchEffect(async () => {
 		for (var k = 0; k < props.effect.groups[i].count; k++) {
 			let g = props.effect.groups[i]; cnt++;
 			for (var j = 0; j < g.particles.length; j++) {
-			    images.push({});
+				images.push({
+					error: 0,
+					color: "",
+					start: 0,
+					duration: 1,
+					groupId: 0,
+					x: {
+				        from: "",
+				        to: "",
+				        ease: "Linear"
+				    },
+				    y: {
+				        from: "",
+				        to: "",
+				        ease: "Linear"
+				    },
+				    w: {
+				        from: "",
+				        to: "",
+				        ease: "Linear"
+				    },
+				    h: {
+				        from: "",
+				        to: "",
+				        ease: "Linear"
+				    },
+				    r: {
+				        from: "",
+				        to: "",
+				        ease: "Linear"
+				    },
+				    a: {
+				        from: "",
+				        to: "",
+				        ease: "Linear"
+				    }
+				});
 			    try {
 			        images[images.length - 1].info = await getImageInfo(g.particles[j].sprite);
 				    let canvas: HTMLCanvasElement = document.createElement("canvas");
-				    images[images.length - 1].buffer = getImageBuffer(images[images.length - 1].info, canvas);
+				    images[images.length - 1].buffer = getImageBuffer(images[images.length - 1].info as imageInfo, canvas);
 				    images[images.length - 1].color = g.particles[j].color;
 				    images[images.length - 1].start = g.particles[j].start;
 				    images[images.length - 1].duration = g.particles[j].duration;
@@ -143,10 +183,10 @@ watchEffect(async () => {
 				    images[images.length - 1].r = g.particles[j].r;
 				    images[images.length - 1].a = g.particles[j].a;
 			    } catch (error) {
-			        images[images.length - 1] = undefined;
+			        images[images.length - 1].error = 1;
 			    }
 		    }
-			let values = {};
+			let values: typeof randomValues[number] = {};
 			values.c = 1;
 			values.r1 = Math.random(); values.sinr1 = Math.sin(2 * Math.PI * values.r1); values.cosr1 = Math.cos(2 * Math.PI * values.r1);
 			values.r2 = Math.random(); values.sinr2 = Math.sin(2 * Math.PI * values.r2); values.cosr2 = Math.cos(2 * Math.PI * values.r2);
@@ -239,15 +279,15 @@ watchEffect(() => {
     }
 })*/
 
-function expressionToValue(exp, groupId) {
+function expressionToValue(exp: string | undefined, groupId: number) {
 	if (exp == undefined) return 0;
 	let expression = stringToParticleExpression(exp);
 	let val = 0;
-	for (var name in expression) val += expression[name] * randomValues[groupId][name];
+	for (let name in expression) val += expression[name as keyof Ease]! * randomValues[groupId][name as keyof Ease]!;
 	return val;
 }
 
-function hex2rgb(str) {
+function hex2rgb(str: string) {
 	if (str.length == 4) return [ parseInt(str[1], 16) * 16, parseInt(str[2], 16) * 16, parseInt(str[3], 16) * 16];
 	else return [
 		parseInt(str.substr(1, 2), 16),
@@ -268,17 +308,18 @@ function draw() {
     ctx.clearRect(0, 0, canvasW, canvasH)
 
 	for (var i = 0; i < images.length; i++) {
-		let t = Date.now() / executionTime.value / 1000; t -= Math.floor(t);
+		let t = Date.now() / Number(executionTime.value) / 1000; t -= Math.floor(t);
 		if (t < images[i].start || t > images[i].start + images[i].duration) continue;
 		let percent = (t - images[i].start) / images[i].duration;
-	    const { buffer, width, height } = images[i].buffer;
+	    const { buffer, width, height } = images[i].buffer as ReturnType<typeof getImageBuffer>;
 
-	    const data = images[i].info.img;
+	    const data = images[i].info!.img;
 
 	    // Color Overlay
 	    let tmpImg = document.createElement("canvas");
 	    tmpImg.height = height; tmpImg.width = width;
 	    let tmpctx = tmpImg.getContext("2d");
+	    if (tmpctx == null) continue;
 	    tmpctx.drawImage(data, 0, 0, width, height);
 	    let tmpImgData = tmpctx.getImageData(0, 0, width, height);
 	    let rgb = hex2rgb(images[i].color);
@@ -301,12 +342,12 @@ function draw() {
 	    let afrom = expressionToValue(images[i].a.from, images[i].groupId);
 	    let ato = expressionToValue(images[i].a.to, images[i].groupId);
 
-	    let x = EaseFunction[images[i].x.ease](percent) * (xto - xfrom) + xfrom; x = -x;
-	    let y = EaseFunction[images[i].y.ease](percent) * (yto - yfrom) + yfrom; y = -y;
-	    let w = EaseFunction[images[i].w.ease](percent) * (wto - wfrom) + wfrom;
-	    let h = EaseFunction[images[i].h.ease](percent) * (hto - hfrom) + hfrom;
-	    let r = EaseFunction[images[i].r.ease](percent) * (rto - rfrom) + rfrom;
-	    let a = EaseFunction[images[i].a.ease](percent) * (ato - afrom) + afrom;
+	    let x = EaseFunction[images[i].x.ease as keyof typeof EaseFunction](percent) * (xto - xfrom) + xfrom; x = -x;
+	    let y = EaseFunction[images[i].y.ease as keyof typeof EaseFunction](percent) * (yto - yfrom) + yfrom; y = -y;
+	    let w = EaseFunction[images[i].w.ease as keyof typeof EaseFunction](percent) * (wto - wfrom) + wfrom;
+	    let h = EaseFunction[images[i].h.ease as keyof typeof EaseFunction](percent) * (hto - hfrom) + hfrom;
+	    let r = EaseFunction[images[i].r.ease as keyof typeof EaseFunction](percent) * (rto - rfrom) + rfrom;
+	    let a = EaseFunction[images[i].a.ease as keyof typeof EaseFunction](percent) * (ato - afrom) + afrom;
 	    x = (x + 1) / 2 * canvasW, y = (y + 1) / 2 * canvasH;
 	    w = w / 2 * canvasW, h = h / 2 * canvasH;
 
