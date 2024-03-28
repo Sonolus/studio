@@ -162,7 +162,7 @@ export const varName = [
     "r6", "sinr6", "cosr6",
     "r7", "sinr7", "cosr7",
     "r8", "sinr8", "cosr8",
-]
+] as const
 
 export const ease = {
     Linear: 'Linear',
@@ -216,7 +216,7 @@ export function stringToParticleExpression(value: string): ParticleDataGroupPart
         let nan = 0; let name = 'c'; let val = 1;
         for (let j = 0; j < arr2.length; j++) {
             if (isNaN(Number(arr2[j]))) {
-                if (varName.includes(arr2[j]) == false) return {};
+                if (varName.includes(arr2[j] as typeof varName[number]) == false) return {};
                 nan++; if (nan > 1) return {};
                 name = arr2[j];
             } else val *= Number(arr2[j]);

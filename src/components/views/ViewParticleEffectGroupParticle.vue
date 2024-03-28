@@ -41,7 +41,7 @@ const validator = (value: string) => {
             if (isNaN(Number(arr2[j]))) {
                 nan++;
                 console.log(arr2[j])
-                if (varName.includes(arr2[j]) == false) return false;
+                if (varName.includes(arr2[j] as typeof varName[number]) == false) return false;
             }
         }
         if (nan > 1) return false;
