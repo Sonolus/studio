@@ -17,12 +17,14 @@ import {
 } from './background'
 import { Effect, addEffectToWhitelist, packEffects, unpackEffects } from './effect'
 import { Skin, addSkinToWhitelist, packSkins, unpackSkins } from './skin'
+import { Particle, addParticleToWhitelist, packParticles, unpackParticles } from './particle'
 
 export type Project = {
     view: string[]
     skins: Map<string, Skin>
     backgrounds: Map<string, Background>
     effects: Map<string, Effect>
+    particles: Map<string, Particle>
 }
 
 export type ProjectItemTypeOf<T> = {
@@ -35,6 +37,7 @@ export function newProject(): Project {
         skins: new Map(),
         backgrounds: new Map(),
         effects: new Map(),
+        particles: new Map(),
     }
 }
 
@@ -42,12 +45,14 @@ export function addProjectToWhitelist(project: Project, whitelist: Set<string>) 
     project.skins.forEach((skin) => addSkinToWhitelist(skin, whitelist))
     project.backgrounds.forEach((background) => addBackgroundToWhitelist(background, whitelist))
     project.effects.forEach((effect) => addEffectToWhitelist(effect, whitelist))
+    project.particles.forEach((particle) => addParticleToWhitelist(particle, whitelist))
 }
 
 export type PackProcess = {
     skins: SkinItem[]
     backgrounds: BackgroundItem[]
     effects: EffectItem[]
+    particles: ParticleItem[]
 
     tasks: {
         description: string
@@ -69,6 +74,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
         skins: [],
         backgrounds: [],
         effects: [],
+        particles: [],
 
         tasks: [],
 
@@ -92,6 +98,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
     packSkins(process, project)
     packBackgrounds(process, project)
     packEffects(process, project)
+    packParticles(process, project)
 
     process.tasks.push({
         description: 'Generating server information...',
@@ -120,7 +127,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
                     search: { options: [] },
                 },
                 particles: {
-                    items: [],
+                    items: process.particles.slice(0, 5),
                     search: { options: [] },
                 },
                 engines: {
@@ -180,7 +187,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
         async execute() {
             process.addJson<ItemList<ParticleItem>>('/sonolus/particles/list', {
                 pageCount: 1,
-                items: [],
+                items: process.particles,
                 search: { options: [] },
             })
         },
@@ -262,6 +269,7 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
     unpackSkins(process)
     unpackBackgrounds(process)
     unpackEffects(process)
+    unpackParticles(process)
 
     return process
 

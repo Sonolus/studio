@@ -127,7 +127,11 @@ function packSkin(
     tasks.push({
         description: `Packing skin "${name}" texture...`,
         async execute() {
-            const { size, layouts } = await tryCalculateLayout(skin)
+            const { size, layouts } = await tryCalculateLayout(skin.data.sprites.map((s) => ({
+                name: s.name,
+                texture: s.texture,
+                padding: s.padding,
+            })))
 
             skinData.width = size
             skinData.height = size

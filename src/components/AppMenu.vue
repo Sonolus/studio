@@ -136,12 +136,18 @@ async function onImportProject() {
             selectedProject.effects,
             (name) => `Effect "${name}" already exists. Overwrite?`,
         )
+        const particles = await merge(
+            project.value.particles,
+            selectedProject.particles,
+            (name) => `Particle "${name}" already exists. Overwrite?`,
+        )
 
         push({
             view: project.value.view,
             skins,
             backgrounds,
             effects,
+            particles,
         })
 
         async function merge<T>(

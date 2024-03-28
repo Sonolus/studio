@@ -10,6 +10,7 @@ import { UseStateReturn, push, useState } from '../state'
 import { addBackgroundItems } from './backgrounds'
 import { addEffectItems } from './effects'
 import { addSkinItems } from './skins'
+import { addParticleItems } from './particles'
 
 export type ExplorerItem = {
     level: number
@@ -37,6 +38,7 @@ export function useExplorer() {
         addSkinItems(state, items)
         addBackgroundItems(state, items)
         addEffectItems(state, items)
+        addParticleItems(state, items)
 
         return items
     })
