@@ -6,12 +6,12 @@ import {
     ParticleDataGroupParticlePropertyExpression,
     ParticleEffectName,
     ParticleItem,
-} from 'sonolus-core'
+} from '@sonolus/core'
 import { formatNameKey } from './names'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { SpriteLayout, bakeSprite, tryCalculateLayout } from './sprite-sheet'
 import { load } from './storage'
-import { getBlob, getImageInfo, packJson, packRaw, srl, unpackJson } from './utils'
+import { emptySrl, getBlob, getImageInfo, packJson, packRaw, unpackJson } from './utils'
 
 const allZero = { x1: 0, x2: 0, x3: 0, x4: 0, y1: 0, y2: 0, y3: 0, y4: 0 }
 
@@ -125,12 +125,12 @@ export function newParticleEffectGroupParticle(): Particle['data']['effects'][nu
         color: '#000000',
         start: 0,
         duration: 1,
-        x: { from: '', to: '', ease: 'Linear' },
-        y: { from: '', to: '', ease: 'Linear' },
-        w: { from: '', to: '', ease: 'Linear' },
-        h: { from: '', to: '', ease: 'Linear' },
-        r: { from: '', to: '', ease: 'Linear' },
-        a: { from: '', to: '', ease: 'Linear' },
+        x: { from: '', to: '', ease: 'linear' },
+        y: { from: '', to: '', ease: 'linear' },
+        w: { from: '', to: '', ease: 'linear' },
+        h: { from: '', to: '', ease: 'linear' },
+        r: { from: '', to: '', ease: 'linear' },
+        a: { from: '', to: '', ease: 'linear' },
     }
 }
 
@@ -189,44 +189,44 @@ export const varName = [
 ] as const
 
 export const ease = {
-    Linear: 'Linear',
-    InSine: 'InSine',
-    OutSine: 'OutSine',
-    InOutSine: 'InOutSine',
-    OutInSine: 'OutInSine',
-    InQuad: 'InQuad',
-    OutQuad: 'OutQuad',
-    InOutQuad: 'InOutQuad',
-    OutInQuad: 'OutInQuad',
-    InCubic: 'InCubic',
-    OutCubic: 'OutCubic',
-    InOutCubic: 'InOutCubic',
-    OutInCubic: 'OutInCubic',
-    InQuart: 'InQuart',
-    OutQuart: 'OutQuart',
-    InOutQuart: 'InOutQuart',
-    OutInQuart: 'OutInQuart',
-    InQuint: 'InQuint',
-    OutQuint: 'OutQuint',
-    InOutQuint: 'InOutQuint',
-    OutInQuint: 'OutInQuint',
-    InExpo: 'InExpo',
-    OutExpo: 'OutExpo',
-    InOutExpo: 'InOutExpo',
-    OutInOutExpo: 'OutInOutExpo',
-    InCirc: 'InCirc',
-    OutCirc: 'OutCirc',
-    InOutCirc: 'InOutCirc',
-    OutInCirc: 'OutInCirc',
-    InBack: 'InBack',
-    OutBack: 'OutBack',
-    InOutBack: 'InOutBack',
-    OutInBack: 'OutInBack',
-    InElastic: 'InElastic',
-    OutElastic: 'OutElastic',
-    InOutElastic: 'InOutElastic',
-    OutInElastic: 'OutInElastic',
-    None: 'None',
+    Linear: 'linear',
+    InSine: 'inSine',
+    OutSine: 'outSine',
+    InOutSine: 'inOutSine',
+    OutInSine: 'outInSine',
+    InQuad: 'inQuad',
+    OutQuad: 'outQuad',
+    InOutQuad: 'inOutQuad',
+    OutInQuad: 'outInQuad',
+    InCubic: 'inCubic',
+    OutCubic: 'outCubic',
+    InOutCubic: 'inOutCubic',
+    OutInCubic: 'outInCubic',
+    InQuart: 'inQuart',
+    OutQuart: 'outQuart',
+    InOutQuart: 'inOutQuart',
+    OutInQuart: 'outInQuart',
+    InQuint: 'inQuint',
+    OutQuint: 'outQuint',
+    InOutQuint: 'inOutQuint',
+    OutInQuint: 'outInQuint',
+    InExpo: 'inExpo',
+    OutExpo: 'outExpo',
+    InOutExpo: 'inOutExpo',
+    OutInOutExpo: 'outInOutExpo',
+    InCirc: 'inCirc',
+    OutCirc: 'outCirc',
+    InOutCirc: 'inOutCirc',
+    OutInCirc: 'outInCirc',
+    InBack: 'inBack',
+    OutBack: 'outBack',
+    InOutBack: 'inOutBack',
+    OutInBack: 'outInBack',
+    InElastic: 'inElastic',
+    OutElastic: 'outElastic',
+    InOutElastic: 'inOutElastic',
+    OutInElastic: 'outInElastic',
+    None: 'none',
 }
 
 export function stringToParticleExpression(
@@ -283,13 +283,14 @@ function packParticle(
 ) {
     const item: ParticleItem = {
         name,
-        version: 2,
+        version: 3,
         title: particle.title,
         subtitle: particle.subtitle,
         author: particle.author,
-        thumbnail: srl('ParticleThumbnail'),
-        data: srl('ParticleData'),
-        texture: srl('ParticleTexture'),
+        tags: [],
+        thumbnail: emptySrl(),
+        data: emptySrl(),
+        texture: emptySrl(),
     }
     particles.push(item)
 
@@ -298,7 +299,7 @@ function packParticle(
         async execute() {
             const { hash, data } = await packRaw(particle.thumbnail)
 
-            const path = `/sonolus/repository/ParticleThumbnail/${hash}`
+            const path = `/sonolus/repository/${hash}`
             item.thumbnail.hash = hash
             item.thumbnail.url = path
             addRaw(path, data)
@@ -415,7 +416,7 @@ function packParticle(
 
             const { hash, data } = await packRaw(texture)
 
-            const path = `/sonolus/repository/ParticleTexture/${hash}`
+            const path = `/sonolus/repository/${hash}`
             item.texture.hash = hash
             item.texture.url = path
             addRaw(path, data)
@@ -429,7 +430,7 @@ function packParticle(
         async execute() {
             const { hash, data } = await packJson(particleData)
 
-            const path = `/sonolus/repository/ParticleData/${hash}`
+            const path = `/sonolus/repository/${hash}`
             item.data.hash = hash
             item.data.url = path
             addRaw(path, data)
@@ -442,7 +443,7 @@ function packParticle(
             addJson<ItemDetails<ParticleItem>>(`/sonolus/particles/${name}`, {
                 item,
                 description: particle.description,
-                recommended: [],
+                sections: [],
             })
         },
     })

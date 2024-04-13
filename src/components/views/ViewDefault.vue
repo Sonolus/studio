@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { version } from 'sonolus-core'
+import { version } from '@sonolus/core'
 import IconList from '../../icons/list-solid.svg?component'
 
 const appVersion = VITE_APP_VERSION

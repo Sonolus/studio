@@ -1,9 +1,7 @@
 import { gzip, ungzip } from 'pako'
-import { ResourceType } from 'sonolus-core'
 
-export function srl<T extends ResourceType>(type: T) {
+export function emptySrl() {
     return {
-        type,
         hash: '',
         url: '',
     }

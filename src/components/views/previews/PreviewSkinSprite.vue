@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { SkinDataExpression } from '@sonolus/core'
 import {
     useDevicePixelRatio,
     useLocalStorage,
     useMouseInElement,
     useMousePressed,
 } from '@vueuse/core'
-import { SkinDataExpression } from 'sonolus-core'
 import { computed, ref, watch, watchEffect, watchPostEffect } from 'vue'
 import { inverseBilinear } from '../../../core/bilinear-interpolation'
 import { sample } from '../../../core/sampling'

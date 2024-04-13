@@ -140,32 +140,32 @@ watchEffect(async () => {
                     x: {
                         from: '',
                         to: '',
-                        ease: 'Linear',
+                        ease: 'linear',
                     },
                     y: {
                         from: '',
                         to: '',
-                        ease: 'Linear',
+                        ease: 'linear',
                     },
                     w: {
                         from: '',
                         to: '',
-                        ease: 'Linear',
+                        ease: 'linear',
                     },
                     h: {
                         from: '',
                         to: '',
-                        ease: 'Linear',
+                        ease: 'linear',
                     },
                     r: {
                         from: '',
                         to: '',
-                        ease: 'Linear',
+                        ease: 'linear',
                     },
                     a: {
                         from: '',
                         to: '',
-                        ease: 'Linear',
+                        ease: 'linear',
                     },
                 })
                 try {
@@ -408,7 +408,7 @@ function draw() {
 
     for (let i = 0; i < canvasW; i++) {
         const x = ((i + 0.5) / canvasW) * 2 - 1
-        for (let j = 0; j < canvasH; j++) {	
+        for (let j = 0; j < canvasH; j++) {
             const y = (((j + 0.5) / canvasH) * 2 - 1) * -1
 
             const [u, v] = inverseBilinear([x, y], rect)

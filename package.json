@@ -8,11 +8,11 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@sonolus/core": "^7.5.1",
     "@vueuse/core": "^10.3.0",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "pako": "^2.1.0",
-    "sonolus-core": "~7.3.0",
     "vue": "^3.3.4"
   },
   "devDependencies": {
