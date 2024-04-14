@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useView } from '../../composables/view'
-import { Particle, ease, varName } from '../../core/particle'
+import { Particle, ease, varNames } from '../../core/particle'
 import MyColorInput from '../ui/MyColorInput.vue'
 import MyField from '../ui/MyField.vue'
 import MyImageInput from '../ui/MyImageInput.vue'
@@ -17,31 +17,22 @@ const v = useView(
     props,
     'particles',
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    (v, view) => {
-        let res = v.value.data.effects.find(({ name }) => name === view.value[3])!.groups[
+    (v, view) =>
+        v.value.data.effects.find(({ name }) => name === view.value[3])!.groups[
             Number(view.value[4].substr('Group #'.length))
-        ].particles[Number(view.value[5].substr('Sprite #'.length))]!
-        if (res.x.ease == undefined) res.x.ease = 'linear'
-        if (res.y.ease == undefined) res.y.ease = 'linear'
-        if (res.w.ease == undefined) res.w.ease = 'linear'
-        if (res.h.ease == undefined) res.h.ease = 'linear'
-        if (res.r.ease == undefined) res.r.ease = 'linear'
-        if (res.a.ease == undefined) res.a.ease = 'linear'
-        return res
-    },
+        ].particles[Number(view.value[5].substr('Sprite #'.length))]!,
 )
 
 const validator = (value: string) => {
-    let seperator = /\+|-/
-    let arr = value.split(seperator)
+    let separator = /\+|-/
+    let arr = value.split(separator)
     for (let i = 0; i < arr.length; i++) {
         let arr2 = arr[i].split('*')
         let nan = 0
         for (let j = 0; j < arr2.length; j++) {
             if (isNaN(Number(arr2[j]))) {
                 nan++
-                console.log(arr2[j])
-                if (varName.includes(arr2[j] as (typeof varName)[number]) == false) return false
+                if (!varNames.includes(arr2[j] as never)) return false
             }
         }
         if (nan > 1) return false

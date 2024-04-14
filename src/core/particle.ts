@@ -2,11 +2,11 @@ import {
     ItemDetails,
     ItemList,
     ParticleData,
-    ParticleDataGroupParticleProperty,
     ParticleDataGroupParticlePropertyExpression,
     ParticleEffectName,
     ParticleItem,
 } from '@sonolus/core'
+import { Ease } from './ease'
 import { formatNameKey } from './names'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { SpriteLayout, bakeSprite, tryCalculateLayout } from './sprite-sheet'
@@ -42,32 +42,32 @@ export type Particle = {
                     x: {
                         from: string
                         to: string
-                        ease: string
+                        ease: Ease
                     }
                     y: {
                         from: string
                         to: string
-                        ease: string
+                        ease: Ease
                     }
                     w: {
                         from: string
                         to: string
-                        ease: string
+                        ease: Ease
                     }
                     h: {
                         from: string
                         to: string
-                        ease: string
+                        ease: Ease
                     }
                     r: {
                         from: string
                         to: string
-                        ease: string
+                        ease: Ease
                     }
                     a: {
                         from: string
                         to: string
-                        ease: string
+                        ease: Ease
                     }
                 }[]
             }[]
@@ -160,7 +160,7 @@ export function packParticles(process: PackProcess, project: Project) {
     project.particles.forEach((particle, name) => packParticle(process, name, particle))
 }
 
-export const varName = [
+export const varNames = [
     'c',
     'r1',
     'sinr1',
@@ -188,12 +188,8 @@ export const varName = [
     'cosr8',
 ] as const
 
-export const ease = {
+export const ease: Record<string, Ease> = {
     Linear: 'linear',
-    InSine: 'inSine',
-    OutSine: 'outSine',
-    InOutSine: 'inOutSine',
-    OutInSine: 'outInSine',
     InQuad: 'inQuad',
     OutQuad: 'outQuad',
     InOutQuad: 'inOutQuad',
@@ -210,10 +206,14 @@ export const ease = {
     OutQuint: 'outQuint',
     InOutQuint: 'inOutQuint',
     OutInQuint: 'outInQuint',
+    InSine: 'inSine',
+    OutSine: 'outSine',
+    InOutSine: 'inOutSine',
+    OutInSine: 'outInSine',
     InExpo: 'inExpo',
     OutExpo: 'outExpo',
     InOutExpo: 'inOutExpo',
-    OutInOutExpo: 'outInOutExpo',
+    OutInExpo: 'outInExpo',
     InCirc: 'inCirc',
     OutCirc: 'outCirc',
     InOutCirc: 'inOutCirc',
@@ -229,11 +229,9 @@ export const ease = {
     None: 'none',
 }
 
-export function stringToParticleExpression(
-    value: string,
-): ParticleDataGroupParticlePropertyExpression {
-    const seperator = /\+|-/
-    const arr = value.split(seperator)
+export function stringToParticleExpression(value: string) {
+    const separator = /\+|-/
+    const arr = value.split(separator)
     const res: ParticleDataGroupParticlePropertyExpression = {}
     const sign = []
     for (let i = 0; i < value.length; i++)
@@ -245,7 +243,7 @@ export function stringToParticleExpression(
         let val = 1
         for (let j = 0; j < arr2.length; j++) {
             if (isNaN(Number(arr2[j]))) {
-                if (varName.includes(arr2[j] as (typeof varName)[number]) == false) return {}
+                if (varNames.includes(arr2[j] as (typeof varNames)[number]) == false) return {}
                 nan++
                 if (nan > 1) return {}
                 name = arr2[j]
@@ -255,23 +253,22 @@ export function stringToParticleExpression(
         type Name = keyof ParticleDataGroupParticlePropertyExpression
         if (isNaN(Number(res[name as Name]))) res[name as Name] = 0
         res[name as Name] = Number(res[name as Name]) + val * (i && sign[i - 1] == '-' ? -1 : 1)
-        // console.log(res[name as Name]);
     }
     return res
 }
 
 function particleExpressionToString(
     value: ParticleDataGroupParticlePropertyExpression | undefined,
-): string {
+) {
     let res = ''
-    for (let i = 0; i < varName.length; i++) {
+    for (let i = 0; i < varNames.length; i++) {
         const val =
             value == undefined
                 ? 0
-                : Number(value[varName[i] as keyof ParticleDataGroupParticlePropertyExpression])
+                : Number(value[varNames[i] as keyof ParticleDataGroupParticlePropertyExpression])
         if (val == 0 || Number.isNaN(val)) continue
         if (res != '') res += val > 0 ? '+' : '-'
-        res += val.toString() + '*' + varName[i]
+        res += val.toString() + '*' + varNames[i]
     }
     return res
 }
@@ -349,32 +346,32 @@ function packParticle(
                             x: {
                                 from: stringToParticleExpression(particle.x.from),
                                 to: stringToParticleExpression(particle.x.to),
-                                ease: particle.x.ease as ParticleDataGroupParticleProperty['ease'],
+                                ease: particle.x.ease,
                             },
                             y: {
                                 from: stringToParticleExpression(particle.y.from),
                                 to: stringToParticleExpression(particle.y.to),
-                                ease: particle.y.ease as ParticleDataGroupParticleProperty['ease'],
+                                ease: particle.y.ease,
                             },
                             w: {
                                 from: stringToParticleExpression(particle.w.from),
                                 to: stringToParticleExpression(particle.w.to),
-                                ease: particle.w.ease as ParticleDataGroupParticleProperty['ease'],
+                                ease: particle.w.ease,
                             },
                             h: {
                                 from: stringToParticleExpression(particle.h.from),
                                 to: stringToParticleExpression(particle.h.to),
-                                ease: particle.h.ease as ParticleDataGroupParticleProperty['ease'],
+                                ease: particle.h.ease,
                             },
                             r: {
                                 from: stringToParticleExpression(particle.r.from),
                                 to: stringToParticleExpression(particle.r.to),
-                                ease: particle.r.ease as ParticleDataGroupParticleProperty['ease'],
+                                ease: particle.r.ease,
                             },
                             a: {
                                 from: stringToParticleExpression(particle.a.from),
                                 to: stringToParticleExpression(particle.a.to),
-                                ease: particle.a.ease as ParticleDataGroupParticleProperty['ease'],
+                                ease: particle.a.ease,
                             },
                         })
                         spritesArr.push({
@@ -571,7 +568,7 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
                                                         to: particleExpressionToString(
                                                             particle.x.to,
                                                         ),
-                                                        ease: particle.x.ease as string,
+                                                        ease: particle.x.ease ?? 'linear',
                                                     },
                                                     y: {
                                                         from: particleExpressionToString(
@@ -580,7 +577,7 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
                                                         to: particleExpressionToString(
                                                             particle.y.to,
                                                         ),
-                                                        ease: particle.y.ease as string,
+                                                        ease: particle.y.ease ?? 'linear',
                                                     },
                                                     w: {
                                                         from: particleExpressionToString(
@@ -589,7 +586,7 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
                                                         to: particleExpressionToString(
                                                             particle.w.to,
                                                         ),
-                                                        ease: particle.w.ease as string,
+                                                        ease: particle.w.ease ?? 'linear',
                                                     },
                                                     h: {
                                                         from: particleExpressionToString(
@@ -598,7 +595,7 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
                                                         to: particleExpressionToString(
                                                             particle.h.to,
                                                         ),
-                                                        ease: particle.h.ease as string,
+                                                        ease: particle.h.ease ?? 'linear',
                                                     },
                                                     r: {
                                                         from: particleExpressionToString(
@@ -607,7 +604,7 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
                                                         to: particleExpressionToString(
                                                             particle.r.to,
                                                         ),
-                                                        ease: particle.r.ease as string,
+                                                        ease: particle.r.ease ?? 'linear',
                                                     },
                                                     a: {
                                                         from: particleExpressionToString(
@@ -616,7 +613,7 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
                                                         to: particleExpressionToString(
                                                             particle.a.to,
                                                         ),
-                                                        ease: particle.a.ease as string,
+                                                        ease: particle.a.ease ?? 'linear',
                                                     },
                                                 }
                                             }),

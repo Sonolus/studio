@@ -1,146 +1,58 @@
-const pow = Math.pow
-const sqrt = Math.sqrt
-const sin = Math.sin
-const cos = Math.cos
-const PI = Math.PI
-const c1 = 1.70158
-// const c2 = c1 * 1.525
-const c3 = c1 + 1
-const c4 = (2 * PI) / 3
-// const c5 = (2 * PI) / 4.5
+import { ParticleDataGroupParticleProperty } from '@sonolus/core'
 
-export const EaseFunction = {
-    linear: function (x: number) {
-        return x
-    },
-    inQuad: function (x: number) {
-        return x * x
-    },
-    outQuad: function (x: number) {
-        return 1 - (1 - x) * (1 - x)
-    },
-    inOutQuad: function (x: number) {
-        return x < 0.5 ? EaseFunction.inQuad(x * 2) / 2 : EaseFunction.outQuad(x * 2 - 1) / 2 + 0.5
-    },
-    outInQuad: function (x: number) {
-        return x < 0.5 ? EaseFunction.outQuad(x * 2) / 2 : EaseFunction.inQuad(x * 2 - 1) / 2 + 0.5
-    },
-    inCubic: function (x: number) {
-        return x * x * x
-    },
-    outCubic: function (x: number) {
-        return 1 - pow(1 - x, 3)
-    },
-    inOutCubic: function (x: number) {
-        return x < 0.5
-            ? EaseFunction.inCubic(x * 2) / 2
-            : EaseFunction.outCubic(x * 2 - 1) / 2 + 0.5
-    },
-    outInCubic: function (x: number) {
-        return x < 0.5
-            ? EaseFunction.outCubic(x * 2) / 2
-            : EaseFunction.inCubic(x * 2 - 1) / 2 + 0.5
-    },
-    inQuart: function (x: number) {
-        return x * x * x * x
-    },
-    outQuart: function (x: number) {
-        return 1 - pow(1 - x, 4)
-    },
-    inOutQuart: function (x: number) {
-        return x < 0.5
-            ? EaseFunction.inQuart(x * 2) / 2
-            : EaseFunction.outQuart(x * 2 - 1) / 2 + 0.5
-    },
-    outInQuart: function (x: number) {
-        return x < 0.5
-            ? EaseFunction.outQuart(x * 2) / 2
-            : EaseFunction.inQuart(x * 2 - 1) / 2 + 0.5
-    },
-    inQuint: function (x: number) {
-        return x * x * x * x * x
-    },
-    outQuint: function (x: number) {
-        return 1 - pow(1 - x, 5)
-    },
-    inOutQuint: function (x: number) {
-        return x < 0.5
-            ? EaseFunction.inQuint(x * 2) / 2
-            : EaseFunction.outQuint(x * 2 - 1) / 2 + 0.5
-    },
-    outInQuint: function (x: number) {
-        return x < 0.5
-            ? EaseFunction.outQuint(x * 2) / 2
-            : EaseFunction.inQuint(x * 2 - 1) / 2 + 0.5
-    },
-    inSine: function (x: number) {
-        return 1 - cos((x * PI) / 2)
-    },
-    outSine: function (x: number) {
-        return sin((x * PI) / 2)
-    },
-    inOutSine: function (x: number) {
-        return x < 0.5 ? EaseFunction.inSine(x * 2) / 2 : EaseFunction.outSine(x * 2 - 1) / 2 + 0.5
-    },
-    outInSine: function (x: number) {
-        return x < 0.5 ? EaseFunction.outSine(x * 2) / 2 : EaseFunction.inSine(x * 2 - 1) / 2 + 0.5
-    },
-    inExpo: function (x: number) {
-        return x === 0 ? 0 : pow(2, 10 * x - 10)
-    },
-    outExpo: function (x: number) {
-        return x === 1 ? 1 : 1 - pow(2, -10 * x)
-    },
-    inOutExpo: function (x: number) {
-        return x < 0.5 ? EaseFunction.inExpo(x * 2) / 2 : EaseFunction.outExpo(x * 2 - 1) / 2 + 0.5
-    },
-    outInExpo: function (x: number) {
-        return x < 0.5 ? EaseFunction.outExpo(x * 2) / 2 : EaseFunction.inExpo(x * 2 - 1) / 2 + 0.5
-    },
-    inCirc: function (x: number) {
-        return 1 - sqrt(1 - pow(x, 2))
-    },
-    outCirc: function (x: number) {
-        return sqrt(1 - pow(x - 1, 2))
-    },
-    inOutCirc: function (x: number) {
-        return x < 0.5 ? EaseFunction.inCirc(x * 2) / 2 : EaseFunction.outCirc(x * 2 - 1) / 2 + 0.5
-    },
-    outInCirc: function (x: number) {
-        return x < 0.5 ? EaseFunction.outCirc(x * 2) / 2 : EaseFunction.inCirc(x * 2 - 1) / 2 + 0.5
-    },
-    inBack: function (x: number) {
-        return c3 * x * x * x - c1 * x * x
-    },
-    outBack: function (x: number) {
-        return 1 + c3 * pow(x - 1, 3) + c1 * pow(x - 1, 2)
-    },
-    inOutBack: function (x: number) {
-        return x < 0.5 ? EaseFunction.inBack(x * 2) / 2 : EaseFunction.outBack(x * 2 - 1) / 2 + 0.5
-    },
-    outInBack: function (x: number) {
-        return x < 0.5 ? EaseFunction.outBack(x * 2) / 2 : EaseFunction.inBack(x * 2 - 1) / 2 + 0.5
-    },
-    inElastic: function (x: number) {
-        return x === 0 ? 0 : x === 1 ? 1 : -pow(2, 10 * x - 10) * sin((x * 10 - 10.75) * c4)
-    },
-    outElastic: function (x: number) {
-        return x === 0 ? 0 : x === 1 ? 1 : pow(2, -10 * x) * sin((x * 10 - 0.75) * c4) + 1
-    },
-    inOutElastic: function (x: number) {
-        return x < 0.5
-            ? EaseFunction.inElastic(x * 2) / 2
-            : EaseFunction.outElastic(x * 2 - 1) / 2 + 0.5
-    },
-    outInElastic: function (x: number) {
-        return x < 0.5
-            ? EaseFunction.outElastic(x * 2) / 2
-            : EaseFunction.inElastic(x * 2 - 1) / 2 + 0.5
-    },
-    none: function (x: number) {
-        return x < 0.5 ? 0 : 1
-    },
-    undefined: function (x: number) {
-        return EaseFunction.linear(x)
-    },
-} as const
+export type Ease = Required<ParticleDataGroupParticleProperty>['ease']
+
+const c1 = 1.70158
+const c3 = c1 + 1
+const c4 = (2 * Math.PI) / 3
+
+export const easings: Record<Ease, (x: number) => number> = {
+    linear: (x) => x,
+    inQuad: (x) => x * x,
+    outQuad: (x) => 1 - (1 - x) * (1 - x),
+    inOutQuad: (x) => (x < 0.5 ? easings.inQuad(x * 2) / 2 : easings.outQuad(x * 2 - 1) / 2 + 0.5),
+    outInQuad: (x) => (x < 0.5 ? easings.outQuad(x * 2) / 2 : easings.inQuad(x * 2 - 1) / 2 + 0.5),
+    inCubic: (x) => x * x * x,
+    outCubic: (x) => 1 - Math.pow(1 - x, 3),
+    inOutCubic: (x) =>
+        x < 0.5 ? easings.inCubic(x * 2) / 2 : easings.outCubic(x * 2 - 1) / 2 + 0.5,
+    outInCubic: (x) =>
+        x < 0.5 ? easings.outCubic(x * 2) / 2 : easings.inCubic(x * 2 - 1) / 2 + 0.5,
+    inQuart: (x) => x * x * x * x,
+    outQuart: (x) => 1 - Math.pow(1 - x, 4),
+    inOutQuart: (x) =>
+        x < 0.5 ? easings.inQuart(x * 2) / 2 : easings.outQuart(x * 2 - 1) / 2 + 0.5,
+    outInQuart: (x) =>
+        x < 0.5 ? easings.outQuart(x * 2) / 2 : easings.inQuart(x * 2 - 1) / 2 + 0.5,
+    inQuint: (x) => x * x * x * x * x,
+    outQuint: (x) => 1 - Math.pow(1 - x, 5),
+    inOutQuint: (x) =>
+        x < 0.5 ? easings.inQuint(x * 2) / 2 : easings.outQuint(x * 2 - 1) / 2 + 0.5,
+    outInQuint: (x) =>
+        x < 0.5 ? easings.outQuint(x * 2) / 2 : easings.inQuint(x * 2 - 1) / 2 + 0.5,
+    inSine: (x) => 1 - Math.cos((x * Math.PI) / 2),
+    outSine: (x) => Math.sin((x * Math.PI) / 2),
+    inOutSine: (x) => (x < 0.5 ? easings.inSine(x * 2) / 2 : easings.outSine(x * 2 - 1) / 2 + 0.5),
+    outInSine: (x) => (x < 0.5 ? easings.outSine(x * 2) / 2 : easings.inSine(x * 2 - 1) / 2 + 0.5),
+    inExpo: (x) => (x === 0 ? 0 : Math.pow(2, 10 * x - 10)),
+    outExpo: (x) => (x === 1 ? 1 : 1 - Math.pow(2, -10 * x)),
+    inOutExpo: (x) => (x < 0.5 ? easings.inExpo(x * 2) / 2 : easings.outExpo(x * 2 - 1) / 2 + 0.5),
+    outInExpo: (x) => (x < 0.5 ? easings.outExpo(x * 2) / 2 : easings.inExpo(x * 2 - 1) / 2 + 0.5),
+    inCirc: (x) => 1 - Math.sqrt(1 - Math.pow(x, 2)),
+    outCirc: (x) => Math.sqrt(1 - Math.pow(x - 1, 2)),
+    inOutCirc: (x) => (x < 0.5 ? easings.inCirc(x * 2) / 2 : easings.outCirc(x * 2 - 1) / 2 + 0.5),
+    outInCirc: (x) => (x < 0.5 ? easings.outCirc(x * 2) / 2 : easings.inCirc(x * 2 - 1) / 2 + 0.5),
+    inBack: (x) => c3 * x * x * x - c1 * x * x,
+    outBack: (x) => 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2),
+    inOutBack: (x) => (x < 0.5 ? easings.inBack(x * 2) / 2 : easings.outBack(x * 2 - 1) / 2 + 0.5),
+    outInBack: (x) => (x < 0.5 ? easings.outBack(x * 2) / 2 : easings.inBack(x * 2 - 1) / 2 + 0.5),
+    inElastic: (x) =>
+        x === 0 ? 0 : x === 1 ? 1 : -Math.pow(2, 10 * x - 10) * Math.sin((x * 10 - 10.75) * c4),
+    outElastic: (x) =>
+        x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1,
+    inOutElastic: (x) =>
+        x < 0.5 ? easings.inElastic(x * 2) / 2 : easings.outElastic(x * 2 - 1) / 2 + 0.5,
+    outInElastic: (x) =>
+        x < 0.5 ? easings.outElastic(x * 2) / 2 : easings.inElastic(x * 2 - 1) / 2 + 0.5,
+    none: (x) => (x < 0.5 ? 0 : 1),
+}

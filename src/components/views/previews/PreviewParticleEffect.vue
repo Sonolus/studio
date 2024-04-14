@@ -6,8 +6,8 @@ import {
     useMousePressed,
 } from '@vueuse/core'
 import { computed, onUnmounted, ref, watch, watchEffect } from 'vue'
-import { EaseFunction } from '../../../core/ease'
-import { Particle, stringToParticleExpression, varName } from '../../../core/particle'
+import { Ease, easings } from '../../../core/ease'
+import { Particle, stringToParticleExpression, varNames } from '../../../core/particle'
 import { getImageBuffer, getImageInfo } from '../../../core/utils'
 import MyColorInput from '../../ui/MyColorInput.vue'
 import MyField from '../../ui/MyField.vue'
@@ -72,7 +72,7 @@ const rect = ref<Rect>([
     }
 })*/
 
-type imageInfo = {
+type ImageInfo = {
     img: HTMLImageElement
     width: number
     height: number
@@ -80,7 +80,7 @@ type imageInfo = {
 
 let images: {
     error: number
-    info?: imageInfo
+    info?: ImageInfo
     buffer?: ReturnType<typeof getImageBuffer>
     color: string
     start: number
@@ -89,39 +89,39 @@ let images: {
     x: {
         from: string
         to: string
-        ease: string
+        ease: Ease
     }
     y: {
         from: string
         to: string
-        ease: string
+        ease: Ease
     }
     w: {
         from: string
         to: string
-        ease: string
+        ease: Ease
     }
     h: {
         from: string
         to: string
-        ease: string
+        ease: Ease
     }
     r: {
         from: string
         to: string
-        ease: string
+        ease: Ease
     }
     a: {
         from: string
         to: string
-        ease: string
+        ease: Ease
     }
 }[] = []
 
-type Ease = {
-    [i in (typeof varName)[number]]?: number
+type VariableValues = {
+    [i in (typeof varNames)[number]]?: number
 }
-let randomValues: Ease[] = []
+let variableValues: VariableValues[] = []
 
 watchEffect(async () => {
     images.length = 0
@@ -172,7 +172,7 @@ watchEffect(async () => {
                     images[images.length - 1].info = await getImageInfo(g.particles[j].sprite)
                     let canvas: HTMLCanvasElement = document.createElement('canvas')
                     images[images.length - 1].buffer = getImageBuffer(
-                        images[images.length - 1].info as imageInfo,
+                        images[images.length - 1].info as ImageInfo,
                         canvas,
                     )
                     images[images.length - 1].color = g.particles[j].color
@@ -189,7 +189,7 @@ watchEffect(async () => {
                     images[images.length - 1].error = 1
                 }
             }
-            let values: (typeof randomValues)[number] = {}
+            let values: (typeof variableValues)[number] = {}
             values.c = 1
             values.r1 = Math.random()
             values.sinr1 = Math.sin(2 * Math.PI * values.r1)
@@ -215,7 +215,7 @@ watchEffect(async () => {
             values.r8 = Math.random()
             values.sinr8 = Math.sin(2 * Math.PI * values.r8)
             values.cosr8 = Math.cos(2 * Math.PI * values.r8)
-            randomValues.push(values)
+            variableValues.push(values)
         }
     }
     animationReq = window.requestAnimationFrame(draw)
@@ -249,7 +249,7 @@ watchEffect(() => {
     rect.value[draggingIndex.value] = position.value
 })
 
-// Because the time complexity of alogrithm is much higher than I expected.
+// Because the time complexity of algorithm is much higher than I expected.
 // The sampling feature was disabled by me.
 // -- @LittleYang0531
 /*watchPostEffect(() => {
@@ -302,7 +302,9 @@ function expressionToValue(exp: string | undefined, groupId: number) {
     let expression = stringToParticleExpression(exp)
     let val = 0
     for (let name in expression)
-        val += expression[name as keyof Ease]! * randomValues[groupId][name as keyof Ease]!
+        val +=
+            expression[name as keyof VariableValues]! *
+            variableValues[groupId][name as keyof VariableValues]!
     return val
 }
 
@@ -343,51 +345,39 @@ function draw() {
         let tmpImg = document.createElement('canvas')
         tmpImg.height = height
         tmpImg.width = width
-        let tmpctx = tmpImg.getContext('2d')
-        if (tmpctx == null) continue
-        tmpctx.drawImage(data, 0, 0, width, height)
-        let tmpImgData = tmpctx.getImageData(0, 0, width, height)
+        let tmpCtx = tmpImg.getContext('2d')
+        if (tmpCtx == null) continue
+        tmpCtx.drawImage(data, 0, 0, width, height)
+        let tmpImgData = tmpCtx.getImageData(0, 0, width, height)
         let rgb = hex2rgb(images[i].color)
         for (var j = 0; j < tmpImgData.data.length; j += 4) {
             tmpImgData.data[j] = (tmpImgData.data[j] / 255) * rgb[0] // red
             tmpImgData.data[j + 1] = (tmpImgData.data[j + 1] / 255) * rgb[1] // green
             tmpImgData.data[j + 2] = (tmpImgData.data[j + 2] / 255) * rgb[2] // blue
         }
-        tmpctx.putImageData(tmpImgData, 0, 0)
+        tmpCtx.putImageData(tmpImgData, 0, 0)
 
-        let xfrom = expressionToValue(images[i].x.from, images[i].groupId)
-        let xto = expressionToValue(images[i].x.to, images[i].groupId)
-        let yfrom = expressionToValue(images[i].y.from, images[i].groupId)
-        let yto = expressionToValue(images[i].y.to, images[i].groupId)
-        let wfrom = expressionToValue(images[i].w.from, images[i].groupId)
-        let wto = expressionToValue(images[i].w.to, images[i].groupId)
-        let hfrom = expressionToValue(images[i].h.from, images[i].groupId)
-        let hto = expressionToValue(images[i].w.to, images[i].groupId)
-        let rfrom = expressionToValue(images[i].r.from, images[i].groupId)
-        let rto = expressionToValue(images[i].r.to, images[i].groupId)
-        let afrom = expressionToValue(images[i].a.from, images[i].groupId)
-        let ato = expressionToValue(images[i].a.to, images[i].groupId)
+        let xFrom = expressionToValue(images[i].x.from, images[i].groupId)
+        let xTo = expressionToValue(images[i].x.to, images[i].groupId)
+        let yFrom = expressionToValue(images[i].y.from, images[i].groupId)
+        let yTo = expressionToValue(images[i].y.to, images[i].groupId)
+        let wFrom = expressionToValue(images[i].w.from, images[i].groupId)
+        let wTo = expressionToValue(images[i].w.to, images[i].groupId)
+        let hFrom = expressionToValue(images[i].h.from, images[i].groupId)
+        let hTo = expressionToValue(images[i].w.to, images[i].groupId)
+        let rFrom = expressionToValue(images[i].r.from, images[i].groupId)
+        let rTo = expressionToValue(images[i].r.to, images[i].groupId)
+        let aFrom = expressionToValue(images[i].a.from, images[i].groupId)
+        let aTo = expressionToValue(images[i].a.to, images[i].groupId)
 
-        let x =
-            EaseFunction[images[i].x.ease as keyof typeof EaseFunction](percent) * (xto - xfrom) +
-            xfrom
+        let x = easings[images[i].x.ease](percent) * (xTo - xFrom) + xFrom
         x = -x
-        let y =
-            EaseFunction[images[i].y.ease as keyof typeof EaseFunction](percent) * (yto - yfrom) +
-            yfrom
+        let y = easings[images[i].y.ease](percent) * (yTo - yFrom) + yFrom
         y = -y
-        let w =
-            EaseFunction[images[i].w.ease as keyof typeof EaseFunction](percent) * (wto - wfrom) +
-            wfrom
-        let h =
-            EaseFunction[images[i].h.ease as keyof typeof EaseFunction](percent) * (hto - hfrom) +
-            hfrom
-        let r =
-            EaseFunction[images[i].r.ease as keyof typeof EaseFunction](percent) * (rto - rfrom) +
-            rfrom
-        let a =
-            EaseFunction[images[i].a.ease as keyof typeof EaseFunction](percent) * (ato - afrom) +
-            afrom
+        let w = easings[images[i].w.ease](percent) * (wTo - wFrom) + wFrom
+        let h = easings[images[i].h.ease](percent) * (hTo - hFrom) + hFrom
+        let r = easings[images[i].r.ease](percent) * (rTo - rFrom) + rFrom
+        let a = easings[images[i].a.ease](percent) * (aTo - aFrom) + aFrom
         ;(x = ((x + 1) / 2) * canvasW), (y = ((y + 1) / 2) * canvasH)
         ;(w = (w / 2) * canvasW), (h = (h / 2) * canvasH)
 
