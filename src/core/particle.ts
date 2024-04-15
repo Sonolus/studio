@@ -7,9 +7,10 @@ import {
     ParticleItem,
 } from '@sonolus/core'
 import { Ease } from './ease'
+import { newId } from './id'
 import { formatNameKey } from './names'
 import { PackProcess, Project, UnpackProcess } from './project'
-import { SpriteLayout, bakeSprite, tryCalculateLayout } from './sprite-sheet'
+import { bakeSprite, tryCalculateLayout } from './sprite-sheet'
 import { load } from './storage'
 import { emptySrl, getBlob, getImageInfo, packJson, packRaw, unpackJson } from './utils'
 
@@ -23,52 +24,32 @@ export type Particle = {
     thumbnail: string
     data: {
         interpolation: boolean
-        effects: {
-            name: string
-            transform: Transform
+        sprites: {
+            id: string
+            texture: string
             padding: {
                 left: boolean
                 right: boolean
                 top: boolean
                 bottom: boolean
             }
+        }[]
+        effects: {
+            name: string
+            transform: Transform
             groups: {
                 count: number
                 particles: {
-                    sprite: string
+                    spriteId: string
                     color: string
                     start: number
                     duration: number
-                    x: {
-                        from: string
-                        to: string
-                        ease: Ease
-                    }
-                    y: {
-                        from: string
-                        to: string
-                        ease: Ease
-                    }
-                    w: {
-                        from: string
-                        to: string
-                        ease: Ease
-                    }
-                    h: {
-                        from: string
-                        to: string
-                        ease: Ease
-                    }
-                    r: {
-                        from: string
-                        to: string
-                        ease: Ease
-                    }
-                    a: {
-                        from: string
-                        to: string
-                        ease: Ease
-                    }
+                    x: { from: string; to: string; ease: Ease }
+                    y: { from: string; to: string; ease: Ease }
+                    w: { from: string; to: string; ease: Ease }
+                    h: { from: string; to: string; ease: Ease }
+                    r: { from: string; to: string; ease: Ease }
+                    a: { from: string; to: string; ease: Ease }
                 }[]
             }[]
         }[]
@@ -86,14 +67,28 @@ export function newParticle(): Particle {
         thumbnail: '',
         data: {
             interpolation: true,
+            sprites: [],
             effects: [],
+        },
+    }
+}
+
+export function newParticleSprite(id: string): Particle['data']['sprites'][number] {
+    return {
+        id,
+        texture: '',
+        padding: {
+            left: true,
+            right: true,
+            top: true,
+            bottom: true,
         },
     }
 }
 
 export function newParticleEffect(name: string): Particle['data']['effects'][number] {
     return {
-        name: name,
+        name,
         transform: {
             x1: { ...allZero, x1: 1 },
             x2: { ...allZero, x2: 1 },
@@ -104,24 +99,18 @@ export function newParticleEffect(name: string): Particle['data']['effects'][num
             y3: { ...allZero, y3: 1 },
             y4: { ...allZero, y4: 1 },
         },
-        padding: {
-            left: true,
-            right: true,
-            top: true,
-            bottom: true,
-        },
         groups: [],
     }
 }
 export function newParticleEffectGroup(): Particle['data']['effects'][number]['groups'][number] {
     return {
-        count: 0,
+        count: 1,
         particles: [],
     }
 }
 export function newParticleEffectGroupParticle(): Particle['data']['effects'][number]['groups'][number]['particles'][number] {
     return {
-        sprite: '',
+        spriteId: '',
         color: '#000000',
         start: 0,
         duration: 1,
@@ -134,8 +123,27 @@ export function newParticleEffectGroupParticle(): Particle['data']['effects'][nu
     }
 }
 
+export function hasParticleSprite(particle: Particle, id: string) {
+    return particle.data.sprites.some((s) => s.id === id)
+}
+
 export function hasParticleEffect(particle: Particle, name: string) {
     return particle.data.effects.some((e) => e.name === name)
+}
+
+export function hasParticleEffectGroup(particle: Particle, name: string, index: number) {
+    return particle.data.effects.some((e) => e.name === name && e.groups[index])
+}
+
+export function hasParticleEffectGroupParticle(
+    particle: Particle,
+    name: string,
+    groupIndex: number,
+    particleIndex: number,
+) {
+    return particle.data.effects.some(
+        (e) => e.name === name && e.groups[groupIndex]?.particles[particleIndex],
+    )
 }
 
 export function formatParticleEffectName(name: string) {
@@ -147,13 +155,7 @@ export function formatParticleEffectName(name: string) {
 
 export function addParticleToWhitelist(particle: Particle, whitelist: Set<string>) {
     whitelist.add(particle.thumbnail)
-    particle.data.effects.forEach((s) => {
-        s.groups.forEach((g) => {
-            g.particles.forEach((p) => {
-                whitelist.add(p.sprite)
-            })
-        })
-    })
+    particle.data.sprites.forEach((s) => whitelist.add(s.texture))
 }
 
 export function packParticles(process: PackProcess, project: Project) {
@@ -314,75 +316,63 @@ function packParticle(
     tasks.push({
         description: `Packing particle "${name}" texture...`,
         async execute() {
-            const spritesArr: SpriteLayout[] = []
-            particle.data.effects.forEach((effect) => {
+            particle.data.effects.forEach(({ name, transform, groups }) => {
                 particleData.effects.push({
-                    name: effect.name,
-                    transform: {
-                        x1: effect.transform.x1,
-                        x2: effect.transform.x2,
-                        x3: effect.transform.x3,
-                        x4: effect.transform.x4,
-                        y1: effect.transform.y1,
-                        y2: effect.transform.y2,
-                        y3: effect.transform.y3,
-                        y4: effect.transform.y4,
-                    },
-                    groups: [],
-                })
-                effect.groups.forEach((group) => {
-                    particleData.effects[particleData.effects.length - 1].groups.push({
-                        count: group.count,
-                        particles: [],
-                    })
-                    group.particles.forEach((particle) => {
-                        particleData.effects[particleData.effects.length - 1].groups[
-                            particleData.effects[particleData.effects.length - 1].groups.length - 1
-                        ].particles.push({
-                            sprite: spritesArr.length,
-                            color: particle.color,
-                            start: particle.start,
-                            duration: particle.duration,
-                            x: {
-                                from: stringToParticleExpression(particle.x.from),
-                                to: stringToParticleExpression(particle.x.to),
-                                ease: particle.x.ease,
-                            },
-                            y: {
-                                from: stringToParticleExpression(particle.y.from),
-                                to: stringToParticleExpression(particle.y.to),
-                                ease: particle.y.ease,
-                            },
-                            w: {
-                                from: stringToParticleExpression(particle.w.from),
-                                to: stringToParticleExpression(particle.w.to),
-                                ease: particle.w.ease,
-                            },
-                            h: {
-                                from: stringToParticleExpression(particle.h.from),
-                                to: stringToParticleExpression(particle.h.to),
-                                ease: particle.h.ease,
-                            },
-                            r: {
-                                from: stringToParticleExpression(particle.r.from),
-                                to: stringToParticleExpression(particle.r.to),
-                                ease: particle.r.ease,
-                            },
-                            a: {
-                                from: stringToParticleExpression(particle.a.from),
-                                to: stringToParticleExpression(particle.a.to),
-                                ease: particle.a.ease,
-                            },
-                        })
-                        spritesArr.push({
-                            name: spritesArr.length.toString(),
-                            texture: particle.sprite,
-                            padding: effect.padding,
-                        })
-                    })
+                    name,
+                    transform,
+                    groups: groups.map(({ count, particles }) => ({
+                        count,
+                        particles: particles.map(
+                            ({ spriteId, color, start, duration, x, y, w, h, r, a }) => ({
+                                sprite: particle.data.sprites.findIndex(
+                                    ({ id }) => id === spriteId,
+                                ),
+                                color,
+                                start,
+                                duration,
+                                x: {
+                                    from: stringToParticleExpression(x.from),
+                                    to: stringToParticleExpression(x.to),
+                                    ease: x.ease,
+                                },
+                                y: {
+                                    from: stringToParticleExpression(y.from),
+                                    to: stringToParticleExpression(y.to),
+                                    ease: y.ease,
+                                },
+                                w: {
+                                    from: stringToParticleExpression(w.from),
+                                    to: stringToParticleExpression(w.to),
+                                    ease: w.ease,
+                                },
+                                h: {
+                                    from: stringToParticleExpression(h.from),
+                                    to: stringToParticleExpression(h.to),
+                                    ease: h.ease,
+                                },
+                                r: {
+                                    from: stringToParticleExpression(r.from),
+                                    to: stringToParticleExpression(r.to),
+                                    ease: r.ease,
+                                },
+                                a: {
+                                    from: stringToParticleExpression(a.from),
+                                    to: stringToParticleExpression(a.to),
+                                    ease: a.ease,
+                                },
+                            }),
+                        ),
+                    })),
                 })
             })
-            const { size, layouts } = await tryCalculateLayout(spritesArr)
+
+            const { size, layouts } = await tryCalculateLayout(
+                particle.data.sprites.map(({ id, padding, texture }) => ({
+                    name: id,
+                    padding,
+                    texture,
+                })),
+            )
 
             particleData.width = size
             particleData.height = size
@@ -396,15 +386,15 @@ function packParticle(
             ctx.clearRect(0, 0, size, size)
 
             for (const { name, x, y, w, h } of layouts) {
-                const sprite = spritesArr[Number(name)]
+                const sprite = particle.data.sprites.find(({ id }) => id === name)
                 if (!sprite) throw 'Unexpected missing sprite'
 
-                particleData.sprites.push({
+                particleData.sprites[particle.data.sprites.indexOf(sprite)] = {
                     x: x + (sprite.padding.left ? 1 : 0),
                     y: y + (sprite.padding.top ? 1 : 0),
                     w,
                     h,
-                })
+                }
 
                 await bakeSprite(sprite, x, y, w, h, ctx)
             }
@@ -462,7 +452,7 @@ export function unpackParticles(process: UnpackProcess) {
 
 function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProcess, name: string) {
     tasks.push({
-        description: `Loading skin "${name}" details...`,
+        description: `Loading particle "${name}" details...`,
         async execute() {
             const details = await getJson<ItemDetails<ParticleItem>>(`/sonolus/particles/${name}`)
 
@@ -497,24 +487,15 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
 
                     item.data.interpolation = data.interpolation
 
-                    let pt = 0
-                    const sprites: SpriteLayout[] = []
-                    data.sprites.forEach(({ x, y, w, h }) => {
-                        const sprite: SpriteLayout = {
-                            name: (pt++).toString(),
-                            texture: '',
-                            padding: {
-                                left: true,
-                                right: true,
-                                top: true,
-                                bottom: true,
-                            },
-                        }
+                    data.sprites.forEach(({ x, y, w, h }, index) => {
+                        const spriteId = newId()
+
+                        const sprite = newParticleSprite(spriteId)
 
                         tasks.push({
-                            description: `Unpacking particle "${name}" sprite #${pt}...`,
+                            description: `Unpacking skin "${name}" sprite #${index + 1}...`,
                             async execute() {
-                                if (!img) throw 'Unexpected missing particle texture'
+                                if (!img) throw 'Unexpected missing skin texture'
 
                                 const ctx = canvas.getContext('2d')
                                 if (!ctx) throw 'Failed to obtain canvas context'
@@ -527,100 +508,64 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
                             },
                         })
 
-                        sprites.push(sprite)
+                        item.data.sprites.push(sprite)
                     })
 
                     tasks.push({
-                        description: `Mapping particle "${name}" data...`,
+                        description: `Unpacking particle "${name}" effects...`,
                         async execute() {
-                            item.data.effects = data.effects.map((effect) => {
-                                return {
-                                    name: effect.name,
-                                    transform: {
-                                        x1: { ...allZero, ...effect.transform.x1 },
-                                        x2: { ...allZero, ...effect.transform.x2 },
-                                        x3: { ...allZero, ...effect.transform.x3 },
-                                        x4: { ...allZero, ...effect.transform.x4 },
-                                        y1: { ...allZero, ...effect.transform.y1 },
-                                        y2: { ...allZero, ...effect.transform.y2 },
-                                        y3: { ...allZero, ...effect.transform.y3 },
-                                        y4: { ...allZero, ...effect.transform.y4 },
-                                    },
-                                    padding: {
-                                        left: true,
-                                        right: true,
-                                        top: true,
-                                        bottom: true,
-                                    },
-                                    groups: effect.groups.map((group) => {
-                                        return {
-                                            count: group.count,
-                                            particles: group.particles.map((particle) => {
-                                                return {
-                                                    sprite: sprites[particle.sprite].texture,
-                                                    color: particle.color,
-                                                    start: particle.start,
-                                                    duration: particle.duration,
-                                                    x: {
-                                                        from: particleExpressionToString(
-                                                            particle.x.from,
-                                                        ),
-                                                        to: particleExpressionToString(
-                                                            particle.x.to,
-                                                        ),
-                                                        ease: particle.x.ease ?? 'linear',
-                                                    },
-                                                    y: {
-                                                        from: particleExpressionToString(
-                                                            particle.y.from,
-                                                        ),
-                                                        to: particleExpressionToString(
-                                                            particle.y.to,
-                                                        ),
-                                                        ease: particle.y.ease ?? 'linear',
-                                                    },
-                                                    w: {
-                                                        from: particleExpressionToString(
-                                                            particle.w.from,
-                                                        ),
-                                                        to: particleExpressionToString(
-                                                            particle.w.to,
-                                                        ),
-                                                        ease: particle.w.ease ?? 'linear',
-                                                    },
-                                                    h: {
-                                                        from: particleExpressionToString(
-                                                            particle.h.from,
-                                                        ),
-                                                        to: particleExpressionToString(
-                                                            particle.h.to,
-                                                        ),
-                                                        ease: particle.h.ease ?? 'linear',
-                                                    },
-                                                    r: {
-                                                        from: particleExpressionToString(
-                                                            particle.r.from,
-                                                        ),
-                                                        to: particleExpressionToString(
-                                                            particle.r.to,
-                                                        ),
-                                                        ease: particle.r.ease ?? 'linear',
-                                                    },
-                                                    a: {
-                                                        from: particleExpressionToString(
-                                                            particle.a.from,
-                                                        ),
-                                                        to: particleExpressionToString(
-                                                            particle.a.to,
-                                                        ),
-                                                        ease: particle.a.ease ?? 'linear',
-                                                    },
-                                                }
-                                            }),
-                                        }
-                                    }),
-                                }
-                            })
+                            item.data.effects = data.effects.map((effect) => ({
+                                name: effect.name,
+                                transform: {
+                                    x1: { ...allZero, ...effect.transform.x1 },
+                                    x2: { ...allZero, ...effect.transform.x2 },
+                                    x3: { ...allZero, ...effect.transform.x3 },
+                                    x4: { ...allZero, ...effect.transform.x4 },
+                                    y1: { ...allZero, ...effect.transform.y1 },
+                                    y2: { ...allZero, ...effect.transform.y2 },
+                                    y3: { ...allZero, ...effect.transform.y3 },
+                                    y4: { ...allZero, ...effect.transform.y4 },
+                                },
+                                groups: effect.groups.map((group) => ({
+                                    count: group.count,
+                                    particles: group.particles.map((particle) => ({
+                                        spriteId: item.data.sprites[particle.sprite]?.id ?? '',
+                                        color: particle.color,
+                                        start: particle.start,
+                                        duration: particle.duration,
+                                        x: {
+                                            from: particleExpressionToString(particle.x.from),
+                                            to: particleExpressionToString(particle.x.to),
+                                            ease: particle.x.ease ?? 'linear',
+                                        },
+                                        y: {
+                                            from: particleExpressionToString(particle.y.from),
+                                            to: particleExpressionToString(particle.y.to),
+                                            ease: particle.y.ease ?? 'linear',
+                                        },
+                                        w: {
+                                            from: particleExpressionToString(particle.w.from),
+                                            to: particleExpressionToString(particle.w.to),
+                                            ease: particle.w.ease ?? 'linear',
+                                        },
+                                        h: {
+                                            from: particleExpressionToString(particle.h.from),
+                                            to: particleExpressionToString(particle.h.to),
+                                            ease: particle.h.ease ?? 'linear',
+                                        },
+                                        r: {
+                                            from: particleExpressionToString(particle.r.from),
+                                            to: particleExpressionToString(particle.r.to),
+                                            ease: particle.r.ease ?? 'linear',
+                                        },
+                                        a: {
+                                            from: particleExpressionToString(particle.a.from),
+                                            to: particleExpressionToString(particle.a.to),
+                                            ease: particle.a.ease ?? 'linear',
+                                        },
+                                    })),
+                                })),
+                            }))
                         },
                     })
                 },

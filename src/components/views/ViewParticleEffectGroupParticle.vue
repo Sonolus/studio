@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useView } from '../../composables/view'
 import { Particle, ease, varNames } from '../../core/particle'
 import MyColorInput from '../ui/MyColorInput.vue'
 import MyField from '../ui/MyField.vue'
-import MyImageInput from '../ui/MyImageInput.vue'
 import MyNumberInput from '../ui/MyNumberInput.vue'
 import MySection from '../ui/MySection.vue'
 import MyTextInput from '../ui/MyTextInput.vue'
@@ -18,9 +18,14 @@ const v = useView(
     'particles',
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     (v, view) =>
-        v.value.data.effects.find(({ name }) => name === view.value[3])!.groups[
-            Number(view.value[4].substr('Group #'.length))
-        ].particles[Number(view.value[5].substr('Sprite #'.length))]!,
+        v.value.data.effects.find(({ name }) => name === view.value[3])!.groups[+view.value[5]]
+            .particles[+view.value[7]],
+)
+
+const spriteOptions = computed(() =>
+    Object.fromEntries(
+        props.data.data.sprites.map(({ id }, index) => [`Sprite #${index + 1}`, id]),
+    ),
 )
 
 const validator = (value: string) => {
@@ -43,8 +48,8 @@ const validator = (value: string) => {
 
 <template>
     <MySection header="Texture">
-        <MyField title="Texture">
-            <MyImageInput v-model="v.sprite" validate />
+        <MyField title="Sprite">
+            <MyTextSelect v-model="v.spriteId" :options="spriteOptions" />
         </MyField>
         <MyField title="Color">
             <MyColorInput

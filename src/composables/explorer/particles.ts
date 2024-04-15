@@ -2,12 +2,14 @@ import { ParticleEffectName } from '@sonolus/core'
 import { markRaw } from 'vue'
 import { ExplorerItem, isOpened, onClone, onDelete, onDeleteAll, onNew, onRename } from '.'
 import ModalName from '../../components/modals/ModalName.vue'
+import { newId } from '../../core/id'
 import {
     formatParticleEffectName,
     newParticle,
     newParticleEffect,
     newParticleEffectGroup,
     newParticleEffectGroupParticle,
+    newParticleSprite,
 } from '../../core/particle'
 import { clone } from '../../core/utils'
 import IconClone from '../../icons/clone-solid.svg?component'
@@ -49,6 +51,29 @@ export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
 
         items.push({
             level: 2,
+            path: ['particles', name, 'sprites'],
+            hasChildren: true,
+            icon: IconFolder,
+            title: `Sprites (${particle.data.sprites.length})`,
+            onNew: () => onNewParticleSprite(state, name),
+            onDelete: () => onDeleteParticleSprites(state, name),
+        })
+        if (isOpened(['particles', name, 'sprites'])) {
+            particle.data.sprites.forEach(({ id: spriteId, texture }, index) => {
+                items.push({
+                    level: 3,
+                    path: ['particles', name, 'sprites', spriteId],
+                    hasChildren: false,
+                    icon: texture,
+                    fallback: IconFileImage,
+                    title: `Sprite #${index + 1}`,
+                    onDelete: () => onDeleteParticleSprite(state, name, spriteId),
+                })
+            })
+        }
+
+        items.push({
+            level: 2,
             path: ['particles', name, 'effects'],
             hasChildren: true,
             icon: IconFolder,
@@ -57,7 +82,7 @@ export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
             onDelete: () => onDeleteParticleEffects(state, name),
         })
         if (isOpened(['particles', name, 'effects'])) {
-            particle.data.effects.forEach(({ name: effectName, groups: groups }) => {
+            particle.data.effects.forEach(({ name: effectName, groups }) => {
                 items.push({
                     level: 3,
                     path: ['particles', name, 'effects', effectName],
@@ -72,24 +97,33 @@ export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
                 })
 
                 if (!isOpened(['particles', name, 'effects', effectName])) return
-                for (let i = 0; i < groups.length; i++) {
-                    const id = i
+                groups.forEach(({ particles }, groupIndex) => {
                     items.push({
                         level: 4,
-                        path: ['particles', name, 'effects', effectName, 'Group #' + i],
+                        path: ['particles', name, 'effects', effectName, 'groups', `${groupIndex}`],
                         hasChildren: true,
                         icon: IconFolder,
-                        fallback: IconFileImage,
-                        title: `Group #${i}`,
-                        onNew: () => onNewParticleEffectGroupParticle(state, name, effectName, id),
-                        onClone: () => onCloneParticleEffectGroup(state, name, effectName, id),
-                        onDelete: () => onDeleteParticleEffectGroup(state, name, effectName, id),
+                        title: `Group #${groupIndex}`,
+                        onNew: () =>
+                            onNewParticleEffectGroupParticle(state, name, effectName, groupIndex),
+                        onClone: () =>
+                            onCloneParticleEffectGroup(state, name, effectName, groupIndex),
+                        onDelete: () =>
+                            onDeleteParticleEffectGroup(state, name, effectName, groupIndex),
                     })
 
-                    if (!isOpened(['particles', name, 'effects', effectName, 'Group #' + i]))
-                        continue
-                    for (let j = 0; j < groups[i].particles.length; j++) {
-                        const id2 = j
+                    if (
+                        !isOpened([
+                            'particles',
+                            name,
+                            'effects',
+                            effectName,
+                            'groups',
+                            `${groupIndex}`,
+                        ])
+                    )
+                        return
+                    particles.forEach(({ spriteId }, particleIndex) => {
                         items.push({
                             level: 5,
                             path: [
@@ -97,34 +131,57 @@ export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
                                 name,
                                 'effects',
                                 effectName,
-                                'Group #' + i,
-                                'Sprite #' + j,
+                                'groups',
+                                `${groupIndex}`,
+                                'particles',
+                                `${particleIndex}`,
                             ],
                             hasChildren: false,
-                            icon: groups[i].particles[j].sprite,
+                            icon:
+                                particle.data.sprites.find(({ id }) => id === spriteId)?.texture ??
+                                '',
                             fallback: IconFileImage,
-                            title: `Sprite #${j}`,
+                            title: `Particle #${particleIndex}`,
                             onClone: () =>
                                 onCloneParticleEffectGroupParticle(
                                     state,
                                     name,
                                     effectName,
-                                    id,
-                                    id2,
+                                    groupIndex,
+                                    particleIndex,
                                 ),
                             onDelete: () =>
                                 onDeleteParticleEffectGroupParticle(
                                     state,
                                     name,
                                     effectName,
-                                    id,
-                                    id2,
+                                    groupIndex,
+                                    particleIndex,
                                 ),
                         })
-                    }
-                }
+                    })
+                })
             })
         }
+    })
+}
+
+async function onNewParticleSprite({ project }: UseStateReturn, name: string) {
+    const particle = project.value.particles.get(name)
+    if (!particle) throw 'Particle not found'
+
+    const spriteId = newId()
+
+    const newParticle = clone(particle)
+    newParticle.data.sprites.push(newParticleSprite(spriteId))
+
+    const particles = new Map(project.value.particles)
+    particles.set(name, newParticle)
+
+    push({
+        ...project.value,
+        view: ['particles', name, 'sprites', spriteId],
+        particles,
     })
 }
 
@@ -155,6 +212,7 @@ async function onNewParticleEffect({ project, isExplorerOpened }: UseStateReturn
 
     isExplorerOpened.value = false
 }
+
 async function onNewParticleEffectGroup(
     { project }: UseStateReturn,
     name: string,
@@ -179,15 +237,16 @@ async function onNewParticleEffectGroup(
 
     push({
         ...project.value,
-        view: ['particles', name, 'effects', effectName],
+        view: ['particles', name, 'effects', effectName, 'groups', `${effect.groups.length}`],
         particles,
     })
 }
+
 async function onNewParticleEffectGroupParticle(
     { project }: UseStateReturn,
     name: string,
     effectName: string,
-    groupId: number,
+    groupIndex: number,
 ) {
     const particle = project.value.particles.get(name)
     if (!particle) throw 'Particle not found'
@@ -195,14 +254,14 @@ async function onNewParticleEffectGroupParticle(
     const effect = particle.data.effects.find(({ name }) => name === effectName)
     if (!effect) throw 'Particle Effect not found'
 
-    if (groupId < 0 || groupId >= effect.groups.length) throw 'Particle Effect Group not found'
-    const group = effect.groups[groupId]
+    const group = effect.groups[groupIndex]
+    if (!group) throw 'Particle Effect Group not found'
 
-    const newEffectGroup = clone(group)
-    newEffectGroup.particles.push(newParticleEffectGroupParticle())
+    const newGroup = clone(group)
+    newGroup.particles.push(newParticleEffectGroupParticle())
 
     const newEffect = clone(effect)
-    newEffect.groups[groupId] = newEffectGroup
+    newEffect.groups[groupIndex] = newGroup
 
     const newParticle = clone(particle)
     newParticle.data.effects = newParticle.data.effects.map((effect) =>
@@ -214,7 +273,67 @@ async function onNewParticleEffectGroupParticle(
 
     push({
         ...project.value,
-        view: ['particles', name, 'effects', effectName, 'Group #' + groupId],
+        view: [
+            'particles',
+            name,
+            'effects',
+            effectName,
+            'groups',
+            `${groupIndex}`,
+            'particles',
+            `${group.particles.length}`,
+        ],
+        particles,
+    })
+}
+
+async function onDeleteParticleSprites({ project }: UseStateReturn, name: string) {
+    const particle = project.value.particles.get(name)
+    if (!particle) throw 'Particle not found'
+    if (!particle.data.sprites.length) return
+
+    const newParticle = clone(particle)
+    newParticle.data.sprites = []
+    newParticle.data.effects.forEach((effect) => {
+        effect.groups.forEach((group) => {
+            group.particles.forEach((particle) => {
+                particle.spriteId = ''
+            })
+        })
+    })
+
+    const particles = new Map(project.value.particles)
+    particles.set(name, newParticle)
+
+    push({
+        ...project.value,
+        view: [],
+        particles,
+    })
+}
+
+async function onDeleteParticleSprite({ project }: UseStateReturn, name: string, spriteId: string) {
+    const particle = project.value.particles.get(name)
+    if (!particle) throw 'Particle not found'
+
+    const newParticle = clone(particle)
+    newParticle.data.sprites = newParticle.data.sprites.filter(({ id }) => id !== spriteId)
+    newParticle.data.effects.forEach((effect) => {
+        effect.groups.forEach((group) => {
+            group.particles.forEach((particle) => {
+                if (particle.spriteId === spriteId) {
+                    particle.spriteId = ''
+                }
+            })
+        })
+    })
+
+    const particles = new Map(project.value.particles)
+    particles.set(name, newParticle)
+
+    push({
+        ...project.value,
+        view: [],
         particles,
     })
 }
@@ -257,11 +376,12 @@ async function onDeleteParticleEffect(
         particles,
     })
 }
+
 async function onDeleteParticleEffectGroup(
     { project }: UseStateReturn,
     name: string,
     effectName: string,
-    groupId: number,
+    groupIndex: number,
 ) {
     const particle = project.value.particles.get(name)
     if (!particle) throw 'Particle not found'
@@ -269,10 +389,8 @@ async function onDeleteParticleEffectGroup(
     const effect = particle.data.effects.find(({ name }) => name === effectName)
     if (!effect) throw 'Particle Effect not found'
 
-    if (groupId < 0 || groupId >= effect.groups.length) throw 'Particle Effect Group not found'
-
     const newEffect = clone(effect)
-    newEffect.groups.splice(groupId, 1)
+    newEffect.groups.splice(groupIndex, 1)
 
     const newParticle = clone(particle)
     newParticle.data.effects = newParticle.data.effects.map((effect) =>
@@ -288,12 +406,13 @@ async function onDeleteParticleEffectGroup(
         particles,
     })
 }
+
 async function onDeleteParticleEffectGroupParticle(
     { project }: UseStateReturn,
     name: string,
     effectName: string,
-    groupId: number,
-    particleId: number,
+    groupIndex: number,
+    particleIndex: number,
 ) {
     const particle = project.value.particles.get(name)
     if (!particle) throw 'Particle not found'
@@ -301,17 +420,14 @@ async function onDeleteParticleEffectGroupParticle(
     const effect = particle.data.effects.find(({ name }) => name === effectName)
     if (!effect) throw 'Particle Effect not found'
 
-    if (groupId < 0 || groupId >= effect.groups.length) throw 'Particle Effect Group not found'
-
-    const group = effect.groups[groupId]
-    if (particleId < 0 || particleId >= group.particles.length)
-        throw 'Particle Effect Group Particle not found'
+    const group = effect.groups[groupIndex]
+    if (!group) throw 'Particle Effect Group not found'
 
     const newGroup = clone(group)
-    newGroup.particles.splice(particleId, 1)
+    newGroup.particles.splice(particleIndex, 1)
 
     const newEffect = clone(effect)
-    newEffect.groups[groupId] = newGroup
+    newEffect.groups[groupIndex] = newGroup
 
     const newParticle = clone(particle)
     newParticle.data.effects = newParticle.data.effects.map((effect) =>
@@ -413,11 +529,12 @@ async function onCloneParticleEffect(
         particles,
     })
 }
+
 async function onCloneParticleEffectGroup(
     { project, view }: UseStateReturn,
     name: string,
     effectName: string,
-    groupId: number,
+    groupIndex: number,
 ) {
     const particle = project.value.particles.get(name)
     if (!particle) throw 'Particle not found'
@@ -425,8 +542,8 @@ async function onCloneParticleEffectGroup(
     const effect = particle.data.effects.find(({ name }) => name === effectName)
     if (!effect) throw 'Particle Effect not found'
 
-    if (groupId < 0 || groupId >= effect.groups.length) throw 'Particle Effect Group not found'
-    const group = effect.groups[groupId]
+    const group = effect.groups[groupIndex]
+    if (!group) throw 'Particle Effect Group not found'
 
     const newGroup = clone(group)
 
@@ -448,25 +565,28 @@ async function onCloneParticleEffectGroup(
             view.value[1] === name &&
             view.value[2] === 'effects' &&
             view.value[3] === effectName &&
-            view.value[4] == 'Group #' + groupId
+            view.value[4] === 'groups' &&
+            view.value[5] === `${groupIndex}`
                 ? [
                       'particles',
                       name,
                       'effects',
                       effectName,
-                      'Group #' + (newEffect.groups.length - 1),
+                      'groups',
+                      `${effect.groups.length}`,
                       ...view.value.slice(5),
                   ]
                 : view.value,
         particles,
     })
 }
+
 async function onCloneParticleEffectGroupParticle(
     { project, view }: UseStateReturn,
     name: string,
     effectName: string,
-    groupId: number,
-    particleId: number,
+    groupIndex: number,
+    particleIndex: number,
 ) {
     const particle = project.value.particles.get(name)
     if (!particle) throw 'Particle not found'
@@ -474,20 +594,19 @@ async function onCloneParticleEffectGroupParticle(
     const effect = particle.data.effects.find(({ name }) => name === effectName)
     if (!effect) throw 'Particle Effect not found'
 
-    if (groupId < 0 || groupId >= effect.groups.length) throw 'Particle Effect Group not found'
-    const group = effect.groups[groupId]
+    const group = effect.groups[groupIndex]
+    if (!group) throw 'Particle Effect Group not found'
 
-    if (particleId < 0 || particleId >= group.particles.length)
-        throw 'Particle Effect Group Particle not found'
-    const particleGroup = group.particles[particleId]
+    const groupParticle = group.particles[particleIndex]
+    if (!groupParticle) throw 'Particle Effect Group Particle not found'
 
-    const newParticleGroup = clone(particleGroup)
+    const newGroupParticle = clone(groupParticle)
 
     const newGroup = clone(group)
-    newGroup.particles.push(newParticleGroup)
+    newGroup.particles.push(newGroupParticle)
 
     const newEffect = clone(effect)
-    newEffect.groups[groupId] = newGroup
+    newEffect.groups[groupIndex] = newGroup
 
     const newParticle = clone(particle)
     newParticle.data.effects = newParticle.data.effects.map((effect) =>
@@ -504,15 +623,19 @@ async function onCloneParticleEffectGroupParticle(
             view.value[1] === name &&
             view.value[2] === 'effects' &&
             view.value[3] === effectName &&
-            view.value[4] == 'Group #' + groupId &&
-            view.value[5] == 'Sprite #' + particleId
+            view.value[4] === 'groups' &&
+            view.value[5] === `${groupIndex}` &&
+            view.value[6] === 'particles' &&
+            view.value[7] === `${particleIndex}`
                 ? [
                       'particles',
                       name,
                       'effects',
                       effectName,
-                      'Group #' + groupId,
-                      'Sprite #' + (newGroup.particles.length - 1),
+                      'groups',
+                      `${groupIndex}`,
+                      'particles',
+                      `${group.particles.length}`,
                       ...view.value.slice(6),
                   ]
                 : view.value,

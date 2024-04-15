@@ -93,7 +93,7 @@ async function calculateLayout(sprite: SpriteLayout[], size: number) {
 }
 
 export async function bakeSprite(
-    { texture, padding }: SpriteLayout,
+    { texture, padding }: Omit<SpriteLayout, 'name'>,
     x: number,
     y: number,
     w: number,

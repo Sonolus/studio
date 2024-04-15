@@ -2,6 +2,12 @@
 import { computed, markRaw, watch } from 'vue'
 import { clearUpdater, useState } from '../composables/state'
 import { hasEffectClip } from '../core/effect'
+import {
+    hasParticleEffect,
+    hasParticleEffectGroup,
+    hasParticleEffectGroupParticle,
+    hasParticleSprite,
+} from '../core/particle'
 import { Project } from '../core/project'
 import { hasSkinSprite } from '../core/skin'
 import ViewBackground from './views/ViewBackground.vue'
@@ -12,6 +18,7 @@ import ViewParticle from './views/ViewParticle.vue'
 import ViewParticleEffect from './views/ViewParticleEffect.vue'
 import ViewParticleEffectGroup from './views/ViewParticleEffectGroup.vue'
 import ViewParticleEffectGroupParticle from './views/ViewParticleEffectGroupParticle.vue'
+import ViewParticleSprite from './views/ViewParticleSprite.vue'
 import ViewSkin from './views/ViewSkin.vue'
 import ViewSkinSprite from './views/ViewSkinSprite.vue'
 
@@ -70,10 +77,18 @@ export function resolveViewInfo(project: Project, view: string[]) {
                 case 2:
                     return { component: markRaw(ViewParticle), data }
                 case 4:
-                    return { component: markRaw(ViewParticleEffect), data }
-                case 5:
-                    return { component: markRaw(ViewParticleEffectGroup), data }
+                    if (view[2] === 'sprites') {
+                        if (!hasParticleSprite(data, view[3])) return
+                        return { component: markRaw(ViewParticleSprite), data }
+                    } else {
+                        if (!hasParticleEffect(data, view[3])) return
+                        return { component: markRaw(ViewParticleEffect), data }
+                    }
                 case 6:
+                    if (!hasParticleEffectGroup(data, view[3], +view[5])) return
+                    return { component: markRaw(ViewParticleEffectGroup), data }
+                case 8:
+                    if (!hasParticleEffectGroupParticle(data, view[3], +view[5], +view[7])) return
                     return { component: markRaw(ViewParticleEffectGroupParticle), data }
                 default:
                     return

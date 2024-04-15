@@ -14,9 +14,7 @@ const v = useView(
     'particles',
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     (v, view) =>
-        v.value.data.effects.find(({ name }) => name === view.value[3])!.groups[
-            Number(view.value[4].substr('Group #'.length))
-        ]!,
+        v.value.data.effects.find(({ name }) => name === view.value[3])!.groups[+view.value[5]],
 )
 </script>
 

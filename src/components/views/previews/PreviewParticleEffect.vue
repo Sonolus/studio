@@ -14,6 +14,7 @@ import MyField from '../../ui/MyField.vue'
 import MyTextInput from '../../ui/MyTextInput.vue'
 
 const props = defineProps<{
+    particle: Particle
     effect: Particle['data']['effects'][number]
     interpolation: boolean
 }>()
@@ -169,7 +170,10 @@ watchEffect(async () => {
                     },
                 })
                 try {
-                    images[images.length - 1].info = await getImageInfo(g.particles[j].sprite)
+                    images[images.length - 1].info = await getImageInfo(
+                        props.particle.data.sprites.find(({ id }) => id === g.particles[j].spriteId)
+                            ?.texture ?? '',
+                    )
                     let canvas: HTMLCanvasElement = document.createElement('canvas')
                     images[images.length - 1].buffer = getImageBuffer(
                         images[images.length - 1].info as ImageInfo,

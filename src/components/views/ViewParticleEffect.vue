@@ -6,9 +6,7 @@ import IconVectorSquare from '../../icons/vector-square-solid.svg?component'
 import ModalSimpleTransform from '../modals/ModalSimpleTransform.vue'
 import MyButton from '../ui/MyButton.vue'
 import MyCellNumberInput from '../ui/MyCellNumberInput.vue'
-import MyField from '../ui/MyField.vue'
 import MySection from '../ui/MySection.vue'
-import MyToggle from '../ui/MyToggle.vue'
 import PreviewParticleEffect from './previews/PreviewParticleEffect.vue'
 
 const props = defineProps<{
@@ -33,21 +31,6 @@ async function onSetSimpleTransform() {
 </script>
 
 <template>
-    <MySection header="Padding">
-        <MyField title="Left">
-            <MyToggle v-model="v.padding.left" :default-value="true" />
-        </MyField>
-        <MyField title="Right">
-            <MyToggle v-model="v.padding.right" :default-value="true" />
-        </MyField>
-        <MyField title="Top">
-            <MyToggle v-model="v.padding.top" :default-value="true" />
-        </MyField>
-        <MyField title="Bottom">
-            <MyToggle v-model="v.padding.bottom" :default-value="true" />
-        </MyField>
-    </MySection>
-
     <MySection header="Transformation">
         <table class="mx-auto block max-w-min overflow-x-auto text-center">
             <thead>
@@ -81,6 +64,10 @@ async function onSetSimpleTransform() {
     </MySection>
 
     <MySection header="Preview">
-        <PreviewParticleEffect :effect="v" :interpolation="data.data.interpolation" />
+        <PreviewParticleEffect
+            :particle="data"
+            :effect="v"
+            :interpolation="data.data.interpolation"
+        />
     </MySection>
 </template>
