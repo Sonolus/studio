@@ -2,7 +2,6 @@ import {
     ItemDetails,
     ItemList,
     ParticleData,
-    ParticleDataGroupParticlePropertyExpression,
     ParticleEffectName,
     ParticleItem,
 } from '@sonolus/core'
@@ -10,73 +9,11 @@ import { Ease } from './ease'
 import { newId } from './id'
 import { formatNameKey } from './names'
 import { PackProcess, Project, UnpackProcess } from './project'
+import { PropertyExpression, allZero as allZeroProperty } from './property-expression'
 import { bakeSprite, tryCalculateLayout } from './sprite-sheet'
 import { load } from './storage'
+import { TransformExpression, allZero as allZeroTransform } from './transform-expression'
 import { emptySrl, getBlob, getImageInfo, packJson, packRaw, unpackJson } from './utils'
-
-const allZeroTransform = {
-    c: 0,
-    x1: 0,
-    x2: 0,
-    x3: 0,
-    x4: 0,
-    y1: 0,
-    y2: 0,
-    y3: 0,
-    y4: 0,
-    r1: 0,
-    r2: 0,
-    r3: 0,
-    r4: 0,
-    r5: 0,
-    r6: 0,
-    r7: 0,
-    r8: 0,
-    sinr1: 0,
-    sinr2: 0,
-    sinr3: 0,
-    sinr4: 0,
-    sinr5: 0,
-    sinr6: 0,
-    sinr7: 0,
-    sinr8: 0,
-    cosr1: 0,
-    cosr2: 0,
-    cosr3: 0,
-    cosr4: 0,
-    cosr5: 0,
-    cosr6: 0,
-    cosr7: 0,
-    cosr8: 0,
-}
-
-const allZeroProperty = {
-    c: 0,
-    r1: 0,
-    r2: 0,
-    r3: 0,
-    r4: 0,
-    r5: 0,
-    r6: 0,
-    r7: 0,
-    r8: 0,
-    sinr1: 0,
-    sinr2: 0,
-    sinr3: 0,
-    sinr4: 0,
-    sinr5: 0,
-    sinr6: 0,
-    sinr7: 0,
-    sinr8: 0,
-    cosr1: 0,
-    cosr2: 0,
-    cosr3: 0,
-    cosr4: 0,
-    cosr5: 0,
-    cosr6: 0,
-    cosr7: 0,
-    cosr8: 0,
-}
 
 export type Particle = {
     title: string
@@ -117,14 +54,7 @@ export type Particle = {
         }[]
     }
 }
-export type Transform = Record<`${'x' | 'y'}${1 | 2 | 3 | 4}`, Expression>
-export type Expression = Record<
-    | 'c'
-    | `${'x' | 'y'}${1 | 2 | 3 | 4}`
-    | `${'r' | 'sinr' | 'cosr'}${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`,
-    number
->
-export type PropertyExpression = Required<ParticleDataGroupParticlePropertyExpression>
+export type Transform = Record<`${'x' | 'y'}${1 | 2 | 3 | 4}`, TransformExpression>
 
 export function newParticle(): Particle {
     return {

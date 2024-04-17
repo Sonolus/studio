@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { show } from '../../composables/modal'
 import { useView } from '../../composables/view'
 import { easings } from '../../core/ease'
 import { Particle } from '../../core/particle'
+import { PropertyExpression, allZero } from '../../core/property-expression'
+import IconEdit from '../../icons/edit-solid.svg?component'
+import ModalPropertyExpressionEquation from '../modals/ModalPropertyExpressionEquation.vue'
+import MyButton from '../ui/MyButton.vue'
 import MyCellNumberInput from '../ui/MyCellNumberInput.vue'
 import MyColorInput from '../ui/MyColorInput.vue'
 import MyField from '../ui/MyField.vue'
@@ -35,33 +40,17 @@ const properties = ['x', 'y', 'w', 'h', 'r', 'a'] as const
 
 const types = ['from', 'to'] as const
 
-const cols = [
-    'c',
-    'r1',
-    'r2',
-    'r3',
-    'r4',
-    'r5',
-    'r6',
-    'r7',
-    'r8',
-    'sinr1',
-    'sinr2',
-    'sinr3',
-    'sinr4',
-    'sinr5',
-    'sinr6',
-    'sinr7',
-    'sinr8',
-    'cosr1',
-    'cosr2',
-    'cosr3',
-    'cosr4',
-    'cosr5',
-    'cosr6',
-    'cosr7',
-    'cosr8',
-] as const
+const cols = Object.keys(allZero) as (keyof PropertyExpression)[]
+
+async function editEquation(p: (typeof properties)[number], t: (typeof types)[number]) {
+    const result = await show(ModalPropertyExpressionEquation, {
+        title: `${p}.${t}`,
+        defaultValue: v.value[p][t],
+    })
+    if (!result) return
+
+    v.value[p][t] = result
+}
 </script>
 
 <template>
@@ -93,6 +82,7 @@ const cols = [
             <thead>
                 <tr class="h-8">
                     <th class="p-0" />
+                    <th class="p-0">Equation</th>
                     <th v-for="c in cols" :key="c" class="p-0 text-lg font-semibold">
                         {{ c }}
                     </th>
@@ -102,6 +92,9 @@ const cols = [
                 <template v-for="p in properties" :key="p">
                     <tr v-for="t in types" :key="t" class="h-8">
                         <td class="px-2 py-0 text-lg font-semibold">{{ p }}.{{ t }}</td>
+                        <td class="p-0">
+                            <MyButton :icon="IconEdit" text="Edit" @click="editEquation(p, t)" />
+                        </td>
                         <td v-for="c in cols" :key="c" class="p-0">
                             <MyCellNumberInput
                                 v-model="v[p][t][c]"
