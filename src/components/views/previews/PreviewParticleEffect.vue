@@ -7,7 +7,7 @@ import {
 } from '@vueuse/core'
 import { computed, onUnmounted, ref, watch, watchEffect } from 'vue'
 import { Ease, easings } from '../../../core/ease'
-import { Particle, stringToParticleExpression, varNames } from '../../../core/particle'
+import { Particle, PropertyExpression } from '../../../core/particle'
 import { getImageBuffer, getImageInfo } from '../../../core/utils'
 import MyColorInput from '../../ui/MyColorInput.vue'
 import MyField from '../../ui/MyField.vue'
@@ -87,42 +87,15 @@ let images: {
     start: number
     duration: number
     groupId: number
-    x: {
-        from: string
-        to: string
-        ease: Ease
-    }
-    y: {
-        from: string
-        to: string
-        ease: Ease
-    }
-    w: {
-        from: string
-        to: string
-        ease: Ease
-    }
-    h: {
-        from: string
-        to: string
-        ease: Ease
-    }
-    r: {
-        from: string
-        to: string
-        ease: Ease
-    }
-    a: {
-        from: string
-        to: string
-        ease: Ease
-    }
+    x: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
+    y: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
+    w: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
+    h: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
+    r: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
+    a: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
 }[] = []
 
-type VariableValues = {
-    [i in (typeof varNames)[number]]?: number
-}
-let variableValues: VariableValues[] = []
+let expressions: PropertyExpression[] = []
 
 watchEffect(async () => {
     images.length = 0
@@ -138,36 +111,12 @@ watchEffect(async () => {
                     start: 0,
                     duration: 1,
                     groupId: 0,
-                    x: {
-                        from: '',
-                        to: '',
-                        ease: 'linear',
-                    },
-                    y: {
-                        from: '',
-                        to: '',
-                        ease: 'linear',
-                    },
-                    w: {
-                        from: '',
-                        to: '',
-                        ease: 'linear',
-                    },
-                    h: {
-                        from: '',
-                        to: '',
-                        ease: 'linear',
-                    },
-                    r: {
-                        from: '',
-                        to: '',
-                        ease: 'linear',
-                    },
-                    a: {
-                        from: '',
-                        to: '',
-                        ease: 'linear',
-                    },
+                    x: { from: {} as never, to: {} as never, ease: 'linear' },
+                    y: { from: {} as never, to: {} as never, ease: 'linear' },
+                    w: { from: {} as never, to: {} as never, ease: 'linear' },
+                    h: { from: {} as never, to: {} as never, ease: 'linear' },
+                    r: { from: {} as never, to: {} as never, ease: 'linear' },
+                    a: { from: {} as never, to: {} as never, ease: 'linear' },
                 })
                 try {
                     images[images.length - 1].info = await getImageInfo(
@@ -193,33 +142,43 @@ watchEffect(async () => {
                     images[images.length - 1].error = 1
                 }
             }
-            let values: (typeof variableValues)[number] = {}
-            values.c = 1
-            values.r1 = Math.random()
-            values.sinr1 = Math.sin(2 * Math.PI * values.r1)
-            values.cosr1 = Math.cos(2 * Math.PI * values.r1)
-            values.r2 = Math.random()
-            values.sinr2 = Math.sin(2 * Math.PI * values.r2)
-            values.cosr2 = Math.cos(2 * Math.PI * values.r2)
-            values.r3 = Math.random()
-            values.sinr3 = Math.sin(2 * Math.PI * values.r3)
-            values.cosr3 = Math.cos(2 * Math.PI * values.r3)
-            values.r4 = Math.random()
-            values.sinr4 = Math.sin(2 * Math.PI * values.r4)
-            values.cosr4 = Math.cos(2 * Math.PI * values.r4)
-            values.r5 = Math.random()
-            values.sinr5 = Math.sin(2 * Math.PI * values.r5)
-            values.cosr5 = Math.cos(2 * Math.PI * values.r5)
-            values.r6 = Math.random()
-            values.sinr6 = Math.sin(2 * Math.PI * values.r6)
-            values.cosr6 = Math.cos(2 * Math.PI * values.r6)
-            values.r7 = Math.random()
-            values.sinr7 = Math.sin(2 * Math.PI * values.r7)
-            values.cosr7 = Math.cos(2 * Math.PI * values.r7)
-            values.r8 = Math.random()
-            values.sinr8 = Math.sin(2 * Math.PI * values.r8)
-            values.cosr8 = Math.cos(2 * Math.PI * values.r8)
-            variableValues.push(values)
+
+            const r1 = Math.random()
+            const r2 = Math.random()
+            const r3 = Math.random()
+            const r4 = Math.random()
+            const r5 = Math.random()
+            const r6 = Math.random()
+            const r7 = Math.random()
+            const r8 = Math.random()
+
+            expressions.push({
+                c: 1,
+                r1,
+                sinr1: Math.sin(2 * Math.PI * r1),
+                cosr1: Math.cos(2 * Math.PI * r1),
+                r2,
+                sinr2: Math.sin(2 * Math.PI * r2),
+                cosr2: Math.cos(2 * Math.PI * r2),
+                r3,
+                sinr3: Math.sin(2 * Math.PI * r3),
+                cosr3: Math.cos(2 * Math.PI * r3),
+                r4,
+                sinr4: Math.sin(2 * Math.PI * r4),
+                cosr4: Math.cos(2 * Math.PI * r4),
+                r5,
+                sinr5: Math.sin(2 * Math.PI * r5),
+                cosr5: Math.cos(2 * Math.PI * r5),
+                r6,
+                sinr6: Math.sin(2 * Math.PI * r6),
+                cosr6: Math.cos(2 * Math.PI * r6),
+                r7,
+                sinr7: Math.sin(2 * Math.PI * r7),
+                cosr7: Math.cos(2 * Math.PI * r7),
+                r8,
+                sinr8: Math.sin(2 * Math.PI * r8),
+                cosr8: Math.cos(2 * Math.PI * r8),
+            })
         }
     }
     animationReq = window.requestAnimationFrame(draw)
@@ -301,14 +260,10 @@ watchEffect(() => {
     }
 })*/
 
-function expressionToValue(exp: string | undefined, groupId: number) {
-    if (exp == undefined) return 0
-    let expression = stringToParticleExpression(exp)
+function expressionToValue(expression: PropertyExpression, groupId: number) {
     let val = 0
     for (let name in expression)
-        val +=
-            expression[name as keyof VariableValues]! *
-            variableValues[groupId][name as keyof VariableValues]!
+        val += expression[name as never] * expressions[groupId][name as never]
     return val
 }
 

@@ -14,7 +14,7 @@ import { bakeSprite, tryCalculateLayout } from './sprite-sheet'
 import { load } from './storage'
 import { emptySrl, getBlob, getImageInfo, packJson, packRaw, unpackJson } from './utils'
 
-const allZero = {
+const allZeroTransform = {
     c: 0,
     x1: 0,
     x2: 0,
@@ -24,6 +24,34 @@ const allZero = {
     y2: 0,
     y3: 0,
     y4: 0,
+    r1: 0,
+    r2: 0,
+    r3: 0,
+    r4: 0,
+    r5: 0,
+    r6: 0,
+    r7: 0,
+    r8: 0,
+    sinr1: 0,
+    sinr2: 0,
+    sinr3: 0,
+    sinr4: 0,
+    sinr5: 0,
+    sinr6: 0,
+    sinr7: 0,
+    sinr8: 0,
+    cosr1: 0,
+    cosr2: 0,
+    cosr3: 0,
+    cosr4: 0,
+    cosr5: 0,
+    cosr6: 0,
+    cosr7: 0,
+    cosr8: 0,
+}
+
+const allZeroProperty = {
+    c: 0,
     r1: 0,
     r2: 0,
     r3: 0,
@@ -78,12 +106,12 @@ export type Particle = {
                     color: string
                     start: number
                     duration: number
-                    x: { from: string; to: string; ease: Ease }
-                    y: { from: string; to: string; ease: Ease }
-                    w: { from: string; to: string; ease: Ease }
-                    h: { from: string; to: string; ease: Ease }
-                    r: { from: string; to: string; ease: Ease }
-                    a: { from: string; to: string; ease: Ease }
+                    x: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
+                    y: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
+                    w: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
+                    h: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
+                    r: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
+                    a: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
                 }[]
             }[]
         }[]
@@ -96,6 +124,7 @@ export type Expression = Record<
     | `${'r' | 'sinr' | 'cosr'}${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`,
     number
 >
+export type PropertyExpression = Required<ParticleDataGroupParticlePropertyExpression>
 
 export function newParticle(): Particle {
     return {
@@ -129,14 +158,14 @@ export function newParticleEffect(name: string): Particle['data']['effects'][num
     return {
         name,
         transform: {
-            x1: { ...allZero, x1: 1 },
-            x2: { ...allZero, x2: 1 },
-            x3: { ...allZero, x3: 1 },
-            x4: { ...allZero, x4: 1 },
-            y1: { ...allZero, y1: 1 },
-            y2: { ...allZero, y2: 1 },
-            y3: { ...allZero, y3: 1 },
-            y4: { ...allZero, y4: 1 },
+            x1: { ...allZeroTransform, x1: 1 },
+            x2: { ...allZeroTransform, x2: 1 },
+            x3: { ...allZeroTransform, x3: 1 },
+            x4: { ...allZeroTransform, x4: 1 },
+            y1: { ...allZeroTransform, y1: 1 },
+            y2: { ...allZeroTransform, y2: 1 },
+            y3: { ...allZeroTransform, y3: 1 },
+            y4: { ...allZeroTransform, y4: 1 },
         },
         groups: [],
     }
@@ -153,12 +182,12 @@ export function newParticleEffectGroupParticle(): Particle['data']['effects'][nu
         color: '#000000',
         start: 0,
         duration: 1,
-        x: { from: '', to: '', ease: 'linear' },
-        y: { from: '', to: '', ease: 'linear' },
-        w: { from: '', to: '', ease: 'linear' },
-        h: { from: '', to: '', ease: 'linear' },
-        r: { from: '', to: '', ease: 'linear' },
-        a: { from: '', to: '', ease: 'linear' },
+        x: { from: { ...allZeroProperty }, to: { ...allZeroProperty }, ease: 'linear' },
+        y: { from: { ...allZeroProperty }, to: { ...allZeroProperty }, ease: 'linear' },
+        w: { from: { ...allZeroProperty }, to: { ...allZeroProperty }, ease: 'linear' },
+        h: { from: { ...allZeroProperty }, to: { ...allZeroProperty }, ease: 'linear' },
+        r: { from: { ...allZeroProperty }, to: { ...allZeroProperty }, ease: 'linear' },
+        a: { from: { ...allZeroProperty }, to: { ...allZeroProperty }, ease: 'linear' },
     }
 }
 
@@ -199,119 +228,6 @@ export function addParticleToWhitelist(particle: Particle, whitelist: Set<string
 
 export function packParticles(process: PackProcess, project: Project) {
     project.particles.forEach((particle, name) => packParticle(process, name, particle))
-}
-
-export const varNames = [
-    'c',
-    'r1',
-    'sinr1',
-    'cosr1',
-    'r2',
-    'sinr2',
-    'cosr2',
-    'r3',
-    'sinr3',
-    'cosr3',
-    'r4',
-    'sinr4',
-    'cosr4',
-    'r5',
-    'sinr5',
-    'cosr5',
-    'r6',
-    'sinr6',
-    'cosr6',
-    'r7',
-    'sinr7',
-    'cosr7',
-    'r8',
-    'sinr8',
-    'cosr8',
-] as const
-
-export const ease: Record<string, Ease> = {
-    Linear: 'linear',
-    InQuad: 'inQuad',
-    OutQuad: 'outQuad',
-    InOutQuad: 'inOutQuad',
-    OutInQuad: 'outInQuad',
-    InCubic: 'inCubic',
-    OutCubic: 'outCubic',
-    InOutCubic: 'inOutCubic',
-    OutInCubic: 'outInCubic',
-    InQuart: 'inQuart',
-    OutQuart: 'outQuart',
-    InOutQuart: 'inOutQuart',
-    OutInQuart: 'outInQuart',
-    InQuint: 'inQuint',
-    OutQuint: 'outQuint',
-    InOutQuint: 'inOutQuint',
-    OutInQuint: 'outInQuint',
-    InSine: 'inSine',
-    OutSine: 'outSine',
-    InOutSine: 'inOutSine',
-    OutInSine: 'outInSine',
-    InExpo: 'inExpo',
-    OutExpo: 'outExpo',
-    InOutExpo: 'inOutExpo',
-    OutInExpo: 'outInExpo',
-    InCirc: 'inCirc',
-    OutCirc: 'outCirc',
-    InOutCirc: 'inOutCirc',
-    OutInCirc: 'outInCirc',
-    InBack: 'inBack',
-    OutBack: 'outBack',
-    InOutBack: 'inOutBack',
-    OutInBack: 'outInBack',
-    InElastic: 'inElastic',
-    OutElastic: 'outElastic',
-    InOutElastic: 'inOutElastic',
-    OutInElastic: 'outInElastic',
-    None: 'none',
-}
-
-export function stringToParticleExpression(value: string) {
-    const separator = /\+|-/
-    const arr = value.split(separator)
-    const res: ParticleDataGroupParticlePropertyExpression = {}
-    const sign = []
-    for (let i = 0; i < value.length; i++)
-        if (value[i] == '-' || value[i] == '+') sign.push(value[i])
-    for (let i = 0; i < arr.length; i++) {
-        const arr2 = arr[i].split('*')
-        let nan = 0
-        let name = 'c'
-        let val = 1
-        for (let j = 0; j < arr2.length; j++) {
-            if (isNaN(Number(arr2[j]))) {
-                if (varNames.includes(arr2[j] as (typeof varNames)[number]) == false) return {}
-                nan++
-                if (nan > 1) return {}
-                name = arr2[j]
-            } else val *= Number(arr2[j])
-        }
-        if (val == 0) continue
-        type Name = keyof ParticleDataGroupParticlePropertyExpression
-        if (isNaN(Number(res[name as Name]))) res[name as Name] = 0
-        res[name as Name] = Number(res[name as Name]) + val * (i && sign[i - 1] == '-' ? -1 : 1)
-    }
-    return res
-}
-
-function particleExpressionToString(
-    value: ParticleDataGroupParticlePropertyExpression | undefined,
-) {
-    let res = ''
-    for (let i = 0; i < varNames.length; i++) {
-        const val =
-            value == undefined
-                ? 0
-                : Number(value[varNames[i] as keyof ParticleDataGroupParticlePropertyExpression])
-        if (val == 0 || Number.isNaN(val)) continue
-        if (res != '') res += val > 0 ? '+' : '-'
-        res += val.toString() + '*' + varNames[i]
-    }
-    return res
 }
 
 function packParticle(
@@ -369,36 +285,12 @@ function packParticle(
                                 color,
                                 start,
                                 duration,
-                                x: {
-                                    from: stringToParticleExpression(x.from),
-                                    to: stringToParticleExpression(x.to),
-                                    ease: x.ease,
-                                },
-                                y: {
-                                    from: stringToParticleExpression(y.from),
-                                    to: stringToParticleExpression(y.to),
-                                    ease: y.ease,
-                                },
-                                w: {
-                                    from: stringToParticleExpression(w.from),
-                                    to: stringToParticleExpression(w.to),
-                                    ease: w.ease,
-                                },
-                                h: {
-                                    from: stringToParticleExpression(h.from),
-                                    to: stringToParticleExpression(h.to),
-                                    ease: h.ease,
-                                },
-                                r: {
-                                    from: stringToParticleExpression(r.from),
-                                    to: stringToParticleExpression(r.to),
-                                    ease: r.ease,
-                                },
-                                a: {
-                                    from: stringToParticleExpression(a.from),
-                                    to: stringToParticleExpression(a.to),
-                                    ease: a.ease,
-                                },
+                                x: { from: x.from, to: x.to, ease: x.ease },
+                                y: { from: y.from, to: y.to, ease: y.ease },
+                                w: { from: w.from, to: w.to, ease: w.ease },
+                                h: { from: h.from, to: h.to, ease: h.ease },
+                                r: { from: r.from, to: r.to, ease: r.ease },
+                                a: { from: a.from, to: a.to, ease: a.ease },
                             }),
                         ),
                     })),
@@ -556,14 +448,14 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
                             item.data.effects = data.effects.map((effect) => ({
                                 name: effect.name,
                                 transform: {
-                                    x1: { ...allZero, ...effect.transform.x1 },
-                                    x2: { ...allZero, ...effect.transform.x2 },
-                                    x3: { ...allZero, ...effect.transform.x3 },
-                                    x4: { ...allZero, ...effect.transform.x4 },
-                                    y1: { ...allZero, ...effect.transform.y1 },
-                                    y2: { ...allZero, ...effect.transform.y2 },
-                                    y3: { ...allZero, ...effect.transform.y3 },
-                                    y4: { ...allZero, ...effect.transform.y4 },
+                                    x1: { ...allZeroTransform, ...effect.transform.x1 },
+                                    x2: { ...allZeroTransform, ...effect.transform.x2 },
+                                    x3: { ...allZeroTransform, ...effect.transform.x3 },
+                                    x4: { ...allZeroTransform, ...effect.transform.x4 },
+                                    y1: { ...allZeroTransform, ...effect.transform.y1 },
+                                    y2: { ...allZeroTransform, ...effect.transform.y2 },
+                                    y3: { ...allZeroTransform, ...effect.transform.y3 },
+                                    y4: { ...allZeroTransform, ...effect.transform.y4 },
                                 },
                                 groups: effect.groups.map((group) => ({
                                     count: group.count,
@@ -573,33 +465,33 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
                                         start: particle.start,
                                         duration: particle.duration,
                                         x: {
-                                            from: particleExpressionToString(particle.x.from),
-                                            to: particleExpressionToString(particle.x.to),
+                                            from: { ...allZeroProperty, ...particle.x.from },
+                                            to: { ...allZeroProperty, ...particle.x.to },
                                             ease: particle.x.ease ?? 'linear',
                                         },
                                         y: {
-                                            from: particleExpressionToString(particle.y.from),
-                                            to: particleExpressionToString(particle.y.to),
+                                            from: { ...allZeroProperty, ...particle.y.from },
+                                            to: { ...allZeroProperty, ...particle.y.to },
                                             ease: particle.y.ease ?? 'linear',
                                         },
                                         w: {
-                                            from: particleExpressionToString(particle.w.from),
-                                            to: particleExpressionToString(particle.w.to),
+                                            from: { ...allZeroProperty, ...particle.w.from },
+                                            to: { ...allZeroProperty, ...particle.w.to },
                                             ease: particle.w.ease ?? 'linear',
                                         },
                                         h: {
-                                            from: particleExpressionToString(particle.h.from),
-                                            to: particleExpressionToString(particle.h.to),
+                                            from: { ...allZeroProperty, ...particle.h.from },
+                                            to: { ...allZeroProperty, ...particle.h.to },
                                             ease: particle.h.ease ?? 'linear',
                                         },
                                         r: {
-                                            from: particleExpressionToString(particle.r.from),
-                                            to: particleExpressionToString(particle.r.to),
+                                            from: { ...allZeroProperty, ...particle.r.from },
+                                            to: { ...allZeroProperty, ...particle.r.to },
                                             ease: particle.r.ease ?? 'linear',
                                         },
                                         a: {
-                                            from: particleExpressionToString(particle.a.from),
-                                            to: particleExpressionToString(particle.a.to),
+                                            from: { ...allZeroProperty, ...particle.a.from },
+                                            to: { ...allZeroProperty, ...particle.a.to },
                                             ease: particle.a.ease ?? 'linear',
                                         },
                                     })),
