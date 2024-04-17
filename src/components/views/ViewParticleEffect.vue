@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import { show } from '../../composables/modal'
 import { useView } from '../../composables/view'
 import { Particle } from '../../core/particle'
-import IconVectorSquare from '../../icons/vector-square-solid.svg?component'
-import ModalSimpleTransform from '../modals/ModalSimpleTransform.vue'
-import MyButton from '../ui/MyButton.vue'
 import MyCellNumberInput from '../ui/MyCellNumberInput.vue'
 import MySection from '../ui/MySection.vue'
 import PreviewParticleEffect from './previews/PreviewParticleEffect.vue'
@@ -20,14 +16,43 @@ const v = useView(
     (v, view) => v.value.data.effects.find(({ name }) => name === view.value[3])!,
 )
 
-const keys = ['x1', 'x2', 'x3', 'x4', 'y1', 'y2', 'y3', 'y4'] as const
+const rows = ['x1', 'x2', 'x3', 'x4', 'y1', 'y2', 'y3', 'y4'] as const
 
-async function onSetSimpleTransform() {
-    const transform = await show(ModalSimpleTransform, null)
-    if (!transform) return
-
-    v.value.transform = transform
-}
+const cols = [
+    'c',
+    'x1',
+    'x2',
+    'x3',
+    'x4',
+    'y1',
+    'y2',
+    'y3',
+    'y4',
+    'r1',
+    'r2',
+    'r3',
+    'r4',
+    'r5',
+    'r6',
+    'r7',
+    'r8',
+    'sinr1',
+    'sinr2',
+    'sinr3',
+    'sinr4',
+    'sinr5',
+    'sinr6',
+    'sinr7',
+    'sinr8',
+    'cosr1',
+    'cosr2',
+    'cosr3',
+    'cosr4',
+    'cosr5',
+    'cosr6',
+    'cosr7',
+    'cosr8',
+] as const
 </script>
 
 <template>
@@ -36,31 +61,24 @@ async function onSetSimpleTransform() {
             <thead>
                 <tr class="h-8">
                     <th class="p-0" />
-                    <th v-for="i in keys" :key="i" class="p-0 text-lg font-semibold">
-                        {{ i }}
+                    <th v-for="c in cols" :key="c" class="p-0 text-lg font-semibold">
+                        {{ c }}
                     </th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="i in keys" :key="i" class="h-8">
-                    <td class="px-2 py-0 text-lg font-semibold">{{ i }}</td>
-                    <td v-for="j in keys" :key="j" class="p-0">
+                <tr v-for="r in rows" :key="r" class="h-8">
+                    <td class="px-2 py-0 text-lg font-semibold">{{ r }}</td>
+                    <td v-for="c in cols" :key="c" class="p-0">
                         <MyCellNumberInput
-                            v-model="v.transform[i][j]"
+                            v-model="v.transform[r][c]"
                             class="w-16"
-                            :placeholder="`${i}.${j}`"
+                            :placeholder="`${r}.${c}`"
                         />
                     </td>
                 </tr>
             </tbody>
         </table>
-
-        <MyButton
-            class="mx-auto mt-4"
-            :icon="IconVectorSquare"
-            text="Set Simple Transform"
-            @click="onSetSimpleTransform()"
-        />
     </MySection>
 
     <MySection header="Preview">
