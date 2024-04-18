@@ -67,10 +67,6 @@ async function editEquation(r: (typeof rows)[number]) {
     </MySection>
 
     <MySection header="Preview">
-        <PreviewParticleEffect
-            :particle="data"
-            :effect="v"
-            :interpolation="data.data.interpolation"
-        />
+        <PreviewParticleEffect :sprites="data.data.sprites" :effect="v" />
     </MySection>
 </template>

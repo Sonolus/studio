@@ -1,222 +1,84 @@
 <script setup lang="ts">
-import {
-    useDevicePixelRatio,
-    useLocalStorage,
-    useMouseInElement,
-    useMousePressed,
-} from '@vueuse/core'
-import { computed, onUnmounted, ref, watch, watchEffect } from 'vue'
+import { computedAsync, useLocalStorage, useNow } from '@vueuse/core'
+import { computed, ref, watchPostEffect } from 'vue'
+import { useCanvas } from '../../../composables/canvas'
 import { Ease, easings } from '../../../core/ease'
+import { execute } from '../../../core/expression'
 import { Particle } from '../../../core/particle'
-import { PropertyExpression } from '../../../core/property-expression'
-import { getImageBuffer, getImageInfo } from '../../../core/utils'
+import { ImageInfo, Rect, getImageInfo, lerp, lerpPoint, unlerp } from '../../../core/utils'
+import IconRotate from '../../../icons/rotate.svg?component'
+import MyButton from '../../ui/MyButton.vue'
 import MyColorInput from '../../ui/MyColorInput.vue'
 import MyField from '../../ui/MyField.vue'
-import MyTextInput from '../../ui/MyTextInput.vue'
+import MyNumberInput from '../../ui/MyNumberInput.vue'
+import MyToggle from '../../ui/MyToggle.vue'
 
 const props = defineProps<{
-    particle: Particle
+    sprites: Particle['data']['sprites']
     effect: Particle['data']['effects'][number]
-    interpolation: boolean
 }>()
 
-const backgroundColor = useLocalStorage('preview.particleEffect.backgroundColor', '#000000')
-const executionTime = useLocalStorage('preview.particleEffect.executionTime', '1')
+const backgroundColor = useLocalStorage('preview.particleEffect.backgroundColor', '#000')
+const duration = useLocalStorage('preview.particleEffect.duration', 1)
+const loop = useLocalStorage('preview.particleEffect.loop', false)
+
+const now = useNow()
+const progress = computed(() => (now.value.valueOf() / 1000 / duration.value) % 1)
 
 const elBack = ref<HTMLCanvasElement>()
 const elTop = ref<HTMLCanvasElement>()
-const elBuffer = ref<HTMLCanvasElement>()
-const { elementX, elementY, elementWidth, elementHeight } = useMouseInElement(elTop)
-const { pressed } = useMousePressed({ target: elTop })
-const { pixelRatio } = useDevicePixelRatio()
+const { rect, canvasWidth, canvasHeight, draggingIndex, hoverIndex } = useCanvas(elTop)
 
 const ctxBack = computed(() => elBack.value?.getContext('2d'))
-// const ctxTop = computed(() => elTop.value?.getContext('2d'))
-const position = computed<Point>(() => [
-    (elementX.value * 2) / elementWidth.value - 1,
-    1 - (elementY.value * 2) / elementHeight.value,
-])
-const canvasWidth = computed(() => elementWidth.value * pixelRatio.value)
-const canvasHeight = computed(() => elementHeight.value * pixelRatio.value)
+const ctxTop = computed(() => elTop.value?.getContext('2d'))
 
-type Point = [number, number]
-type Rect = [Point, Point, Point, Point]
-let animationReq: number = 0
-
-const rect = ref<Rect>([
-    [-0.5, -0.5],
-    [-0.5, 0.5],
-    [0.5, 0.5],
-    [0.5, -0.5],
-])
-
-/* const rectTransformed = computed<Rect>(() => {
-    const { x1, x2, x3, x4, y1, y2, y3, y4 } = props.effect.transform
-    return [
-        [t(x1), t(y1)],
-        [t(x2), t(y2)],
-        [t(x3), t(y3)],
-        [t(x4), t(y4)],
-    ]
-
-    function t(expression: Expression) {
-        const [[x1, y1], [x2, y2], [x3, y3], [x4, y4]] = rect.value
-        return (
-            x1 * (expression.x1 || 0) +
-            x2 * (expression.x2 || 0) +
-            x3 * (expression.x3 || 0) +
-            x4 * (expression.x4 || 0) +
-            y1 * (expression.y1 || 0) +
-            y2 * (expression.y2 || 0) +
-            y3 * (expression.y3 || 0) +
-            y4 * (expression.y4 || 0)
+const randomize = ref(0)
+const randoms = computed(
+    () => (
+        randomize.value,
+        [...Array(props.effect.groups.reduce((sum, group) => sum + group.count, 1)).keys()].map(
+            random,
         )
-    }
-})*/
+    ),
+)
 
-type ImageInfo = {
-    img: HTMLImageElement
-    width: number
-    height: number
+function random() {
+    return Object.fromEntries(
+        [...Array(8).keys()].flatMap((i) => {
+            const value = Math.random()
+            return [
+                [`r${i + 1}`, value],
+                [`sinr${i + 1}`, Math.sin(2 * Math.PI * value)],
+                [`cosr${i + 1}`, Math.cos(2 * Math.PI * value)],
+            ]
+        }),
+    ) as Record<`${'r' | 'sinr' | 'cosr'}${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`, number>
 }
 
-let images: {
-    error: number
-    info?: ImageInfo
-    buffer?: ReturnType<typeof getImageBuffer>
-    color: string
-    start: number
-    duration: number
-    groupId: number
-    x: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
-    y: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
-    w: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
-    h: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
-    r: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
-    a: { from: PropertyExpression; to: PropertyExpression; ease: Ease }
-}[] = []
-
-let expressions: PropertyExpression[] = []
-
-watchEffect(async () => {
-    images.length = 0
-    let cnt = 0
-    for (var i = 0; i < props.effect.groups.length; i++) {
-        for (var k = 0; k < props.effect.groups[i].count; k++) {
-            let g = props.effect.groups[i]
-            cnt++
-            for (var j = 0; j < g.particles.length; j++) {
-                images.push({
-                    error: 0,
-                    color: '',
-                    start: 0,
-                    duration: 1,
-                    groupId: 0,
-                    x: { from: {} as never, to: {} as never, ease: 'linear' },
-                    y: { from: {} as never, to: {} as never, ease: 'linear' },
-                    w: { from: {} as never, to: {} as never, ease: 'linear' },
-                    h: { from: {} as never, to: {} as never, ease: 'linear' },
-                    r: { from: {} as never, to: {} as never, ease: 'linear' },
-                    a: { from: {} as never, to: {} as never, ease: 'linear' },
-                })
-                try {
-                    images[images.length - 1].info = await getImageInfo(
-                        props.particle.data.sprites.find(({ id }) => id === g.particles[j].spriteId)
-                            ?.texture ?? '',
-                    )
-                    let canvas: HTMLCanvasElement = document.createElement('canvas')
-                    images[images.length - 1].buffer = getImageBuffer(
-                        images[images.length - 1].info as ImageInfo,
-                        canvas,
-                    )
-                    images[images.length - 1].color = g.particles[j].color
-                    images[images.length - 1].start = g.particles[j].start
-                    images[images.length - 1].duration = g.particles[j].duration
-                    images[images.length - 1].groupId = cnt - 1
-                    images[images.length - 1].x = g.particles[j].x
-                    images[images.length - 1].y = g.particles[j].y
-                    images[images.length - 1].w = g.particles[j].w
-                    images[images.length - 1].h = g.particles[j].h
-                    images[images.length - 1].r = g.particles[j].r
-                    images[images.length - 1].a = g.particles[j].a
-                } catch (error) {
-                    images[images.length - 1].error = 1
-                }
-            }
-
-            const r1 = Math.random()
-            const r2 = Math.random()
-            const r3 = Math.random()
-            const r4 = Math.random()
-            const r5 = Math.random()
-            const r6 = Math.random()
-            const r7 = Math.random()
-            const r8 = Math.random()
-
-            expressions.push({
-                c: 1,
-                r1,
-                sinr1: Math.sin(2 * Math.PI * r1),
-                cosr1: Math.cos(2 * Math.PI * r1),
-                r2,
-                sinr2: Math.sin(2 * Math.PI * r2),
-                cosr2: Math.cos(2 * Math.PI * r2),
-                r3,
-                sinr3: Math.sin(2 * Math.PI * r3),
-                cosr3: Math.cos(2 * Math.PI * r3),
-                r4,
-                sinr4: Math.sin(2 * Math.PI * r4),
-                cosr4: Math.cos(2 * Math.PI * r4),
-                r5,
-                sinr5: Math.sin(2 * Math.PI * r5),
-                cosr5: Math.cos(2 * Math.PI * r5),
-                r6,
-                sinr6: Math.sin(2 * Math.PI * r6),
-                cosr6: Math.cos(2 * Math.PI * r6),
-                r7,
-                sinr7: Math.sin(2 * Math.PI * r7),
-                cosr7: Math.cos(2 * Math.PI * r7),
-                r8,
-                sinr8: Math.sin(2 * Math.PI * r8),
-                cosr8: Math.cos(2 * Math.PI * r8),
-            })
-        }
-    }
-    animationReq = window.requestAnimationFrame(draw)
-})
-
-const draggingIndex = ref<number>()
-const hoverIndex = computed(() => {
-    const [tx, ty] = position.value
-
-    const distances = rect.value
-        .map(([x, y], i) => [i, Math.hypot(tx - x, ty - y)])
-        .sort(([, a], [, b]) => a - b)
-
-    if (distances[0][1] > 20 / elementWidth.value) return
-
-    return distances[0][0]
-})
-
-watch(pressed, (value) => {
-    if (!value) {
-        draggingIndex.value = undefined
-        return
+const rectTransformed = computed<Rect>(() => {
+    const { x1, x2, x3, x4, y1, y2, y3, y4 } = props.effect.transform
+    const values = {
+        c: 1,
+        x1: rect.value[0][0],
+        y1: rect.value[0][1],
+        x2: rect.value[1][0],
+        y2: rect.value[1][1],
+        x3: rect.value[2][0],
+        y3: rect.value[2][1],
+        x4: rect.value[3][0],
+        y4: rect.value[3][1],
+        ...randoms.value[0],
     }
 
-    draggingIndex.value = hoverIndex.value
+    return [
+        [execute(x1, values), execute(y1, values)],
+        [execute(x2, values), execute(y2, values)],
+        [execute(x3, values), execute(y3, values)],
+        [execute(x4, values), execute(y4, values)],
+    ]
 })
 
-watchEffect(() => {
-    if (draggingIndex.value === undefined) return
-
-    rect.value[draggingIndex.value] = position.value
-})
-
-// Because the time complexity of algorithm is much higher than I expected.
-// The sampling feature was disabled by me.
-// -- @LittleYang0531
-/*watchPostEffect(() => {
+watchPostEffect(() => {
     const ctx = ctxTop.value
     if (!ctx) return
 
@@ -259,127 +121,216 @@ watchEffect(() => {
 
         return 'rgba(255, 255, 255, 0.5)'
     }
-})*/
+})
 
-function expressionToValue(expression: PropertyExpression, groupId: number) {
-    let val = 0
-    for (let name in expression)
-        val += expression[name as never] * expressions[groupId][name as never]
-    return val
-}
+const imageInfos = computedAsync(async () => {
+    const result: Record<string, ImageInfo> = {}
 
-function hex2rgb(str: string) {
-    if (str.length == 4)
-        return [parseInt(str[1], 16) * 16, parseInt(str[2], 16) * 16, parseInt(str[3], 16) * 16]
-    else
-        return [
-            parseInt(str.substr(1, 2), 16),
-            parseInt(str.substr(3, 2), 16),
-            parseInt(str.substr(5, 2), 16),
-        ]
-}
+    for (const spriteId of new Set(
+        props.effect.groups.flatMap((group) =>
+            group.particles.map((particle) => particle.spriteId),
+        ),
+    )) {
+        try {
+            result[spriteId] = await getImageInfo(
+                props.sprites.find(({ id }) => id === spriteId)!.texture,
+            )
+        } catch {
+            // ignore
+        }
+    }
 
-function draw() {
-    if (draggingIndex.value !== undefined) return
+    return result
+}, {})
 
-    //    const rect = rectTransformed.value
-    const canvasW = canvasWidth.value
-    const canvasH = canvasHeight.value
+const states = computed(() => {
+    const states: {
+        texture: OffscreenCanvas
+        start: number
+        end: number
+        x: { from: number; to: number; ease: Ease }
+        y: { from: number; to: number; ease: Ease }
+        w: { from: number; to: number; ease: Ease }
+        h: { from: number; to: number; ease: Ease }
+        r: { from: number; to: number; ease: Ease }
+        a: { from: number; to: number; ease: Ease }
+    }[] = []
 
+    let index = 0
+    for (const group of props.effect.groups) {
+        for (let i = 0; i < group.count; i++) {
+            index++
+            const values = { c: 1, ...randoms.value[index] }
+
+            for (const { spriteId, color, start, duration, x, y, w, h, r, a } of group.particles) {
+                const imageInfo = imageInfos.value[spriteId]
+                if (!imageInfo) continue
+
+                const texture = new OffscreenCanvas(imageInfo.width, imageInfo.height)
+
+                const ctx = texture.getContext('2d')
+                if (!ctx) continue
+
+                ctx.fillStyle = color
+                ctx.fillRect(0, 0, imageInfo.width, imageInfo.height)
+
+                ctx.globalCompositeOperation = 'destination-in'
+                ctx.drawImage(imageInfo.img, 0, 0)
+
+                ctx.globalCompositeOperation = 'multiply'
+                ctx.drawImage(imageInfo.img, 0, 0)
+
+                states.push({
+                    texture,
+                    start,
+                    end: start + duration,
+                    x: {
+                        from: execute(x.from, values),
+                        to: execute(x.to, values),
+                        ease: x.ease,
+                    },
+                    y: {
+                        from: execute(y.from, values),
+                        to: execute(y.to, values),
+                        ease: y.ease,
+                    },
+                    w: {
+                        from: execute(w.from, values),
+                        to: execute(w.to, values),
+                        ease: w.ease,
+                    },
+                    h: {
+                        from: execute(h.from, values),
+                        to: execute(h.to, values),
+                        ease: h.ease,
+                    },
+                    r: {
+                        from: execute(r.from, values),
+                        to: execute(r.to, values),
+                        ease: r.ease,
+                    },
+                    a: {
+                        from: execute(a.from, values),
+                        to: execute(a.to, values),
+                        ease: a.ease,
+                    },
+                })
+            }
+        }
+    }
+
+    return states
+})
+
+watchPostEffect(() => {
     const ctx = ctxBack.value
     if (!ctx) return
-    ctx.clearRect(0, 0, canvasW, canvasH)
 
-    for (var i = 0; i < images.length; i++) {
-        let t = Date.now() / Number(executionTime.value) / 1000
-        t -= Math.floor(t)
-        if (t < images[i].start || t > images[i].start + images[i].duration) continue
-        let percent = (t - images[i].start) / images[i].duration
-        const buffer = images[i].buffer as ReturnType<typeof getImageBuffer>
-        const width = buffer.width
-        const height = buffer.height
+    const w = canvasWidth.value
+    const h = canvasHeight.value
+    ctx.setTransform(w / 2, 0, 0, -h / 2, w / 2, h / 2)
+    ctx.clearRect(-1, -1, 2, 2)
 
-        const data = images[i].info!.img
+    for (const state of states.value) {
+        let t = progress.value
+        if (loop.value && t < state.start) t++
+        if (t < state.start || t > state.end) continue
 
-        // Color Overlay
-        let tmpImg = document.createElement('canvas')
-        tmpImg.height = height
-        tmpImg.width = width
-        let tmpCtx = tmpImg.getContext('2d')
-        if (tmpCtx == null) continue
-        tmpCtx.drawImage(data, 0, 0, width, height)
-        let tmpImgData = tmpCtx.getImageData(0, 0, width, height)
-        let rgb = hex2rgb(images[i].color)
-        for (var j = 0; j < tmpImgData.data.length; j += 4) {
-            tmpImgData.data[j] = (tmpImgData.data[j] / 255) * rgb[0] // red
-            tmpImgData.data[j + 1] = (tmpImgData.data[j + 1] / 255) * rgb[1] // green
-            tmpImgData.data[j + 2] = (tmpImgData.data[j + 2] / 255) * rgb[2] // blue
-        }
-        tmpCtx.putImageData(tmpImgData, 0, 0)
+        const p = unlerp(state.start, state.end, t)
 
-        let xFrom = expressionToValue(images[i].x.from, images[i].groupId)
-        let xTo = expressionToValue(images[i].x.to, images[i].groupId)
-        let yFrom = expressionToValue(images[i].y.from, images[i].groupId)
-        let yTo = expressionToValue(images[i].y.to, images[i].groupId)
-        let wFrom = expressionToValue(images[i].w.from, images[i].groupId)
-        let wTo = expressionToValue(images[i].w.to, images[i].groupId)
-        let hFrom = expressionToValue(images[i].h.from, images[i].groupId)
-        let hTo = expressionToValue(images[i].w.to, images[i].groupId)
-        let rFrom = expressionToValue(images[i].r.from, images[i].groupId)
-        let rTo = expressionToValue(images[i].r.to, images[i].groupId)
-        let aFrom = expressionToValue(images[i].a.from, images[i].groupId)
-        let aTo = expressionToValue(images[i].a.to, images[i].groupId)
+        const x = execute(state.x, p)
+        const y = execute(state.y, p)
+        const w = execute(state.w, p)
+        const h = execute(state.h, p)
+        const r = execute(state.r, p)
+        const a = execute(state.a, p)
 
-        let x = easings[images[i].x.ease](percent) * (xTo - xFrom) + xFrom
-        x = -x
-        let y = easings[images[i].y.ease](percent) * (yTo - yFrom) + yFrom
-        y = -y
-        let w = easings[images[i].w.ease](percent) * (wTo - wFrom) + wFrom
-        let h = easings[images[i].h.ease](percent) * (hTo - hFrom) + hFrom
-        let r = easings[images[i].r.ease](percent) * (rTo - rFrom) + rFrom
-        let a = easings[images[i].a.ease](percent) * (aTo - aFrom) + aFrom
-        ;(x = ((x + 1) / 2) * canvasW), (y = ((y + 1) / 2) * canvasH)
-        ;(w = (w / 2) * canvasW), (h = (h / 2) * canvasH)
+        const cosr = Math.cos(r)
+        const sinr = Math.sin(r)
+
+        const rect: Rect = [
+            getPoint(x, y, w, h, cosr, sinr, 0),
+            getPoint(x, y, w, h, cosr, sinr, 1),
+            getPoint(x, y, w, h, cosr, sinr, 2),
+            getPoint(x, y, w, h, cosr, sinr, 3),
+        ]
 
         ctx.globalAlpha = a
-        ctx.translate(x, y)
-        ctx.rotate(r)
-        ctx.drawImage(tmpImg, -w / 2, -h / 2, w, h)
-        ctx.rotate(Math.PI * 2 - r)
-        ctx.translate(-x, -y)
-        ctx.globalAlpha = 1
+
+        ctx.save()
+
+        ctx.transform(
+            rect[3][0] - rect[0][0],
+            rect[3][1] - rect[0][1],
+            rect[0][0] - rect[1][0],
+            rect[0][1] - rect[1][1],
+            rect[1][0],
+            rect[1][1],
+        )
+
+        ctx.beginPath()
+        ctx.moveTo(0, 0)
+        ctx.lineTo(0, 1)
+        ctx.lineTo(1, 1)
+        ctx.lineTo(0, 0)
+        ctx.closePath()
+
+        ctx.clip()
+        ctx.drawImage(state.texture, 0, 0, 1, 1)
+
+        ctx.restore()
+
+        ctx.save()
+
+        ctx.transform(
+            rect[2][0] - rect[1][0],
+            rect[2][1] - rect[1][1],
+            rect[3][0] - rect[2][0],
+            rect[3][1] - rect[2][1],
+            rect[1][0],
+            rect[1][1],
+        )
+
+        ctx.beginPath()
+        ctx.moveTo(0, 0)
+        ctx.lineTo(1, 0)
+        ctx.lineTo(1, 1)
+        ctx.lineTo(0, 0)
+        ctx.closePath()
+
+        ctx.clip()
+        ctx.drawImage(state.texture, 0, 0, 1, 1)
+
+        ctx.restore()
     }
 
-    // Because the time complexity of alogrithm is much higher than I expected.
-    // The sampling feature was disabled by me.
-    // -- @LittleYang0531
-    /* let originImg = ctx.getImageData(0, 0, canvasW, canvasH);
-    ctx.clearRect(0, 0, canvasW, canvasH);
-
-    for (let i = 0; i < canvasW; i++) {
-        const x = ((i + 0.5) / canvasW) * 2 - 1
-        for (let j = 0; j < canvasH; j++) {
-            const y = (((j + 0.5) / canvasH) * 2 - 1) * -1
-
-            const [u, v] = inverseBilinear([x, y], rect)
-            if (u < 0 || v < 0 || u > 1 || v > 1) continue
-
-            const [r, g, b, a] = sample(originImg.data, canvasW, canvasH, u, v, props.interpolation)
-
-            const dIndex = (j * canvasW + i) * 4
-            originImg.data[dIndex + 0] = r
-            originImg.data[dIndex + 1] = g
-            originImg.data[dIndex + 2] = b
-            originImg.data[dIndex + 3] = a
-        }
+    function execute({ from, to, ease }: { from: number; to: number; ease: Ease }, p: number) {
+        return lerp(from, to, easings[ease](p))
     }
 
-    ctx.putImageData(originImg, 0, 0) */
+    function getPoint(
+        x: number,
+        y: number,
+        w: number,
+        h: number,
+        cosr: number,
+        sinr: number,
+        n: number,
+    ) {
+        const sx = (n === 0 || n === 1 ? -1 : 1) * w
+        const sy = (n === 0 || n === 3 ? -1 : 1) * h
 
-    animationReq = window.requestAnimationFrame(draw)
-}
+        const dx = sx * cosr - sy * sinr
+        const dy = sy * cosr + sx * sinr
 
-onUnmounted(() => window.cancelAnimationFrame(animationReq))
+        const px = (x + dx + 1) / 2
+        const py = (y + dy + 1) / 2
+
+        const b = lerpPoint(rectTransformed.value[0], rectTransformed.value[3], px)
+        const t = lerpPoint(rectTransformed.value[1], rectTransformed.value[2], px)
+        return lerpPoint(b, t, py)
+    }
+})
 </script>
 
 <template>
@@ -391,12 +342,11 @@ onUnmounted(() => window.cancelAnimationFrame(animationReq))
             validate
         />
     </MyField>
-    <MyField title="Execution Time">
-        <MyTextInput
-            v-model="executionTime"
-            placeholder="Enter particle execution time..."
-            validate
-        />
+    <MyField title="Duration">
+        <MyNumberInput v-model="duration" placeholder="Enter duration..." validate />
+    </MyField>
+    <MyField title="Loop">
+        <MyToggle v-model="loop" :default-value="true" />
     </MyField>
 
     <div class="mx-auto my-4 max-w-sm border-4 border-sonolus-ui-text-normal">
@@ -418,5 +368,5 @@ onUnmounted(() => window.cancelAnimationFrame(animationReq))
         </div>
     </div>
 
-    <canvas ref="elBuffer" class="hidden" />
+    <MyButton class="mx-auto mt-4" :icon="IconRotate" text="Randomize" @click="randomize++" />
 </template>

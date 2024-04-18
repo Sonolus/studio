@@ -109,7 +109,7 @@ export function newParticleEffectGroup(): Particle['data']['effects'][number]['g
 export function newParticleEffectGroupParticle(): Particle['data']['effects'][number]['groups'][number]['particles'][number] {
     return {
         spriteId: '',
-        color: '#000000',
+        color: '#fff',
         start: 0,
         duration: 1,
         x: { from: { ...allZeroProperty }, to: { ...allZeroProperty }, ease: 'linear' },

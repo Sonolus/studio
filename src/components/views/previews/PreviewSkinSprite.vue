@@ -1,16 +1,12 @@
 <script setup lang="ts">
-import { SkinDataExpression } from '@sonolus/core'
-import {
-    useDevicePixelRatio,
-    useLocalStorage,
-    useMouseInElement,
-    useMousePressed,
-} from '@vueuse/core'
-import { computed, ref, watch, watchEffect, watchPostEffect } from 'vue'
+import { computedAsync, useLocalStorage } from '@vueuse/core'
+import { computed, ref, watchPostEffect } from 'vue'
+import { useCanvas } from '../../../composables/canvas'
 import { inverseBilinear } from '../../../core/bilinear-interpolation'
+import { execute } from '../../../core/expression'
 import { sample } from '../../../core/sampling'
 import { Skin } from '../../../core/skin'
-import { getImageBuffer, getImageInfo } from '../../../core/utils'
+import { Rect, getImageBuffer, getImageInfo } from '../../../core/utils'
 import MyColorInput from '../../ui/MyColorInput.vue'
 import MyField from '../../ui/MyField.vue'
 
@@ -24,102 +20,39 @@ const backgroundColor = useLocalStorage('preview.skinSprite.backgroundColor', '#
 const elBack = ref<HTMLCanvasElement>()
 const elTop = ref<HTMLCanvasElement>()
 const elBuffer = ref<HTMLCanvasElement>()
-const { elementX, elementY, elementWidth, elementHeight } = useMouseInElement(elTop)
-const { pressed } = useMousePressed({ target: elTop })
-const { pixelRatio } = useDevicePixelRatio()
+const { rect, canvasWidth, canvasHeight, draggingIndex, hoverIndex } = useCanvas(elTop)
 
 const ctxBack = computed(() => elBack.value?.getContext('2d'))
 const ctxTop = computed(() => elTop.value?.getContext('2d'))
-const position = computed<Point>(() => [
-    (elementX.value * 2) / elementWidth.value - 1,
-    1 - (elementY.value * 2) / elementHeight.value,
-])
-const canvasWidth = computed(() => elementWidth.value * pixelRatio.value)
-const canvasHeight = computed(() => elementHeight.value * pixelRatio.value)
-
-type Point = [number, number]
-type Rect = [Point, Point, Point, Point]
-
-const rect = ref<Rect>([
-    [-0.5, -0.5],
-    [-0.5, 0.5],
-    [0.5, 0.5],
-    [0.5, -0.5],
-])
 
 const rectTransformed = computed<Rect>(() => {
     const { x1, x2, x3, x4, y1, y2, y3, y4 } = props.sprite.transform
+    const values = {
+        x1: rect.value[0][0],
+        y1: rect.value[0][1],
+        x2: rect.value[1][0],
+        y2: rect.value[1][1],
+        x3: rect.value[2][0],
+        y3: rect.value[2][1],
+        x4: rect.value[3][0],
+        y4: rect.value[3][1],
+    }
+
     return [
-        [t(x1), t(y1)],
-        [t(x2), t(y2)],
-        [t(x3), t(y3)],
-        [t(x4), t(y4)],
+        [execute(x1, values), execute(y1, values)],
+        [execute(x2, values), execute(y2, values)],
+        [execute(x3, values), execute(y3, values)],
+        [execute(x4, values), execute(y4, values)],
     ]
-
-    function t(expression: SkinDataExpression) {
-        const [[x1, y1], [x2, y2], [x3, y3], [x4, y4]] = rect.value
-        return (
-            x1 * (expression.x1 || 0) +
-            x2 * (expression.x2 || 0) +
-            x3 * (expression.x3 || 0) +
-            x4 * (expression.x4 || 0) +
-            y1 * (expression.y1 || 0) +
-            y2 * (expression.y2 || 0) +
-            y3 * (expression.y3 || 0) +
-            y4 * (expression.y4 || 0)
-        )
-    }
 })
 
-const imageInfo = ref<{
-    img: HTMLImageElement
-    width: number
-    height: number
-}>()
-
-watchEffect(async () => {
-    imageInfo.value = undefined
-
-    try {
-        imageInfo.value = await getImageInfo(props.sprite.texture)
-    } catch (error) {
-        imageInfo.value = undefined
-    }
-})
+const imageInfo = computedAsync(() => getImageInfo(props.sprite.texture))
 
 const imageBuffer = computed(() => {
     if (!imageInfo.value) return
     if (!elBuffer.value) return
 
     return getImageBuffer(imageInfo.value, elBuffer.value)
-})
-
-const draggingIndex = ref<number>()
-const hoverIndex = computed(() => {
-    const [tx, ty] = position.value
-
-    const distances = rect.value
-        .map(([x, y], i) => [i, Math.hypot(tx - x, ty - y)])
-        .sort(([, a], [, b]) => a - b)
-
-    if (distances[0][1] > 20 / elementWidth.value) return
-
-    return distances[0][0]
-})
-
-watch(pressed, (value) => {
-    if (!value) {
-        draggingIndex.value = undefined
-        return
-    }
-
-    draggingIndex.value = hoverIndex.value
-})
-
-watchEffect(() => {
-    if (draggingIndex.value === undefined) return
-
-    rect.value[draggingIndex.value] = position.value
 })
 
 watchPostEffect(() => {

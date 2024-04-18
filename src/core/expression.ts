@@ -1,5 +1,10 @@
 export type Expression = Record<string, number>
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function execute<T extends Expression>(expression: T, values: T & {}) {
+    return Object.entries(expression).reduce((sum, [k, v]) => sum + values[k] * v, 0)
+}
+
 export function expressionToEquation(expression: Expression) {
     let equation = `${expression.c}`
 

@@ -1,5 +1,14 @@
 import { gzip, ungzip } from 'pako'
 
+export type Point = [number, number]
+export type Rect = [Point, Point, Point, Point]
+
+export type ImageInfo = {
+    img: HTMLImageElement
+    width: number
+    height: number
+}
+
 export function emptySrl() {
     return {
         hash: '',
@@ -11,12 +20,20 @@ export function clone<T>(data: T): T {
     return JSON.parse(JSON.stringify(data))
 }
 
+export function lerp(a: number, b: number, x: number) {
+    return a * (1 - x) + b * x
+}
+
+export function lerpPoint(a: Point, b: Point, x: number): Point {
+    return [lerp(a[0], b[0], x), lerp(a[1], b[1], x)]
+}
+
+export function unlerp(a: number, b: number, x: number) {
+    return (x - a) / (b - a)
+}
+
 export function getImageInfo(src: string) {
-    return new Promise<{
-        img: HTMLImageElement
-        width: number
-        height: number
-    }>((resolve, reject) => {
+    return new Promise<ImageInfo>((resolve, reject) => {
         if (!src) {
             reject()
             return
@@ -51,10 +68,7 @@ export function getAudioInfo(src: string) {
     })
 }
 
-export function getImageBuffer(
-    { img, width, height }: { img: HTMLImageElement; width: number; height: number },
-    canvas: HTMLCanvasElement,
-) {
+export function getImageBuffer({ img, width, height }: ImageInfo, canvas: HTMLCanvasElement) {
     canvas.width = width
     canvas.height = height
     const ctx = canvas.getContext('2d')
