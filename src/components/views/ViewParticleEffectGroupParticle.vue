@@ -14,6 +14,7 @@ import MyField from '../ui/MyField.vue'
 import MyNumberInput from '../ui/MyNumberInput.vue'
 import MySection from '../ui/MySection.vue'
 import MyTextSelect from '../ui/MyTextSelect.vue'
+import PreviewParticleEffectGroupParticle from './previews/PreviewParticleEffectGroupParticle.vue'
 
 const props = defineProps<{
     data: Particle
@@ -117,5 +118,9 @@ async function editEquation(p: (typeof properties)[number], t: (typeof types)[nu
                 validate
             />
         </MyField>
+    </MySection>
+
+    <MySection header="Preview">
+        <PreviewParticleEffectGroupParticle :sprites="data.data.sprites" :particle="v" />
     </MySection>
 </template>

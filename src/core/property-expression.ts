@@ -32,3 +32,16 @@ export const allZero: PropertyExpression = {
 }
 
 export const equationToPropertyExpression = createEquationToExpression(allZero)
+
+export function getPropertyExpressionRandom() {
+    return Object.fromEntries(
+        [...Array(8).keys()].flatMap((i) => {
+            const value = Math.random()
+            return [
+                [`r${i + 1}`, value],
+                [`sinr${i + 1}`, Math.sin(2 * Math.PI * value)],
+                [`cosr${i + 1}`, Math.cos(2 * Math.PI * value)],
+            ]
+        }),
+    ) as Record<`${'r' | 'sinr' | 'cosr'}${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`, number>
+}
