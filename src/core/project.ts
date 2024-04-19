@@ -210,6 +210,10 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
         description: 'Loading package...',
         async execute() {
             zip = await JSZip.loadAsync(file)
+
+            const packageInfo = await process.getJson<PackageInfo>(`/sonolus/package`)
+            if (packageInfo.shouldUpdate)
+                throw 'Package not supported. If the package is exported from Sonolus, please export again using Full mode.'
         },
     })
 
