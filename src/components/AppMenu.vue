@@ -233,7 +233,7 @@ function onKeyDown(e: KeyboardEvent) {
 
 <template>
     <div
-        class="fixed top-0 z-50 flex h-8 w-full bg-sonolus-ui-surface text-sm"
+        class="fixed top-0 z-40 flex h-8 w-full bg-sonolus-ui-surface text-sm"
         @click.self="close()"
     >
         <button
@@ -274,7 +274,7 @@ function onKeyDown(e: KeyboardEvent) {
     </div>
     <div class="h-8" />
 
-    <div v-if="openedIndex !== undefined" class="fixed z-40 h-full w-full" @click="close()" />
+    <div v-if="openedIndex !== undefined" class="fixed z-30 h-full w-full" @click="close()" />
 
     <input ref="el" class="hidden" type="file" @input="onFileInput()" />
 </template>

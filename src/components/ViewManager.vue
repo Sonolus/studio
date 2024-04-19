@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, markRaw, watch } from 'vue'
+import { ExplorerItem, useExplorer } from '../composables/explorer'
 import { clearUpdater, useState } from '../composables/state'
 import { hasEffectClip } from '../core/effect'
 import {
@@ -23,13 +24,32 @@ import ViewSkin from './views/ViewSkin.vue'
 import ViewSkinSprite from './views/ViewSkinSprite.vue'
 
 const { project, view } = useState()
+const { tree } = useExplorer()
 
 watch(view, () => {
     clearUpdater()
     window.scrollTo({ top: 0 })
 })
 
+const path = computed(() =>
+    tree.value
+        .filter((item) => item.path.every((part, index) => part === view.value[index]))
+        .sort((a, b) => a.path.length - b.path.length),
+)
+
 const viewInfo = computed(() => resolveViewInfo(project.value, view.value))
+
+function isPathCurrentView(path: string[]) {
+    return (
+        path.length === view.value.length && path.every((part, index) => part === view.value[index])
+    )
+}
+
+function onClick(item: ExplorerItem) {
+    if (!resolveViewInfo(project.value, item.path) || isPathCurrentView(item.path)) return
+
+    view.value = item.path
+}
 </script>
 
 <script lang="ts">
@@ -107,6 +127,17 @@ export function resolveViewInfo(project: Project, view: string[]) {
         leave-to-class="hidden"
     >
         <div :key="view.join('/')" class="sm:ml-60 md:ml-80 lg:ml-100">
+            <nav class="text-sm p-2 sticky top-8 bg-sonolus-main z-10">
+                <template v-for="(item, index) in path" :key="item.path.join('/')">
+                    <span v-if="index" class="text-sonolus-ui-text-disabled mx-1">/</span>
+                    <button
+                        class="text-sonolus-ui-text-soften px-1 transition-colors duration-200 hover:text-sonolus-ui-text-normal hover:bg-sonolus-ui-button-highlighted active:bg-sonolus-ui-button-pressed"
+                        @click="onClick(item)"
+                    >
+                        {{ item.title }}
+                    </button>
+                </template>
+            </nav>
             <div class="mx-auto max-w-3xl px-6 pb-6">
                 <component
                     :is="viewInfo.component"

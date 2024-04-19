@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { watchEffect } from 'vue'
-import { isOpened, open, toggle, toKey, useExplorer } from '../composables/explorer'
+import { ExplorerItem, isOpened, open, toggle, toKey, useExplorer } from '../composables/explorer'
 import { useState } from '../composables/state'
 import IconAngleDown from '../icons/angle-down-solid.svg?component'
 import IconAngleRight from '../icons/angle-right-solid.svg?component'
@@ -31,7 +31,7 @@ function isPathCurrentView(path: string[]) {
     )
 }
 
-function onClick(item: { path: string[] }) {
+function onClick(item: ExplorerItem) {
     if (resolveViewInfo(project.value, item.path) && !isPathCurrentView(item.path)) {
         view.value = item.path
         isExplorerOpened.value = false
@@ -43,7 +43,7 @@ function onClick(item: { path: string[] }) {
 
 <template>
     <div
-        class="scrollbar fixed bottom-0 left-0 top-8 z-10 w-full -translate-x-full overflow-y-auto bg-sonolus-main text-sm opacity-0 transition-all duration-200 sm:w-60 sm:translate-x-0 sm:opacity-100 md:w-80 lg:w-100"
+        class="scrollbar fixed bottom-0 left-0 top-8 z-20 w-full -translate-x-full overflow-y-auto bg-sonolus-main text-sm opacity-0 transition-all duration-200 sm:w-60 sm:translate-x-0 sm:opacity-100 md:w-80 lg:w-100"
         :class="{
             'translate-x-0 opacity-100': isExplorerOpened,
         }"
