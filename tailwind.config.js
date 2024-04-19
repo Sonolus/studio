@@ -10,6 +10,7 @@ module.exports = {
                 'sonolus-glow': 'rgba(255, 255, 255, 1)',
                 'sonolus-ui-surface': 'rgba(0, 0, 0, 1)',
                 'sonolus-ui-text-normal': 'rgba(255, 255, 255, 1)',
+                'sonolus-ui-text-soften': 'rgba(255, 255, 255, 0.75)',
                 'sonolus-ui-text-disabled': 'rgba(255, 255, 255, 0.25)',
                 'sonolus-ui-button-normal': 'rgba(255, 255, 255, 0.125)',
                 'sonolus-ui-button-highlighted': 'rgba(255, 255, 255, 0.25)',

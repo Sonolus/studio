@@ -1,9 +1,9 @@
+import { EffectClipName, EffectData, EffectItem, ItemDetails, ItemList } from '@sonolus/core'
 import JSZip from 'jszip'
-import { EffectClipName, EffectData, EffectItem, ItemDetails, ItemList } from 'sonolus-core'
 import { formatNameKey } from './names'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { load } from './storage'
-import { packArrayBuffer, packJson, packRaw, srl, unpackJson } from './utils'
+import { emptySrl, packArrayBuffer, packJson, packRaw, unpackJson } from './utils'
 
 export type Effect = {
     title: string
@@ -70,9 +70,10 @@ function packEffect(
         title: effect.title,
         subtitle: effect.subtitle,
         author: effect.author,
-        thumbnail: srl('EffectThumbnail'),
-        data: srl('EffectData'),
-        audio: srl('EffectAudio'),
+        tags: [],
+        thumbnail: emptySrl(),
+        data: emptySrl(),
+        audio: emptySrl(),
     }
     effects.push(item)
 
@@ -83,7 +84,7 @@ function packEffect(
         async execute() {
             const { hash, data } = await packRaw(effect.thumbnail)
 
-            const path = `/sonolus/repository/EffectThumbnail/${hash}`
+            const path = `/sonolus/repository/${hash}`
             item.thumbnail.hash = hash
             item.thumbnail.url = path
             addRaw(path, data)
@@ -120,7 +121,7 @@ function packEffect(
                 }),
             )
 
-            const path = `/sonolus/repository/EffectAudio/${hash}`
+            const path = `/sonolus/repository/${hash}`
             item.audio.hash = hash
             item.audio.url = path
             addRaw(path, data)
@@ -132,7 +133,7 @@ function packEffect(
         async execute() {
             const { hash, data } = await packJson(effectData)
 
-            const path = `/sonolus/repository/EffectData/${hash}`
+            const path = `/sonolus/repository/${hash}`
             item.data.hash = hash
             item.data.url = path
             addRaw(path, data)
@@ -145,7 +146,7 @@ function packEffect(
             addJson<ItemDetails<EffectItem>>(`/sonolus/effects/${name}`, {
                 item,
                 description: effect.description,
-                recommended: [],
+                sections: [],
             })
         },
     })

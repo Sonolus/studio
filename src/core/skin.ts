@@ -1,9 +1,9 @@
-import { ItemDetails, ItemList, SkinData, SkinItem, SkinSpriteName } from 'sonolus-core'
+import { ItemDetails, ItemList, SkinData, SkinItem, SkinSpriteName } from '@sonolus/core'
 import { formatNameKey } from './names'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { bakeSprite, tryCalculateLayout } from './sprite-sheet'
 import { load } from './storage'
-import { getBlob, getImageInfo, packJson, packRaw, srl, unpackJson } from './utils'
+import { emptySrl, getBlob, getImageInfo, packJson, packRaw, unpackJson } from './utils'
 
 const allZero = { x1: 0, x2: 0, x3: 0, x4: 0, y1: 0, y2: 0, y3: 0, y4: 0 }
 
@@ -99,9 +99,10 @@ function packSkin(
         title: skin.title,
         subtitle: skin.subtitle,
         author: skin.author,
-        thumbnail: srl('SkinThumbnail'),
-        data: srl('SkinData'),
-        texture: srl('SkinTexture'),
+        tags: [],
+        thumbnail: emptySrl(),
+        data: emptySrl(),
+        texture: emptySrl(),
     }
     skins.push(item)
 
@@ -110,7 +111,7 @@ function packSkin(
         async execute() {
             const { hash, data } = await packRaw(skin.thumbnail)
 
-            const path = `/sonolus/repository/SkinThumbnail/${hash}`
+            const path = `/sonolus/repository/${hash}`
             item.thumbnail.hash = hash
             item.thumbnail.url = path
             addRaw(path, data)
@@ -127,7 +128,13 @@ function packSkin(
     tasks.push({
         description: `Packing skin "${name}" texture...`,
         async execute() {
-            const { size, layouts } = await tryCalculateLayout(skin)
+            const { size, layouts } = await tryCalculateLayout(
+                skin.data.sprites.map((s) => ({
+                    name: s.name,
+                    texture: s.texture,
+                    padding: s.padding,
+                })),
+            )
 
             skinData.width = size
             skinData.height = size
@@ -160,7 +167,7 @@ function packSkin(
 
             const { hash, data } = await packRaw(texture)
 
-            const path = `/sonolus/repository/SkinTexture/${hash}`
+            const path = `/sonolus/repository/${hash}`
             item.texture.hash = hash
             item.texture.url = path
             addRaw(path, data)
@@ -174,7 +181,7 @@ function packSkin(
         async execute() {
             const { hash, data } = await packJson(skinData)
 
-            const path = `/sonolus/repository/SkinData/${hash}`
+            const path = `/sonolus/repository/${hash}`
             item.data.hash = hash
             item.data.url = path
             addRaw(path, data)
@@ -187,7 +194,7 @@ function packSkin(
             addJson<ItemDetails<SkinItem>>(`/sonolus/skins/${name}`, {
                 item,
                 description: skin.description,
-                recommended: [],
+                sections: [],
             })
         },
     })

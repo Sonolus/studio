@@ -1,4 +1,4 @@
-import { EffectClipName } from 'sonolus-core'
+import { EffectClipName } from '@sonolus/core'
 import { markRaw } from 'vue'
 import { ExplorerItem, isOpened, onClone, onDelete, onDeleteAll, onNew, onRename } from '.'
 import ModalName from '../../components/modals/ModalName.vue'
@@ -6,6 +6,7 @@ import { formatEffectClipName, newEffect, newEffectClip } from '../../core/effec
 import { clone } from '../../core/utils'
 import IconClone from '../../icons/clone-solid.svg?component'
 import IconDrum from '../../icons/drum-solid.svg?component'
+import IconEdit from '../../icons/edit-solid.svg?component'
 import IconFileAudio from '../../icons/file-audio-solid.svg?component'
 import IconFolder from '../../icons/folder-solid.svg?component'
 import IconPlus from '../../icons/plus-solid.svg?component'
@@ -140,7 +141,7 @@ async function onRenameEffectClip(
     if (!clip) throw 'Effect clip not found'
 
     const newName = await show(ModalName, {
-        icon: markRaw(IconPlus),
+        icon: markRaw(IconEdit),
         title: 'Rename Effect Clip',
         names: EffectClipName,
         defaultValue: spriteName,

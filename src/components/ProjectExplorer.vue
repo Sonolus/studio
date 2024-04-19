@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { watchEffect } from 'vue'
-import { isOpened, open, toggle, toKey, useExplorer } from '../composables/explorer'
+import { ExplorerItem, isOpened, open, toggle, toKey, useExplorer } from '../composables/explorer'
 import { useState } from '../composables/state'
 import IconAngleDown from '../icons/angle-down-solid.svg?component'
 import IconAngleRight from '../icons/angle-right-solid.svg?component'
@@ -31,7 +31,7 @@ function isPathCurrentView(path: string[]) {
     )
 }
 
-function onClick(item: { path: string[] }) {
+function onClick(item: ExplorerItem) {
     if (resolveViewInfo(project.value, item.path) && !isPathCurrentView(item.path)) {
         view.value = item.path
         isExplorerOpened.value = false
@@ -43,7 +43,7 @@ function onClick(item: { path: string[] }) {
 
 <template>
     <div
-        class="scrollbar fixed bottom-0 left-0 top-8 z-10 w-full -translate-x-full overflow-y-auto bg-sonolus-main text-sm opacity-0 transition-all duration-200 sm:w-48 sm:translate-x-0 sm:opacity-100 md:w-64 lg:w-80"
+        class="scrollbar fixed bottom-0 left-0 top-8 z-20 w-full -translate-x-full overflow-y-auto bg-sonolus-main text-sm opacity-0 transition-all duration-200 sm:w-60 sm:translate-x-0 sm:opacity-100 md:w-80 lg:w-100"
         :class="{
             'translate-x-0 opacity-100': isExplorerOpened,
         }"
@@ -63,7 +63,9 @@ function onClick(item: { path: string[] }) {
                     'pl-2': item.level === 0,
                     'pl-4': item.level === 1,
                     'pl-8': item.level === 2,
-                    'pl-10': item.level === 3,
+                    'pl-12': item.level === 3,
+                    'pl-16': item.level === 4,
+                    'pl-20': item.level === 5,
                     'pointer-events-none opacity-0': !item.hasChildren,
                 }"
                 @click.stop="toggle(item.path)"

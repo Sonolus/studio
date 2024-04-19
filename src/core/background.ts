@@ -4,10 +4,10 @@ import {
     BackgroundItem,
     ItemDetails,
     ItemList,
-} from 'sonolus-core'
+} from '@sonolus/core'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { load } from './storage'
-import { packJson, packRaw, srl, unpackJson } from './utils'
+import { emptySrl, packJson, packRaw, unpackJson } from './utils'
 
 export type Background = {
     title: string
@@ -61,10 +61,11 @@ function packBackground(
         title: background.title,
         subtitle: background.subtitle,
         author: background.author,
-        thumbnail: srl('BackgroundThumbnail'),
-        image: srl('BackgroundImage'),
-        data: srl('BackgroundData'),
-        configuration: srl('BackgroundConfiguration'),
+        tags: [],
+        thumbnail: emptySrl(),
+        image: emptySrl(),
+        data: emptySrl(),
+        configuration: emptySrl(),
     }
     backgrounds.push(item)
 
@@ -73,7 +74,7 @@ function packBackground(
         async execute() {
             const { hash, data } = await packRaw(background.thumbnail)
 
-            const path = `/sonolus/repository/BackgroundThumbnail/${hash}`
+            const path = `/sonolus/repository/${hash}`
             item.thumbnail.hash = hash
             item.thumbnail.url = path
             addRaw(path, data)
@@ -85,7 +86,7 @@ function packBackground(
         async execute() {
             const { hash, data } = await packRaw(background.image)
 
-            const path = `/sonolus/repository/BackgroundImage/${hash}`
+            const path = `/sonolus/repository/${hash}`
             item.image.hash = hash
             item.image.url = path
             addRaw(path, data)
@@ -97,7 +98,7 @@ function packBackground(
         async execute() {
             const { hash, data } = await packJson(background.data)
 
-            const path = `/sonolus/repository/BackgroundData/${hash}`
+            const path = `/sonolus/repository/${hash}`
             item.data.hash = hash
             item.data.url = path
             addRaw(path, data)
@@ -109,7 +110,7 @@ function packBackground(
         async execute() {
             const { hash, data } = await packJson(background.configuration)
 
-            const path = `/sonolus/repository/BackgroundConfiguration/${hash}`
+            const path = `/sonolus/repository/${hash}`
             item.configuration.hash = hash
             item.configuration.url = path
             addRaw(path, data)
@@ -122,7 +123,7 @@ function packBackground(
             addJson<ItemDetails<BackgroundItem>>(`/sonolus/backgrounds/${name}`, {
                 item,
                 description: background.description,
-                recommended: [],
+                sections: [],
             })
         },
     })

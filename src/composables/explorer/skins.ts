@@ -1,4 +1,4 @@
-import { SkinSpriteName } from 'sonolus-core'
+import { SkinSpriteName } from '@sonolus/core'
 import { markRaw } from 'vue'
 import { ExplorerItem, isOpened, onClone, onDelete, onDeleteAll, onNew, onRename } from '.'
 import ModalName from '../../components/modals/ModalName.vue'
@@ -6,6 +6,7 @@ import { formatSkinSpriteName, newSkin, newSkinSprite } from '../../core/skin'
 import { clone } from '../../core/utils'
 import IconClone from '../../icons/clone-solid.svg?component'
 import IconDot from '../../icons/dot-circle-regular.svg?component'
+import IconEdit from '../../icons/edit-solid.svg?component'
 import IconFileImage from '../../icons/file-image-solid.svg?component'
 import IconFolder from '../../icons/folder-solid.svg?component'
 import IconPlus from '../../icons/plus-solid.svg?component'
@@ -139,7 +140,7 @@ async function onRenameSkinSprite(
     if (!sprite) throw 'Skin Sprite not found'
 
     const newName = await show(ModalName, {
-        icon: markRaw(IconPlus),
+        icon: markRaw(IconEdit),
         title: 'Rename Skin Sprite',
         names: SkinSpriteName,
         defaultValue: spriteName,

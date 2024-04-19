@@ -1,14 +1,14 @@
-import JSZip from 'jszip'
 import {
     BackgroundItem,
     EffectItem,
-    EngineItem,
+    ItemInfo,
     ItemList,
-    LevelItem,
+    PackageInfo,
     ParticleItem,
     ServerInfo,
     SkinItem,
-} from 'sonolus-core'
+} from '@sonolus/core'
+import JSZip from 'jszip'
 import {
     Background,
     addBackgroundToWhitelist,
@@ -16,6 +16,7 @@ import {
     unpackBackgrounds,
 } from './background'
 import { Effect, addEffectToWhitelist, packEffects, unpackEffects } from './effect'
+import { Particle, addParticleToWhitelist, packParticles, unpackParticles } from './particle'
 import { Skin, addSkinToWhitelist, packSkins, unpackSkins } from './skin'
 
 export type Project = {
@@ -23,6 +24,7 @@ export type Project = {
     skins: Map<string, Skin>
     backgrounds: Map<string, Background>
     effects: Map<string, Effect>
+    particles: Map<string, Particle>
 }
 
 export type ProjectItemTypeOf<T> = {
@@ -35,6 +37,7 @@ export function newProject(): Project {
         skins: new Map(),
         backgrounds: new Map(),
         effects: new Map(),
+        particles: new Map(),
     }
 }
 
@@ -42,12 +45,14 @@ export function addProjectToWhitelist(project: Project, whitelist: Set<string>) 
     project.skins.forEach((skin) => addSkinToWhitelist(skin, whitelist))
     project.backgrounds.forEach((background) => addBackgroundToWhitelist(background, whitelist))
     project.effects.forEach((effect) => addEffectToWhitelist(effect, whitelist))
+    project.particles.forEach((particle) => addParticleToWhitelist(particle, whitelist))
 }
 
 export type PackProcess = {
     skins: SkinItem[]
     backgrounds: BackgroundItem[]
     effects: EffectItem[]
+    particles: ParticleItem[]
 
     tasks: {
         description: string
@@ -69,6 +74,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
         skins: [],
         backgrounds: [],
         effects: [],
+        particles: [],
 
         tasks: [],
 
@@ -92,110 +98,58 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
     packSkins(process, project)
     packBackgrounds(process, project)
     packEffects(process, project)
+    packParticles(process, project)
 
     process.tasks.push({
         description: 'Generating server information...',
         async execute() {
             process.addJson<ServerInfo>('/sonolus/info', {
                 title: 'Sonolus Studio',
-                banner: {
-                    type: 'ServerBanner',
-                    hash: '',
-                    url: '',
-                },
-                levels: {
-                    items: [],
-                    search: { options: [] },
-                },
-                skins: {
-                    items: process.skins.slice(0, 5),
-                    search: { options: [] },
-                },
-                backgrounds: {
-                    items: process.backgrounds.slice(0, 5),
-                    search: { options: [] },
-                },
-                effects: {
-                    items: process.effects.slice(0, 5),
-                    search: { options: [] },
-                },
-                particles: {
-                    items: [],
-                    search: { options: [] },
-                },
-                engines: {
-                    items: [],
-                    search: { options: [] },
-                },
+                hasAuthentication: false,
+                hasMultiplayer: false,
             })
         },
     })
 
     process.tasks.push({
-        description: 'Generating level list...',
+        description: 'Generating package information...',
         async execute() {
-            process.addJson<ItemList<LevelItem>>('/sonolus/levels/list', {
-                pageCount: 1,
-                items: [],
-                search: { options: [] },
+            process.addJson<PackageInfo>('/sonolus/package', {
+                shouldUpdate: false,
             })
         },
     })
 
-    process.tasks.push({
-        description: 'Generating skin list...',
-        async execute() {
-            process.addJson<ItemList<SkinItem>>('/sonolus/skins/list', {
-                pageCount: 1,
-                items: process.skins,
-                search: { options: [] },
-            })
-        },
-    })
+    for (const [name, path] of [
+        ['post', 'posts'],
+        ['playlist', 'playlists'],
+        ['level', 'levels'],
+        ['replay', 'replays'],
+        ['skin', 'skins'],
+        ['background', 'backgrounds'],
+        ['effect', 'effects'],
+        ['particle', 'particles'],
+        ['engine', 'engines'],
+    ]) {
+        process.tasks.push({
+            description: `Generating ${name} info...`,
+            async execute() {
+                process.addJson<ItemInfo<unknown>>(`/sonolus/${path}/info`, {
+                    sections: [],
+                })
+            },
+        })
 
-    process.tasks.push({
-        description: 'Generating background list...',
-        async execute() {
-            process.addJson<ItemList<BackgroundItem>>('/sonolus/backgrounds/list', {
-                pageCount: 1,
-                items: process.backgrounds,
-                search: { options: [] },
-            })
-        },
-    })
-
-    process.tasks.push({
-        description: 'Generating effect list...',
-        async execute() {
-            process.addJson<ItemList<EffectItem>>('/sonolus/effects/list', {
-                pageCount: 1,
-                items: process.effects,
-                search: { options: [] },
-            })
-        },
-    })
-
-    process.tasks.push({
-        description: 'Generating particle list...',
-        async execute() {
-            process.addJson<ItemList<ParticleItem>>('/sonolus/particles/list', {
-                pageCount: 1,
-                items: [],
-                search: { options: [] },
-            })
-        },
-    })
-
-    process.tasks.push({
-        description: 'Generating engine list...',
-        async execute() {
-            process.addJson<ItemList<EngineItem>>('/sonolus/engines/list', {
-                pageCount: 1,
-                items: [],
-                search: { options: [] },
-            })
-        },
-    })
+        process.tasks.push({
+            description: `Generating ${name} list...`,
+            async execute() {
+                process.addJson<ItemList<unknown>>(`/sonolus/${path}/list`, {
+                    pageCount: 1,
+                    items: process[path as never] ?? [],
+                })
+            },
+        })
+    }
 
     return process
 
@@ -262,6 +216,7 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
     unpackSkins(process)
     unpackBackgrounds(process)
     unpackEffects(process)
+    unpackParticles(process)
 
     return process
 

@@ -9,6 +9,7 @@ import { show } from '../modal'
 import { UseStateReturn, push, useState } from '../state'
 import { addBackgroundItems } from './backgrounds'
 import { addEffectItems } from './effects'
+import { addParticleItems } from './particles'
 import { addSkinItems } from './skins'
 
 export type ExplorerItem = {
@@ -37,6 +38,7 @@ export function useExplorer() {
         addSkinItems(state, items)
         addBackgroundItems(state, items)
         addEffectItems(state, items)
+        addParticleItems(state, items)
 
         return items
     })
