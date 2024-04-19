@@ -13,6 +13,7 @@ import {
 } from '../../core/particle'
 import { clone } from '../../core/utils'
 import IconClone from '../../icons/clone-solid.svg?component'
+import IconEdit from '../../icons/edit-solid.svg?component'
 import IconFileImage from '../../icons/file-image-solid.svg?component'
 import IconFolder from '../../icons/folder-solid.svg?component'
 import IconParticle from '../../icons/particle.svg?component'
@@ -456,7 +457,7 @@ async function onRenameParticleEffect(
     if (!effect) throw 'Particle Effect not found'
 
     const newName = await show(ModalName, {
-        icon: markRaw(IconPlus),
+        icon: markRaw(IconEdit),
         title: 'Rename Particle Effect',
         names: ParticleEffectName,
         defaultValue: effectName,
