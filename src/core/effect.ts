@@ -146,6 +146,7 @@ function packEffect(
             addJson<ItemDetails<EffectItem>>(`/sonolus/effects/${name}`, {
                 item,
                 description: effect.description,
+                hasCommunity: false,
                 sections: [],
             })
         },

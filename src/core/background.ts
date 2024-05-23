@@ -123,6 +123,7 @@ function packBackground(
             addJson<ItemDetails<BackgroundItem>>(`/sonolus/backgrounds/${name}`, {
                 item,
                 description: background.description,
+                hasCommunity: false,
                 sections: [],
             })
         },

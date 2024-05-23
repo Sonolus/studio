@@ -291,6 +291,7 @@ function packParticle(
             addJson<ItemDetails<ParticleItem>>(`/sonolus/particles/${name}`, {
                 item,
                 description: particle.description,
+                hasCommunity: false,
                 sections: [],
             })
         },
