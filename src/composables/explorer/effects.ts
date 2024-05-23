@@ -19,8 +19,8 @@ export function addEffectItems(state: UseStateReturn, items: ExplorerItem[]) {
         path: ['effects'],
         hasChildren: true,
         icon: IconDrum,
-        title: `Effects (${state.project.value.effects.size})`,
-        onNew: () => onNew(state, 'effects', 'New Effect', 'Enter effect name...', newEffect()),
+        title: `SFX (${state.project.value.effects.size})`,
+        onNew: () => onNew(state, 'effects', 'New SFX', 'Enter SFX name...', newEffect()),
         onDelete: () => onDeleteAll(state, 'effects'),
     })
 
@@ -32,10 +32,8 @@ export function addEffectItems(state: UseStateReturn, items: ExplorerItem[]) {
             hasChildren: true,
             icon: effect.thumbnail,
             title: name,
-            onRename: () =>
-                onRename(state, 'effects', 'Rename Effect', 'Enter new effect name...', name),
-            onClone: () =>
-                onClone(state, 'effects', 'Clone Effect', 'Enter new effect name...', name),
+            onRename: () => onRename(state, 'effects', 'Rename SFX', 'Enter new SFX name...', name),
+            onClone: () => onClone(state, 'effects', 'Clone SFX', 'Enter new SFX name...', name),
             onDelete: () => onDelete(state, 'effects', name),
         })
 
@@ -68,11 +66,11 @@ export function addEffectItems(state: UseStateReturn, items: ExplorerItem[]) {
 
 async function onNewEffectClip({ project, isExplorerOpened }: UseStateReturn, name: string) {
     const effect = project.value.effects.get(name)
-    if (!effect) throw 'Effect not found'
+    if (!effect) throw 'SFX not found'
 
     const newName = await show(ModalName, {
         icon: markRaw(IconPlus),
-        title: 'New Effect Clip',
+        title: 'New SFX Clip',
         names: EffectClipName,
         defaultValue: EffectClipName.Miss,
         validator: (value) => !!value && !effect.data.clips.some(({ name }) => name === value),
@@ -96,7 +94,7 @@ async function onNewEffectClip({ project, isExplorerOpened }: UseStateReturn, na
 
 async function onDeleteEffectClips({ project }: UseStateReturn, name: string) {
     const effect = project.value.effects.get(name)
-    if (!effect) throw 'Effect not found'
+    if (!effect) throw 'SFX not found'
     if (!effect.data.clips.length) return
 
     const newEffect = clone(effect)
@@ -114,7 +112,7 @@ async function onDeleteEffectClips({ project }: UseStateReturn, name: string) {
 
 async function onDeleteEffectClip({ project }: UseStateReturn, name: string, clipName: string) {
     const effect = project.value.effects.get(name)
-    if (!effect) throw 'Effect not found'
+    if (!effect) throw 'SFX not found'
 
     const newEffect = clone(effect)
     newEffect.data.clips = newEffect.data.clips.filter(({ name }) => name !== clipName)
@@ -135,14 +133,14 @@ async function onRenameEffectClip(
     spriteName: string,
 ) {
     const effect = project.value.effects.get(name)
-    if (!effect) throw 'Effect not found'
+    if (!effect) throw 'SFX not found'
 
     const clip = effect.data.clips.find(({ name }) => name === spriteName)
-    if (!clip) throw 'Effect clip not found'
+    if (!clip) throw 'SFX clip not found'
 
     const newName = await show(ModalName, {
         icon: markRaw(IconEdit),
-        title: 'Rename Effect Clip',
+        title: 'Rename SFX Clip',
         names: EffectClipName,
         defaultValue: spriteName,
         validator: (value) => !!value && !effect.data.clips.some(({ name }) => name === value),
@@ -179,14 +177,14 @@ async function onCloneEffectClip(
     spriteName: string,
 ) {
     const effect = project.value.effects.get(name)
-    if (!effect) throw 'Effect not found'
+    if (!effect) throw 'SFX not found'
 
     const clip = effect.data.clips.find(({ name }) => name === spriteName)
-    if (!clip) throw 'Effect clip not found'
+    if (!clip) throw 'SFX clip not found'
 
     const newName = await show(ModalName, {
         icon: markRaw(IconClone),
-        title: 'Clone Effect Clip',
+        title: 'Clone SFX Clip',
         names: EffectClipName,
         defaultValue: spriteName,
         validator: (value) => !!value && !effect.data.clips.some(({ name }) => name === value),
