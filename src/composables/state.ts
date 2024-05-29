@@ -21,6 +21,12 @@ watchEffect(() => {
     purge(whitelist)
 })
 
+addEventListener('beforeunload', (event) => {
+    if (state.history.length <= 1) return
+
+    event.preventDefault()
+})
+
 export function useState() {
     const project = computed(() => state.history[state.index])
     const canUndo = computed(() => state.index > 0)
