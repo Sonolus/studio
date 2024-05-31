@@ -194,6 +194,7 @@ function packSkin(
             addJson<ItemDetails<SkinItem>>(`/sonolus/skins/${name}`, {
                 item,
                 description: skin.description,
+                hasCommunity: false,
                 sections: [],
             })
         },

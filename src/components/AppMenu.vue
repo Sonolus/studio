@@ -134,7 +134,7 @@ async function onImportProject() {
         const effects = await merge(
             project.value.effects,
             selectedProject.effects,
-            (name) => `Effect "${name}" already exists. Overwrite?`,
+            (name) => `SFX "${name}" already exists. Overwrite?`,
         )
         const particles = await merge(
             project.value.particles,
