@@ -195,6 +195,7 @@ function packSkin(
                 item,
                 description: skin.description,
                 hasCommunity: false,
+                leaderboards: [],
                 sections: [],
             })
         },
