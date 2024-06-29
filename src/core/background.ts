@@ -124,6 +124,7 @@ function packBackground(
                 item,
                 description: background.description,
                 hasCommunity: false,
+                leaderboards: [],
                 sections: [],
             })
         },
