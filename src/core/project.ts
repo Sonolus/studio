@@ -105,8 +105,12 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
         async execute() {
             process.addJson<ServerInfo>('/sonolus/info', {
                 title: 'Sonolus Studio',
-                hasAuthentication: false,
-                hasMultiplayer: false,
+                buttons: [
+                    { type: 'skin' },
+                    { type: 'background' },
+                    { type: 'effect' },
+                    { type: 'particle' },
+                ],
             })
         },
     })

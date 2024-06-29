@@ -147,6 +147,7 @@ function packEffect(
                 item,
                 description: effect.description,
                 hasCommunity: false,
+                leaderboards: [],
                 sections: [],
             })
         },
