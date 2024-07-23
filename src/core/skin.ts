@@ -1,4 +1,10 @@
-import { ItemDetails, ItemList, SkinData, SkinItem, SkinSpriteName } from '@sonolus/core'
+import {
+    ServerItemDetails,
+    ServerItemList,
+    SkinData,
+    SkinItem,
+    SkinSpriteName,
+} from '@sonolus/core'
 import { formatNameKey } from './names'
 import { PackProcess, Project, UnpackProcess } from './project'
 import { bakeSprite, tryCalculateLayout } from './sprite-sheet'
@@ -191,9 +197,10 @@ function packSkin(
     tasks.push({
         description: `Generating skin "${name}" details...`,
         async execute() {
-            addJson<ItemDetails<SkinItem>>(`/sonolus/skins/${name}`, {
+            addJson<ServerItemDetails<SkinItem>>(`/sonolus/skins/${name}`, {
                 item,
                 description: skin.description,
+                actions: [],
                 hasCommunity: false,
                 leaderboards: [],
                 sections: [],
@@ -208,7 +215,7 @@ export function unpackSkins(process: UnpackProcess) {
     tasks.push({
         description: 'Loading skin list...',
         async execute() {
-            const list = await getJsonOptional<ItemList<SkinItem>>('/sonolus/skins/list')
+            const list = await getJsonOptional<ServerItemList<SkinItem>>('/sonolus/skins/list')
             if (!list) return
 
             list.items.forEach(({ name }) => unpackSkin(process, name))
@@ -220,13 +227,13 @@ function unpackSkin({ project, tasks, canvas, getRaw, getJson }: UnpackProcess, 
     tasks.push({
         description: `Loading skin "${name}" details...`,
         async execute() {
-            const details = await getJson<ItemDetails<SkinItem>>(`/sonolus/skins/${name}`)
+            const details = await getJson<ServerItemDetails<SkinItem>>(`/sonolus/skins/${name}`)
 
             const item = newSkin()
             item.title = details.item.title
             item.subtitle = details.item.subtitle
             item.author = details.item.author
-            item.description = details.description
+            item.description = details.description || ''
 
             let img: HTMLImageElement
 

@@ -1,4 +1,10 @@
-import { EffectClipName, EffectData, EffectItem, ItemDetails, ItemList } from '@sonolus/core'
+import {
+    EffectClipName,
+    EffectData,
+    EffectItem,
+    ServerItemDetails,
+    ServerItemList,
+} from '@sonolus/core'
 import JSZip from 'jszip'
 import { formatNameKey } from './names'
 import { PackProcess, Project, UnpackProcess } from './project'
@@ -143,9 +149,10 @@ function packEffect(
     tasks.push({
         description: `Generating SFX "${name}" details...`,
         async execute() {
-            addJson<ItemDetails<EffectItem>>(`/sonolus/effects/${name}`, {
+            addJson<ServerItemDetails<EffectItem>>(`/sonolus/effects/${name}`, {
                 item,
                 description: effect.description,
+                actions: [],
                 hasCommunity: false,
                 leaderboards: [],
                 sections: [],
@@ -160,7 +167,7 @@ export function unpackEffects(process: UnpackProcess) {
     tasks.push({
         description: 'Loading SFX list...',
         async execute() {
-            const list = await getJsonOptional<ItemList<EffectItem>>('/sonolus/effects/list')
+            const list = await getJsonOptional<ServerItemList<EffectItem>>('/sonolus/effects/list')
             if (!list) return
 
             list.items.forEach(({ name }) => unpackEffect(process, name))
@@ -172,13 +179,13 @@ function unpackEffect({ project, tasks, getRaw, getJson }: UnpackProcess, name: 
     tasks.push({
         description: `Loading SFX "${name}" details...`,
         async execute() {
-            const details = await getJson<ItemDetails<EffectItem>>(`/sonolus/effects/${name}`)
+            const details = await getJson<ServerItemDetails<EffectItem>>(`/sonolus/effects/${name}`)
 
             const item = newEffect()
             item.title = details.item.title
             item.subtitle = details.item.subtitle
             item.author = details.item.author
-            item.description = details.description
+            item.description = details.description || ''
 
             let effectAudio: JSZip
 
