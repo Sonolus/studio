@@ -1,11 +1,11 @@
 import {
     BackgroundItem,
     EffectItem,
-    ItemInfo,
-    ItemList,
     PackageInfo,
     ParticleItem,
     ServerInfo,
+    ServerItemInfo,
+    ServerItemList,
     SkinItem,
 } from '@sonolus/core'
 import JSZip from 'jszip'
@@ -111,6 +111,9 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
                     { type: 'effect' },
                     { type: 'particle' },
                 ],
+                configuration: {
+                    options: [],
+                },
             })
         },
     })
@@ -138,7 +141,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
         process.tasks.push({
             description: `Generating ${name} info...`,
             async execute() {
-                process.addJson<ItemInfo<unknown>>(`/sonolus/${path}/info`, {
+                process.addJson<ServerItemInfo>(`/sonolus/${path}/info`, {
                     sections: [],
                 })
             },
@@ -147,7 +150,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
         process.tasks.push({
             description: `Generating ${name} list...`,
             async execute() {
-                process.addJson<ItemList<unknown>>(`/sonolus/${path}/list`, {
+                process.addJson<ServerItemList<unknown>>(`/sonolus/${path}/list`, {
                     pageCount: 1,
                     items: process[path as never] ?? [],
                 })
@@ -175,9 +178,9 @@ export type UnpackProcess = {
 
     canvas: HTMLCanvasElement
 
-    getRaw: (path: string) => Promise<Blob>
-    getJson: <T>(path: string) => Promise<T>
-    getJsonOptional: <T>(path: string) => Promise<T | undefined>
+    getRaw: (path: string | null | undefined) => Promise<Blob>
+    getJson: <T>(path: string | null | undefined) => Promise<T>
+    getJsonOptional: <T>(path: string | null | undefined) => Promise<T | undefined>
 
     finish: () => Promise<void>
 }
@@ -192,13 +195,13 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
 
         canvas,
 
-        async getRaw(path: string) {
+        async getRaw(path: string | null | undefined) {
             return await get(path).async('blob')
         },
-        async getJson(path: string) {
+        async getJson(path: string | null | undefined) {
             return JSON.parse(await get(path).async('string'))
         },
-        async getJsonOptional(path: string) {
+        async getJsonOptional(path: string | null | undefined) {
             const file = getOptional(path)
             if (!file) return
 
@@ -228,13 +231,13 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
 
     return process
 
-    function getOptional(path: string) {
-        if (!path.startsWith('/')) throw `"${path}" not allowed`
+    function getOptional(path: string | null | undefined) {
+        if (!path?.startsWith('/')) throw `"${path}" not allowed`
 
         return zip.file(path.slice(1))
     }
 
-    function get(path: string) {
+    function get(path: string | null | undefined) {
         const file = getOptional(path)
         if (!file) throw `"${path}" not found`
 

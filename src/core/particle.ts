@@ -1,9 +1,9 @@
 import {
-    ItemDetails,
-    ItemList,
     ParticleData,
     ParticleEffectName,
     ParticleItem,
+    ServerItemDetails,
+    ServerItemList,
 } from '@sonolus/core'
 import { Ease } from './ease'
 import { newId } from './id'
@@ -288,9 +288,10 @@ function packParticle(
     tasks.push({
         description: `Generating particle "${name}" details...`,
         async execute() {
-            addJson<ItemDetails<ParticleItem>>(`/sonolus/particles/${name}`, {
+            addJson<ServerItemDetails<ParticleItem>>(`/sonolus/particles/${name}`, {
                 item,
                 description: particle.description,
+                actions: [],
                 hasCommunity: false,
                 leaderboards: [],
                 sections: [],
@@ -305,7 +306,9 @@ export function unpackParticles(process: UnpackProcess) {
     tasks.push({
         description: 'Loading particle list...',
         async execute() {
-            const list = await getJsonOptional<ItemList<ParticleItem>>('/sonolus/particles/list')
+            const list = await getJsonOptional<ServerItemList<ParticleItem>>(
+                '/sonolus/particles/list',
+            )
             if (!list) return
 
             list.items.forEach(({ name }) => unpackParticle(process, name))
@@ -317,13 +320,15 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
     tasks.push({
         description: `Loading particle "${name}" details...`,
         async execute() {
-            const details = await getJson<ItemDetails<ParticleItem>>(`/sonolus/particles/${name}`)
+            const details = await getJson<ServerItemDetails<ParticleItem>>(
+                `/sonolus/particles/${name}`,
+            )
 
             const item = newParticle()
             item.title = details.item.title
             item.subtitle = details.item.subtitle
             item.author = details.item.author
-            item.description = details.description
+            item.description = details.description || ''
 
             let img: HTMLImageElement
 
