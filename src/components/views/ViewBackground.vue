@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { useView } from '../../composables/view'
 import { Background } from '../../core/background'
 import { getImageInfo } from '../../core/utils'
@@ -12,6 +12,7 @@ import MySection from '../ui/MySection.vue'
 import MyTextArea from '../ui/MyTextArea.vue'
 import MyTextInput from '../ui/MyTextInput.vue'
 import MyTextSelect from '../ui/MyTextSelect.vue'
+import MyToggle from '../ui/MyToggle.vue'
 import PreviewBackground from './previews/PreviewBackground.vue'
 
 const props = defineProps<{
@@ -28,6 +29,11 @@ watchEffect(async () => {
     } catch (error) {
         imageAspectRatio.value = undefined
     }
+})
+
+const useNaturalAspectRatio = computed({
+    get: () => v.value.data.aspectRatio === undefined,
+    set: (value) => (v.value.data.aspectRatio = value ? undefined : imageAspectRatio.value),
 })
 </script>
 
@@ -64,7 +70,10 @@ watchEffect(async () => {
     </MySection>
 
     <MySection header="Data">
-        <MyField title="Aspect Ratio">
+        <MyField title="Use Natural Aspect Ratio">
+            <MyToggle v-model="useNaturalAspectRatio" :default-value="true" />
+        </MyField>
+        <MyField v-if="v.data.aspectRatio !== undefined" title="Aspect Ratio">
             <MyNumberInput
                 v-model="v.data.aspectRatio"
                 :default-value="imageAspectRatio"
