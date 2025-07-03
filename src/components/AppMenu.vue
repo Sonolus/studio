@@ -144,6 +144,9 @@ async function onImportProject() {
 
         push({
             view: project.value.view,
+            title: project.value.title,
+            description: project.value.description,
+            banner: project.value.banner,
             skins,
             backgrounds,
             effects,
