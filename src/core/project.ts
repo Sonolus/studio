@@ -7,6 +7,7 @@ import {
     ServerItemInfo,
     ServerItemList,
     SkinItem,
+    Srl,
 } from '@sonolus/core'
 import JSZip from 'jszip'
 import {
@@ -18,9 +19,14 @@ import {
 import { Effect, addEffectToWhitelist, packEffects, unpackEffects } from './effect'
 import { Particle, addParticleToWhitelist, packParticles, unpackParticles } from './particle'
 import { Skin, addSkinToWhitelist, packSkins, unpackSkins } from './skin'
+import { load } from './storage'
+import { packRaw } from './utils'
 
 export type Project = {
     view: string[]
+    title: string
+    description: string
+    banner: string
     skins: Map<string, Skin>
     backgrounds: Map<string, Background>
     effects: Map<string, Effect>
@@ -34,6 +40,9 @@ export type ProjectItemTypeOf<T> = {
 export function newProject(): Project {
     return {
         view: [],
+        title: 'Sonolus Studio',
+        description: '',
+        banner: '',
         skins: new Map(),
         backgrounds: new Map(),
         effects: new Map(),
@@ -42,6 +51,7 @@ export function newProject(): Project {
 }
 
 export function addProjectToWhitelist(project: Project, whitelist: Set<string>) {
+    whitelist.add(project.banner)
     project.skins.forEach((skin) => addSkinToWhitelist(skin, whitelist))
     project.backgrounds.forEach((background) => addBackgroundToWhitelist(background, whitelist))
     project.effects.forEach((effect) => addEffectToWhitelist(effect, whitelist))
@@ -101,10 +111,33 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
     packParticles(process, project)
 
     process.tasks.push({
+        description: 'Generating package information...',
+        async execute() {
+            process.addJson<PackageInfo>('/sonolus/package', {
+                shouldUpdate: false,
+            })
+        },
+    })
+
+    process.tasks.push({
         description: 'Generating server information...',
         async execute() {
+            let banner: Srl | undefined
+
+            if (project.banner) {
+                const { hash, data } = await packRaw(project.banner)
+
+                const path = `/sonolus/repository/${hash}`
+                banner = {
+                    hash,
+                    url: path,
+                }
+                process.addRaw(path, data)
+            }
+
             process.addJson<ServerInfo>('/sonolus/info', {
-                title: 'Sonolus Studio',
+                title: project.title,
+                description: project.description,
                 buttons: [
                     { type: 'skin' },
                     { type: 'background' },
@@ -114,15 +147,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
                 configuration: {
                     options: [],
                 },
-            })
-        },
-    })
-
-    process.tasks.push({
-        description: 'Generating package information...',
-        async execute() {
-            process.addJson<PackageInfo>('/sonolus/package', {
-                shouldUpdate: false,
+                banner,
             })
         },
     })
@@ -214,13 +239,27 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
     }
 
     process.tasks.push({
-        description: 'Loading package...',
+        description: 'Loading package information...',
         async execute() {
             zip = await JSZip.loadAsync(file)
 
             const packageInfo = await process.getJson<PackageInfo>(`/sonolus/package`)
             if (packageInfo.shouldUpdate)
                 throw 'Package not supported. If the package is exported from Sonolus, please export again using Full mode.'
+        },
+    })
+
+    process.tasks.push({
+        description: 'Loading server information...',
+        async execute() {
+            const serverInfo = await process.getJson<ServerInfo>(`/sonolus/info`)
+
+            process.project.title = serverInfo.title
+            process.project.description = serverInfo.description ?? ''
+
+            if (serverInfo.banner?.url) {
+                process.project.banner = load(await process.getRaw(serverInfo.banner.url))
+            }
         },
     })
 

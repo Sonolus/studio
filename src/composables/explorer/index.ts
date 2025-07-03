@@ -2,6 +2,7 @@ import { Component, computed, markRaw, reactive } from 'vue'
 import ModalTextInput from '../../components/modals/ModalTextInput.vue'
 import { ProjectItemTypeOf } from '../../core/project'
 import { clone } from '../../core/utils'
+import IconScp from '../../icons/box-solid.svg?component'
 import IconClone from '../../icons/clone-solid.svg?component'
 import IconEdit from '../../icons/edit-solid.svg?component'
 import IconPlus from '../../icons/plus-solid.svg?component'
@@ -24,7 +25,7 @@ export type ExplorerItem = {
     onNew?: () => void
     onRename?: () => void
     onClone?: () => void
-    onDelete: () => void
+    onDelete?: () => void
 }
 
 const openedPaths = reactive(new Map<string, true>())
@@ -33,7 +34,15 @@ export function useExplorer() {
     const state = useState()
 
     const tree = computed(() => {
-        const items: ExplorerItem[] = []
+        const items: ExplorerItem[] = [
+            {
+                level: 0,
+                path: ['info'],
+                hasChildren: false,
+                icon: IconScp,
+                title: 'Info',
+            },
+        ]
 
         addSkinItems(state, items)
         addBackgroundItems(state, items)

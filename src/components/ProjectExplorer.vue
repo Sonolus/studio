@@ -108,6 +108,7 @@ function onClick(item: ExplorerItem) {
                 <IconEdit class="icon" />
             </button>
             <button
+                v-if="item.onDelete"
                 class="h-full flex-none px-2 transition-opacity duration-200 group-hover:opacity-100 sm:opacity-0"
                 @click.stop="item.onDelete()"
             >

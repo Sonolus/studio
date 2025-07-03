@@ -15,6 +15,7 @@ import ViewBackground from './views/ViewBackground.vue'
 import ViewDefault from './views/ViewDefault.vue'
 import ViewEffect from './views/ViewEffect.vue'
 import ViewEffectClip from './views/ViewEffectClip.vue'
+import ViewInfo from './views/ViewInfo.vue'
 import ViewParticle from './views/ViewParticle.vue'
 import ViewParticleEffect from './views/ViewParticleEffect.vue'
 import ViewParticleEffectGroup from './views/ViewParticleEffectGroup.vue'
@@ -55,6 +56,9 @@ function onClick(item: ExplorerItem) {
 <script lang="ts">
 export function resolveViewInfo(project: Project, view: string[]) {
     switch (view[0]) {
+        case 'info': {
+            return { component: markRaw(ViewInfo) }
+        }
         case 'skins': {
             const data = project[view[0]].get(view[1])
             if (!data) return
