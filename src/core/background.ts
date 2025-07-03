@@ -29,8 +29,7 @@ export function newBackground(): Background {
         thumbnail: '',
         image: '',
         data: {
-            aspectRatio: 1,
-            fit: 'height',
+            fit: 'cover',
             color: '#000',
         },
         configuration: {

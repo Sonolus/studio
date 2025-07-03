@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useElementBounding, useLocalStorage } from '@vueuse/core'
-import { computed, ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { Background } from '../../../core/background'
+import { getImageInfo } from '../../../core/utils'
 import MyField from '../../ui/MyField.vue'
 import MyTextSelect from '../../ui/MyTextSelect.vue'
 
@@ -20,9 +21,24 @@ const aspectRatioValue = computed(
         })[aspectRatio.value] || 16 / 9,
 )
 
+const imageAspectRatio = ref<number>()
+watchEffect(async () => {
+    try {
+        const { width, height } = await getImageInfo(props.background.image)
+        imageAspectRatio.value = width / height || undefined
+    } catch (error) {
+        imageAspectRatio.value = undefined
+    }
+})
+
+const backgroundAspectRatio = computed(
+    () => props.background.data.aspectRatio ?? imageAspectRatio.value ?? 1,
+)
+
 const width = computed(() => {
-    const inverse = props.background.data.aspectRatio / aspectRatioValue.value
-    const isLarger = props.background.data.aspectRatio >= aspectRatioValue.value
+    console.log(aspectRatio)
+    const inverse = backgroundAspectRatio.value / aspectRatioValue.value
+    const isLarger = backgroundAspectRatio.value >= aspectRatioValue.value
     switch (props.background.data.fit) {
         case 'width':
             return 1
@@ -72,7 +88,7 @@ const blurRadius = computed(() => height.value * props.background.configuration.
                 <div
                     class="relative top-1/2 h-0 -translate-y-1/2 overflow-hidden"
                     :style="{
-                        paddingTop: `calc(100% / ${background.data.aspectRatio})`,
+                        paddingTop: `calc(100% / ${backgroundAspectRatio})`,
                     }"
                 >
                     <img
