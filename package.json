@@ -1,6 +1,6 @@
 {
   "name": "sonolus-studio",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "private": true,
   "scripts": {
     "dev": "vite --host",
