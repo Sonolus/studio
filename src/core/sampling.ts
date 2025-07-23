@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 type RGBA = [number, number, number, number]
 
 export function sample(
@@ -19,7 +21,7 @@ function sampleNearest(
     y: number,
 ): RGBA {
     const index = (Math.floor(y * h) * w + Math.floor(x * w)) * 4
-    return [buffer[index + 0], buffer[index + 1], buffer[index + 2], buffer[index + 3]]
+    return [buffer[index + 0]!, buffer[index + 1]!, buffer[index + 2]!, buffer[index + 3]!]
 }
 
 function sampleBilinear(
@@ -50,24 +52,24 @@ function sampleBilinear(
     const i11 = (v1 * w + u1) * 4
 
     return [
-        buffer[i00 + 0] * mu0 * mv0 +
-            buffer[i10 + 0] * mu1 * mv0 +
-            buffer[i01 + 0] * mu0 * mv1 +
-            buffer[i11 + 0] * mu1 * mv1,
+        buffer[i00 + 0]! * mu0 * mv0 +
+            buffer[i10 + 0]! * mu1 * mv0 +
+            buffer[i01 + 0]! * mu0 * mv1 +
+            buffer[i11 + 0]! * mu1 * mv1,
 
-        buffer[i00 + 1] * mu0 * mv0 +
-            buffer[i10 + 1] * mu1 * mv0 +
-            buffer[i01 + 1] * mu0 * mv1 +
-            buffer[i11 + 1] * mu1 * mv1,
+        buffer[i00 + 1]! * mu0 * mv0 +
+            buffer[i10 + 1]! * mu1 * mv0 +
+            buffer[i01 + 1]! * mu0 * mv1 +
+            buffer[i11 + 1]! * mu1 * mv1,
 
-        buffer[i00 + 2] * mu0 * mv0 +
-            buffer[i10 + 2] * mu1 * mv0 +
-            buffer[i01 + 2] * mu0 * mv1 +
-            buffer[i11 + 2] * mu1 * mv1,
+        buffer[i00 + 2]! * mu0 * mv0 +
+            buffer[i10 + 2]! * mu1 * mv0 +
+            buffer[i01 + 2]! * mu0 * mv1 +
+            buffer[i11 + 2]! * mu1 * mv1,
 
-        buffer[i00 + 3] * mu0 * mv0 +
-            buffer[i10 + 3] * mu1 * mv0 +
-            buffer[i01 + 3] * mu0 * mv1 +
-            buffer[i11 + 3] * mu1 * mv1,
+        buffer[i00 + 3]! * mu0 * mv0 +
+            buffer[i10 + 3]! * mu1 * mv0 +
+            buffer[i01 + 3]! * mu0 * mv1 +
+            buffer[i11 + 3]! * mu1 * mv1,
     ]
 }

@@ -7,16 +7,18 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: number): void
-    (e: 'enter'): void
-    (e: 'escape'): void
+    'update:modelValue': [value: number]
+    enter: []
+    escape: []
 }>()
 
 const el = ref<HTMLInputElement>()
 
 const value = computed({
     get: () => props.modelValue.toString(),
-    set: (value) => emit('update:modelValue', +value || 0),
+    set: (value) => {
+        emit('update:modelValue', +value || 0)
+    },
 })
 
 function selectAll() {

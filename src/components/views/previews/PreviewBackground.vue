@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useElementBounding, useLocalStorage } from '@vueuse/core'
 import { computed, ref, watchEffect } from 'vue'
-import { Background } from '../../../core/background'
+import { type Background } from '../../../core/background'
 import { getImageInfo } from '../../../core/utils'
 import MyField from '../../ui/MyField.vue'
 import MyTextSelect from '../../ui/MyTextSelect.vue'
@@ -18,15 +18,16 @@ const aspectRatioValue = computed(
             '16:9': 16 / 9,
             '18:9': 18 / 9,
             '21:9': 21 / 9,
-        })[aspectRatio.value] || 16 / 9,
+        })[aspectRatio.value] ?? 16 / 9,
 )
 
 const imageAspectRatio = ref<number>()
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 watchEffect(async () => {
     try {
         const { width, height } = await getImageInfo(props.background.image)
         imageAspectRatio.value = width / height || undefined
-    } catch (error) {
+    } catch {
         imageAspectRatio.value = undefined
     }
 })
@@ -49,7 +50,7 @@ const width = computed(() => {
         case 'cover':
             return isLarger ? inverse : 1
         default:
-            throw 'Unexpected fit'
+            throw new Error('Unexpected fit')
     }
 })
 

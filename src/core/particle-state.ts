@@ -1,8 +1,8 @@
-import { Ease } from './ease'
+import { type Ease } from './ease'
 import { execute } from './expression'
-import { Particle } from './particle'
-import { PropertyExpression } from './property-expression'
-import { ImageInfo } from './utils'
+import { type Particle } from './particle'
+import { type PropertyExpression } from './property-expression'
+import { type ImageInfo } from './utils'
 
 export type ParticleState = Exclude<ReturnType<typeof getParticleState>, undefined>
 

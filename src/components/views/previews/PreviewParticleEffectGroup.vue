@@ -2,11 +2,11 @@
 import { computedAsync } from '@vueuse/core'
 import { computed, watchPostEffect } from 'vue'
 import { useParticlePreview } from '../../../composables/particle-preview'
-import { Particle } from '../../../core/particle'
+import { type Particle } from '../../../core/particle'
 import { renderParticle } from '../../../core/particle-renderer'
-import { ParticleState, getParticleState } from '../../../core/particle-state'
+import { type ParticleState, getParticleState } from '../../../core/particle-state'
 import { getPropertyExpressionRandom } from '../../../core/property-expression'
-import { ImageInfo, getImageInfo } from '../../../core/utils'
+import { type ImageInfo, getImageInfo } from '../../../core/utils'
 import ParticlePreview from './ParticlePreview.vue'
 
 const props = defineProps<{
@@ -58,8 +58,7 @@ watchPostEffect(() => {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'
     ctx.stroke()
 
-    for (let i = 0; i < rect.value.length; i++) {
-        const [x, y] = rect.value[i]
+    for (const [i, [x, y]] of rect.value.entries()) {
         ctx.beginPath()
         ctx.arc(x, y, 0.02, 0, 2 * Math.PI)
         ctx.closePath()
@@ -82,6 +81,7 @@ const imageInfos = computedAsync(async () => {
     for (const spriteId of new Set(props.group.particles.map((particle) => particle.spriteId))) {
         try {
             result[spriteId] = await getImageInfo(
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 props.sprites.find(({ id }) => id === spriteId)!.texture,
             )
         } catch {
@@ -96,7 +96,8 @@ const states = computed(() => {
     const states: ParticleState[] = []
 
     for (let i = 0; i < props.group.count; i++) {
-        const values = { c: 1, ...randoms.value[i] }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const values = { c: 1, ...randoms.value[i]! }
 
         for (const particle of props.group.particles) {
             const state = getParticleState(particle, imageInfos.value, values)

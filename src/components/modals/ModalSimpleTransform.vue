@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { getSimpleTransform } from '../../core/simple-transform'
-import { Transform } from '../../core/skin'
+import { type Transform } from '../../core/skin'
 import IconCheck from '../../icons/check-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
 import IconVectorSquare from '../../icons/vector-square-solid.svg?component'
@@ -15,7 +15,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'close', result?: Transform): void
+    close: [result?: Transform]
 }>()
 
 const left = ref(0)

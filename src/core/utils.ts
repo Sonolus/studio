@@ -17,7 +17,7 @@ export function emptySrl() {
 }
 
 export function clone<T>(data: T): T {
-    return JSON.parse(JSON.stringify(data))
+    return JSON.parse(JSON.stringify(data)) as never
 }
 
 export function lerp(a: number, b: number, x: number) {
@@ -35,17 +35,18 @@ export function unlerp(a: number, b: number, x: number) {
 export function getImageInfo(src: string) {
     return new Promise<ImageInfo>((resolve, reject) => {
         if (!src) {
-            reject()
+            reject(new Error('No source'))
             return
         }
 
         const img = new Image()
-        img.onload = () =>
+        img.onload = () => {
             resolve({
                 img,
                 width: img.naturalWidth,
                 height: img.naturalHeight,
             })
+        }
         img.onerror = reject
         img.src = src
     })
@@ -54,15 +55,16 @@ export function getImageInfo(src: string) {
 export function getAudioInfo(src: string) {
     return new Promise<{ duration: number }>((resolve, reject) => {
         if (!src) {
-            reject()
+            reject(new Error('No source'))
             return
         }
 
         const audio = new Audio(src)
-        audio.onloadedmetadata = () =>
+        audio.onloadedmetadata = () => {
             resolve({
                 duration: audio.duration,
             })
+        }
         audio.onerror = reject
         audio.src = src
     })
@@ -72,7 +74,7 @@ export function getImageBuffer({ img, width, height }: ImageInfo, canvas: HTMLCa
     canvas.width = width
     canvas.height = height
     const ctx = canvas.getContext('2d')
-    if (!ctx) throw 'Failed to obtain canvas context'
+    if (!ctx) throw new Error('Failed to obtain canvas context')
 
     ctx.drawImage(img, 0, 0, width, height)
 
@@ -85,12 +87,18 @@ export function getImageBuffer({ img, width, height }: ImageInfo, canvas: HTMLCa
 
 export function getBlob(canvas: HTMLCanvasElement) {
     return new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((blob) => (blob ? resolve(blob) : reject()), 'image/png')
+        canvas.toBlob((blob) => {
+            if (blob) {
+                resolve(blob)
+            } else {
+                reject(new Error('No blob'))
+            }
+        }, 'image/png')
     })
 }
 
 export async function packRaw(url: string) {
-    if (!url) throw 'Missing file'
+    if (!url) throw new Error('Missing file')
     const buffer = await (await fetch(url)).arrayBuffer()
 
     return {
@@ -106,6 +114,7 @@ export async function packArrayBuffer(buffer: ArrayBuffer) {
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export async function packJson<T>(json: T) {
     const data = gzip(JSON.stringify(json), { level: 9 })
 
@@ -116,7 +125,7 @@ export async function packJson<T>(json: T) {
 }
 
 export async function unpackJson<T>(data: Blob): Promise<T> {
-    return JSON.parse(ungzip(new Uint8Array(await toArrayBuffer(data)), { to: 'string' }))
+    return JSON.parse(ungzip(new Uint8Array(await toArrayBuffer(data)), { to: 'string' })) as never
 }
 
 async function hash(data: BufferSource) {
@@ -128,7 +137,9 @@ async function hash(data: BufferSource) {
 async function toArrayBuffer(blob: Blob) {
     return new Promise<ArrayBuffer>((resolve, reject) => {
         const reader = new FileReader()
-        reader.onload = () => resolve(reader.result as ArrayBuffer)
+        reader.onload = () => {
+            resolve(reader.result as ArrayBuffer)
+        }
         reader.onerror = reject
         reader.readAsArrayBuffer(blob)
     })

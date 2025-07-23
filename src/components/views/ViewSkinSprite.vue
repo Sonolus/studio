@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { show } from '../../composables/modal'
 import { useView } from '../../composables/view'
-import { Skin } from '../../core/skin'
+import { type Skin } from '../../core/skin'
 import IconVectorSquare from '../../icons/vector-square-solid.svg?component'
 import ModalSimpleTransform from '../modals/ModalSimpleTransform.vue'
 import MyButton from '../ui/MyButton.vue'

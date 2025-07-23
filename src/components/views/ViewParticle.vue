@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useView } from '../../composables/view'
-import { Particle } from '../../core/particle'
+import { type Particle } from '../../core/particle'
 import MyField from '../ui/MyField.vue'
 import MyImageInput from '../ui/MyImageInput.vue'
 import MySection from '../ui/MySection.vue'

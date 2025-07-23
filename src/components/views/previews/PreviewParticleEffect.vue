@@ -3,11 +3,11 @@ import { computedAsync } from '@vueuse/core'
 import { computed, watchPostEffect } from 'vue'
 import { useParticlePreview } from '../../../composables/particle-preview'
 import { execute } from '../../../core/expression'
-import { Particle } from '../../../core/particle'
+import { type Particle } from '../../../core/particle'
 import { renderParticle } from '../../../core/particle-renderer'
-import { ParticleState, getParticleState } from '../../../core/particle-state'
+import { type ParticleState, getParticleState } from '../../../core/particle-state'
 import { getPropertyExpressionRandom } from '../../../core/property-expression'
-import { ImageInfo, Rect, getImageInfo } from '../../../core/utils'
+import { type ImageInfo, type Rect, getImageInfo } from '../../../core/utils'
 import ParticlePreview from './ParticlePreview.vue'
 
 const props = defineProps<{
@@ -54,7 +54,8 @@ const rectTransformed = computed<Rect>(() => {
         y3: rect.value[2][1],
         x4: rect.value[3][0],
         y4: rect.value[3][1],
-        ...randoms.value[0],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        ...randoms.value[0]!,
     }
 
     return [
@@ -77,8 +78,7 @@ watchPostEffect(() => {
     drawRect(ctx, rectTransformed.value, 'rgba(255, 255, 255, 0.25)')
     drawRect(ctx, rect.value, 'rgba(255, 255, 255, 0.5)')
 
-    for (let i = 0; i < rect.value.length; i++) {
-        const [x, y] = rect.value[i]
+    for (const [i, [x, y]] of rect.value.entries()) {
         ctx.beginPath()
         ctx.arc(x, y, 0.02, 0, 2 * Math.PI)
         ctx.closePath()
@@ -120,6 +120,7 @@ const imageInfos = computedAsync(async () => {
     )) {
         try {
             result[spriteId] = await getImageInfo(
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 props.sprites.find(({ id }) => id === spriteId)!.texture,
             )
         } catch {
@@ -137,7 +138,8 @@ const states = computed(() => {
     for (const group of props.effect.groups) {
         for (let i = 0; i < group.count; i++) {
             index++
-            const values = { c: 1, ...randoms.value[index] }
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const values = { c: 1, ...randoms.value[index]! }
 
             for (const particle of group.particles) {
                 const state = getParticleState(particle, imageInfos.value, values)

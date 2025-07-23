@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { show } from '../../composables/modal'
 import { useView } from '../../composables/view'
-import { Particle } from '../../core/particle'
-import { TransformExpression, allZero } from '../../core/transform-expression'
+import { type Particle } from '../../core/particle'
+import { type TransformExpression, allZero } from '../../core/transform-expression'
 import IconEdit from '../../icons/edit-solid.svg?component'
 import ModalTransformExpressionEquation from '../modals/ModalTransformExpressionEquation.vue'
 import MyButton from '../ui/MyButton.vue'
@@ -27,7 +27,7 @@ const cols = Object.keys(allZero) as (keyof TransformExpression)[]
 
 async function editEquation(r: (typeof rows)[number]) {
     const result = await show(ModalTransformExpressionEquation, {
-        title: `${r}`,
+        title: r,
         defaultValue: v.value.transform[r],
     })
     if (!result) return

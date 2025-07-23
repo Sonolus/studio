@@ -1,5 +1,5 @@
-import { computed, Ref, toRef } from 'vue'
-import { ProjectItemTypeOf } from '../core/project'
+import { computed, type Ref, toRef } from 'vue'
+import { type ProjectItemTypeOf } from '../core/project'
 import { clone } from '../core/utils'
 import { push, useState } from './state'
 
@@ -11,7 +11,7 @@ export function useView<T, U = T>(
     const { project, view } = useState()
 
     const v = toRef(bind(props), 'data')
-    return getter ? computed(() => getter(v, view)) : v
+    return getter ? computed(() => getter(v, view)) : (v as never)
 
     function bind<T extends Record<string, unknown>>(data: T, path = [] as string[]): T {
         return new Proxy(data, {
@@ -37,9 +37,11 @@ export function useView<T, U = T>(
     function update(path: string[], value: unknown) {
         const newProps = clone(props)
         path.reduce(
-            (data, key, index) => (index === path.length - 1 ? (data[key] = value) : data[key]),
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            newProps as any,
+            (data, key, index) =>
+                index === path.length - 1
+                    ? (data[key as never] = value as never)
+                    : data[key as never],
+            newProps,
         )
 
         const items = new Map(project.value[type] as never)

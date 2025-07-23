@@ -1,4 +1,4 @@
-import { ParticleDataGroupParticleProperty } from '@sonolus/core'
+import { type ParticleDataGroupParticleProperty } from '@sonolus/core'
 
 export type Ease = Required<ParticleDataGroupParticleProperty>['ease']
 

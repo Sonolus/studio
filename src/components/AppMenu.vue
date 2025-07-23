@@ -3,7 +3,7 @@ import { saveAs } from 'file-saver'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { show, useModal } from '../composables/modal'
 import { push, redo, replace, undo, useState } from '../composables/state'
-import { newProject } from '../core/project'
+import { newProject, type Project } from '../core/project'
 import IconList from '../icons/list-solid.svg?component'
 import ModalConfirmation from './modals/ModalConfirmation.vue'
 import ModalPackProject from './modals/ModalPackProject.vue'
@@ -25,14 +25,18 @@ const menus = computed(() => [
                 title: 'New',
                 enabled: true,
                 key: 'n',
-                command: onNewProject,
+                command: () => {
+                    void onNewProject()
+                },
             },
             null,
             {
                 title: 'Open',
                 enabled: true,
                 key: 'o',
-                command: onOpenProject,
+                command: () => {
+                    void onOpenProject()
+                },
             },
             {
                 title: 'Import',
@@ -45,7 +49,9 @@ const menus = computed(() => [
                 title: 'Save',
                 enabled: true,
                 key: 's',
-                command: onSaveProject,
+                command: () => {
+                    void onSaveProject()
+                },
             },
         ],
     },
@@ -80,7 +86,7 @@ async function onNewProject() {
 }
 
 const el = ref<HTMLInputElement>()
-const onFileSelected = ref<(file: File) => void>()
+const onFileSelected = ref<(file: File) => Promise<void>>()
 
 function onFileInput() {
     if (!el.value) return
@@ -90,10 +96,10 @@ function onFileInput() {
 
     el.value.value = ''
 
-    onFileSelected.value?.(file)
+    void onFileSelected.value?.(file)
 }
 
-function selectFile(callback: (file: File) => void) {
+function selectFile(callback: (file: File) => Promise<void>) {
     if (!el.value) return
 
     onFileSelected.value = callback
@@ -116,9 +122,9 @@ async function onOpenProject() {
     })
 }
 
-async function onImportProject() {
+function onImportProject() {
     selectFile(async (file) => {
-        const selectedProject = await show(ModalUnpackPackage, file)
+        const selectedProject: Project | undefined = await show(ModalUnpackPackage, file)
         if (!selectedProject) return
 
         const skins = await merge(
@@ -204,19 +210,23 @@ function onClick(item: { command: () => void }) {
     close()
 }
 
-onMounted(() => document.addEventListener('keydown', onKeyDown, { passive: false }))
-onUnmounted(() => document.removeEventListener('keydown', onKeyDown))
+onMounted(() => {
+    document.addEventListener('keydown', onKeyDown, { passive: false })
+})
+onUnmounted(() => {
+    document.removeEventListener('keydown', onKeyDown)
+})
 
 const hotkeys = computed(() => {
     const output = new Map<string, (() => void) | null>()
 
-    menus.value.forEach((menu) => {
-        menu.items.forEach((item) => {
-            if (!item) return
+    for (const menu of menus.value) {
+        for (const item of menu.items) {
+            if (!item) continue
 
             output.set(item.key, item.enabled ? item.command : null)
-        })
-    })
+        }
+    }
 
     return output
 })

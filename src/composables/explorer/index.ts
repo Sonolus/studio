@@ -1,13 +1,13 @@
-import { Component, computed, markRaw, reactive } from 'vue'
+import { type Component, computed, markRaw, reactive } from 'vue'
 import ModalTextInput from '../../components/modals/ModalTextInput.vue'
-import { ProjectItemTypeOf } from '../../core/project'
+import { type ProjectItemTypeOf } from '../../core/project'
 import { clone } from '../../core/utils'
 import IconScp from '../../icons/box-solid.svg?component'
 import IconClone from '../../icons/clone-solid.svg?component'
 import IconEdit from '../../icons/edit-solid.svg?component'
 import IconPlus from '../../icons/plus-solid.svg?component'
 import { show } from '../modal'
-import { UseStateReturn, push, useState } from '../state'
+import { type UseStateReturn, push, useState } from '../state'
 import { addBackgroundItems } from './backgrounds'
 import { addEffectItems } from './effects'
 import { addParticleItems } from './particles'
@@ -89,21 +89,20 @@ export async function onNew<T>(
     placeholder: string,
     value: T,
 ) {
-    const name = (
-        await show(ModalTextInput, {
-            icon: markRaw(IconPlus),
-            title,
-            defaultValue: '',
-            placeholder,
-            validator(name) {
-                name = name.trim()
-                if (!name.length) return false
-                if (name !== encodeURIComponent(name)) return false
-                if (project.value[type].has(name)) return false
-                return true
-            },
-        })
-    )?.trim()
+    const rawName: string | undefined = await show(ModalTextInput, {
+        icon: markRaw(IconPlus),
+        title,
+        defaultValue: '',
+        placeholder,
+        validator(name: string) {
+            name = name.trim()
+            if (!name.length) return false
+            if (name !== encodeURIComponent(name)) return false
+            if (project.value[type].has(name)) return false
+            return true
+        },
+    })
+    const name = rawName?.trim()
     if (!name) return
 
     const items = new Map(project.value[type] as never)
@@ -146,20 +145,19 @@ export async function onRename<T>(
     placeholder: string,
     oldName: string,
 ) {
-    const newName = (
-        await show(ModalTextInput, {
-            icon: markRaw(IconEdit),
-            title,
-            defaultValue: oldName,
-            placeholder,
-            validator(name) {
-                name = name.trim()
-                if (!name.length) return false
-                if (project.value[type].has(name)) return false
-                return true
-            },
-        })
-    )?.trim()
+    const rawNewName: string | undefined = await show(ModalTextInput, {
+        icon: markRaw(IconEdit),
+        title,
+        defaultValue: oldName,
+        placeholder,
+        validator(name: string) {
+            name = name.trim()
+            if (!name.length) return false
+            if (project.value[type].has(name)) return false
+            return true
+        },
+    })
+    const newName = rawNewName?.trim()
     if (!newName) return
 
     const items = new Map(project.value[type] as never)
@@ -184,20 +182,19 @@ export async function onClone<T>(
     placeholder: string,
     oldName: string,
 ) {
-    const newName = (
-        await show(ModalTextInput, {
-            icon: markRaw(IconClone),
-            title,
-            defaultValue: oldName,
-            placeholder,
-            validator(name) {
-                name = name.trim()
-                if (!name.length) return false
-                if (project.value[type].has(name)) return false
-                return true
-            },
-        })
-    )?.trim()
+    const rawNewName: string | undefined = await show(ModalTextInput, {
+        icon: markRaw(IconClone),
+        title,
+        defaultValue: oldName,
+        placeholder,
+        validator(name: string) {
+            name = name.trim()
+            if (!name.length) return false
+            if (project.value[type].has(name)) return false
+            return true
+        },
+    })
+    const newName = rawNewName?.trim()
     if (!newName) return
 
     const items = new Map(project.value[type] as never)

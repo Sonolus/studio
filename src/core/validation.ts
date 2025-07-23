@@ -9,5 +9,5 @@ export function validateInput<T>(
     defaultValidator: Validator<T>,
 ) {
     if (!props.validate) return true
-    return (props.validator || defaultValidator)(props.modelValue)
+    return (props.validator ?? defaultValidator)(props.modelValue)
 }

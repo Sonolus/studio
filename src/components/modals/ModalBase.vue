@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Component } from 'vue'
+import { type Component } from 'vue'
 
 defineProps<{
     icon: Component

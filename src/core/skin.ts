@@ -1,12 +1,12 @@
 import {
-    ServerItemDetails,
-    ServerItemList,
-    SkinData,
-    SkinItem,
+    type ServerItemDetails,
+    type ServerItemList,
+    type SkinData,
+    type SkinItem,
     SkinSpriteName,
 } from '@sonolus/core'
 import { formatNameKey } from './names'
-import { PackProcess, Project, UnpackProcess } from './project'
+import { type PackProcess, type Project, type UnpackProcess } from './project'
 import { bakeSprite, tryCalculateLayout } from './sprite-sheet'
 import { load } from './storage'
 import { emptySrl, getBlob, getImageInfo, packJson, packRaw, unpackJson } from './utils'
@@ -87,11 +87,16 @@ export function formatSkinSpriteName(name: string) {
 
 export function addSkinToWhitelist(skin: Skin, whitelist: Set<string>) {
     whitelist.add(skin.thumbnail)
-    skin.data.sprites.forEach((s) => whitelist.add(s.texture))
+
+    for (const { texture } of skin.data.sprites) {
+        whitelist.add(texture)
+    }
 }
 
 export function packSkins(process: PackProcess, project: Project) {
-    project.skins.forEach((skin, name) => packSkin(process, name, skin))
+    for (const [name, skin] of project.skins) {
+        packSkin(process, name, skin)
+    }
 }
 
 function packSkin(
@@ -149,13 +154,13 @@ function packSkin(
             canvas.height = size
 
             const ctx = canvas.getContext('2d')
-            if (!ctx) throw 'Failed to obtain canvas context'
+            if (!ctx) throw new Error('Failed to obtain canvas context')
 
             ctx.clearRect(0, 0, size, size)
 
             for (const { name, x, y, w, h } of layouts) {
                 const sprite = skin.data.sprites.find((sprite) => sprite.name === name)
-                if (!sprite) throw 'Unexpected missing sprite'
+                if (!sprite) throw new Error('Unexpected missing sprite')
 
                 skinData.sprites.push({
                     name,
@@ -196,7 +201,7 @@ function packSkin(
 
     tasks.push({
         description: `Generating skin "${name}" details...`,
-        async execute() {
+        execute() {
             addJson<ServerItemDetails<SkinItem>>(`/sonolus/skins/${name}`, {
                 item,
                 description: skin.description,
@@ -218,7 +223,9 @@ export function unpackSkins(process: UnpackProcess) {
             const list = await getJsonOptional<ServerItemList<SkinItem>>('/sonolus/skins/list')
             if (!list) return
 
-            list.items.forEach(({ name }) => unpackSkin(process, name))
+            for (const { name } of list.items) {
+                unpackSkin(process, name)
+            }
         },
     })
 }
@@ -233,9 +240,9 @@ function unpackSkin({ project, tasks, canvas, getRaw, getJson }: UnpackProcess, 
             item.title = details.item.title
             item.subtitle = details.item.subtitle
             item.author = details.item.author
-            item.description = details.description || ''
+            item.description = details.description ?? ''
 
-            let img: HTMLImageElement
+            let img: HTMLImageElement | undefined
 
             tasks.push({
                 description: `Unpacking skin "${name}" thumbnail...`,
@@ -260,7 +267,7 @@ function unpackSkin({ project, tasks, canvas, getRaw, getJson }: UnpackProcess, 
 
                     item.data.interpolation = data.interpolation
 
-                    data.sprites.forEach(({ name: spriteName, x, y, w, h, transform }) => {
+                    for (const { name: spriteName, x, y, w, h, transform } of data.sprites) {
                         const sprite = newSkinSprite(spriteName)
                         sprite.transform = {
                             x1: { ...allZero, ...transform.x1 },
@@ -278,10 +285,10 @@ function unpackSkin({ project, tasks, canvas, getRaw, getJson }: UnpackProcess, 
                                 spriteName,
                             )}...`,
                             async execute() {
-                                if (!img) throw 'Unexpected missing skin texture'
+                                if (!img) throw new Error('Unexpected missing skin texture')
 
                                 const ctx = canvas.getContext('2d')
-                                if (!ctx) throw 'Failed to obtain canvas context'
+                                if (!ctx) throw new Error('Failed to obtain canvas context')
 
                                 canvas.width = w
                                 canvas.height = h
@@ -292,7 +299,7 @@ function unpackSkin({ project, tasks, canvas, getRaw, getJson }: UnpackProcess, 
                         })
 
                         item.data.sprites.push(sprite)
-                    })
+                    }
                 },
             })
 

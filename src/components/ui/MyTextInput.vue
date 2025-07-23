@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMounted } from '@vueuse/core'
 import { computed, nextTick, ref, watchEffect } from 'vue'
-import { Validator, validateInput } from '../../core/validation'
+import { type Validator, validateInput } from '../../core/validation'
 import IconKeyboard from '../../icons/keyboard-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
@@ -16,9 +16,9 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: string): void
-    (e: 'enter'): void
-    (e: 'escape'): void
+    'update:modelValue': [value: string]
+    enter: []
+    escape: []
 }>()
 
 const el = ref<HTMLInputElement>()
@@ -33,7 +33,9 @@ watchEffect(() => {
 
 const value = computed({
     get: () => props.modelValue,
-    set: (value) => emit('update:modelValue', value),
+    set: (value) => {
+        emit('update:modelValue', value)
+    },
 })
 
 const isError = computed(() => !validateInput(props, (value) => !!value.length))

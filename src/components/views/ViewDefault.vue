@@ -2,6 +2,8 @@
 import { version } from '@sonolus/core'
 import IconList from '../../icons/list-solid.svg?component'
 
+declare const VITE_APP_VERSION: string
+
 const appVersion = VITE_APP_VERSION
 </script>
 

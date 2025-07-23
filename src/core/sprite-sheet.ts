@@ -19,11 +19,11 @@ export async function tryCalculateLayout(sprite: SpriteLayout[]) {
                 size,
                 layouts: await calculateLayout(sprite, size),
             }
-        } catch (e) {
+        } catch {
             size *= 2
         }
     }
-    throw 'Maximum texture size (4096x4096) exceeded'
+    throw new Error('Maximum texture size (4096x4096) exceeded')
 }
 
 async function calculateLayout(sprite: SpriteLayout[], size: number) {
@@ -59,9 +59,10 @@ async function calculateLayout(sprite: SpriteLayout[], size: number) {
             const spaceIndex = spaces.findIndex(
                 (space) => space.width >= width && space.height >= height,
             )
-            if (spaceIndex == -1) throw 'Insufficient size'
 
             const space = spaces[spaceIndex]
+            if (!space) throw new Error('Insufficient size')
+
             spaces.splice(spaceIndex, 1)
 
             if (space.height > height) {

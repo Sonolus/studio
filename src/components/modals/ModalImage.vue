@@ -11,7 +11,7 @@ defineProps<{
 }>()
 
 defineEmits<{
-    (e: 'close'): void
+    close: []
 }>()
 </script>
 

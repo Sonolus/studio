@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { watchEffect } from 'vue'
-import { ExplorerItem, isOpened, open, toggle, toKey, useExplorer } from '../composables/explorer'
+import {
+    type ExplorerItem,
+    isOpened,
+    open,
+    toggle,
+    toKey,
+    useExplorer,
+} from '../composables/explorer'
 import { useState } from '../composables/state'
 import IconAngleDown from '../icons/angle-down-solid.svg?component'
 import IconAngleRight from '../icons/angle-right-solid.svg?component'
@@ -10,7 +17,7 @@ import IconFile from '../icons/file-solid.svg?component'
 import IconPlus from '../icons/plus-solid.svg?component'
 import IconTrash from '../icons/trash-alt-solid.svg?component'
 import MyImageIcon from './ui/MyImageIcon.vue'
-import { resolveViewInfo } from './ViewManager.vue'
+import { resolveViewInfo } from './ViewManager'
 
 const { project, view, isExplorerOpened } = useState()
 const { tree } = useExplorer()
@@ -19,10 +26,10 @@ watchEffect(() => {
     if (!resolveViewInfo(project.value, view.value)) return
 
     const path: string[] = []
-    view.value.forEach((part) => {
+    for (const part of view.value) {
         path.push(part)
         open(path)
-    })
+    }
 })
 
 function isPathCurrentView(path: string[]) {
@@ -43,7 +50,7 @@ function onClick(item: ExplorerItem) {
 
 <template>
     <div
-        class="scrollbar fixed bottom-0 left-0 top-8 z-20 w-full -translate-x-full overflow-y-auto bg-sonolus-main text-sm opacity-0 transition-all duration-200 sm:w-60 sm:translate-x-0 sm:opacity-100 md:w-80 lg:w-100"
+        class="scrollbar lg:w-100 fixed bottom-0 left-0 top-8 z-20 w-full -translate-x-full overflow-y-auto bg-sonolus-main text-sm opacity-0 transition-all duration-200 sm:w-60 sm:translate-x-0 sm:opacity-100 md:w-80"
         :class="{
             'translate-x-0 opacity-100': isExplorerOpened,
         }"

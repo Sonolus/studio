@@ -1,6 +1,6 @@
 import { useDevicePixelRatio, useMouseInElement, useMousePressed } from '@vueuse/core'
-import { Ref, computed, ref, watch, watchEffect } from 'vue'
-import { Point, Rect } from '../core/utils'
+import { type Ref, computed, ref, watch, watchEffect } from 'vue'
+import { type Point, type Rect } from '../core/utils'
 
 export function useCanvas(target: Ref<HTMLElement | undefined>) {
     const { elementX, elementY, elementWidth, elementHeight } = useMouseInElement(target)
@@ -25,13 +25,14 @@ export function useCanvas(target: Ref<HTMLElement | undefined>) {
     const hoverIndex = computed(() => {
         const [tx, ty] = position.value
 
-        const distances = rect.value
-            .map(([x, y], i) => [i, Math.hypot(tx - x, ty - y)])
-            .sort(([, a], [, b]) => a - b)
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const [i, distance] = rect.value
+            .map(([x, y], i) => [i, Math.hypot(tx - x, ty - y)] as const)
+            .sort(([, a], [, b]) => a - b)[0]!
 
-        if (distances[0][1] > 20 / elementWidth.value) return
+        if (distance > 20 / elementWidth.value) return
 
-        return distances[0][0]
+        return i
     })
 
     watch(pressed, (value) => {

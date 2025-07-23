@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { Validator, validateInput } from '../../core/validation'
+import { type Validator, validateInput } from '../../core/validation'
 import IconStream from '../../icons/stream-solid.svg?component'
 import IconUndo from '../../icons/undo-alt-solid.svg?component'
 
@@ -13,14 +13,16 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: number): void
+    'update:modelValue': [value: number]
 }>()
 
 const el = ref<HTMLSelectElement>()
 
 const value = computed({
     get: () => props.modelValue,
-    set: (value) => emit('update:modelValue', value),
+    set: (value) => {
+        emit('update:modelValue', value)
+    },
 })
 
 const isError = computed(() => !validateInput(props, () => true))

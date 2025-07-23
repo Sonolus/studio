@@ -24,17 +24,23 @@ const update = (key: 'title' | 'description' | 'banner', value: string) => {
 
 const title = computed({
     get: () => project.value.title,
-    set: (value) => update('title', value),
+    set: (value) => {
+        update('title', value)
+    },
 })
 
 const description = computed({
     get: () => project.value.description,
-    set: (value) => update('description', value),
+    set: (value) => {
+        update('description', value)
+    },
 })
 
 const banner = computed({
     get: () => project.value.banner,
-    set: (value) => update('banner', value),
+    set: (value) => {
+        update('banner', value)
+    },
 })
 </script>
 

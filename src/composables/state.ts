@@ -1,5 +1,5 @@
 import { computed, reactive, toRef, watchEffect } from 'vue'
-import { Project, addProjectToWhitelist, newProject } from '../core/project'
+import { type Project, addProjectToWhitelist, newProject } from '../core/project'
 import { purge } from '../core/storage'
 
 export type UseStateReturn = ReturnType<typeof useState>
@@ -17,7 +17,11 @@ const state = reactive({
 
 watchEffect(() => {
     const whitelist = new Set<string>()
-    state.history.forEach((project) => addProjectToWhitelist(project, whitelist))
+
+    for (const project of state.history) {
+        addProjectToWhitelist(project, whitelist)
+    }
+
     purge(whitelist)
 })
 
@@ -28,7 +32,8 @@ addEventListener('beforeunload', (event) => {
 })
 
 export function useState() {
-    const project = computed(() => state.history[state.index])
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const project = computed(() => state.history[state.index]!)
     const canUndo = computed(() => state.index > 0)
     const canRedo = computed(() => state.index < state.history.length - 1)
     const isModified = computed(() => state.history.length > 1)
@@ -95,5 +100,6 @@ export function redo() {
 }
 
 function updateView() {
-    state.view = state.history[state.index].view
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    state.view = state.history[state.index]!.view
 }
