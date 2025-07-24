@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useMounted } from '@vueuse/core'
-import type { Component } from 'vue'
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect, type Component } from 'vue'
 
 const props = defineProps<{
     icon: Component

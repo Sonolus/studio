@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { show } from '../../composables/modal'
-import { Project, unpackPackage } from '../../core/project'
+import { type Project, unpackPackage } from '../../core/project'
 import IconSpinner from '../../icons/spinner-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
 import MyButton from '../ui/MyButton.vue'
@@ -13,7 +13,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'close', result?: Project): void
+    close: [result?: Project]
 }>()
 
 const el = ref<HTMLCanvasElement>()
@@ -28,9 +28,7 @@ onMounted(async () => {
     const { project, tasks, finish } = unpackPackage(props.data, el.value)
 
     try {
-        for (let i = 0; i < tasks.length; i++) {
-            const task = tasks[i]
-
+        for (const [i, task] of tasks.entries()) {
             description.value = `${task.description} (${i + 1}/${tasks.length})`
             await nextTick()
             await task.execute()
@@ -44,7 +42,7 @@ onMounted(async () => {
         await finish()
         emit('close', project)
     } catch (error) {
-        show(ModalErrorCancel, { message: error })
+        void show(ModalErrorCancel, { message: error })
         emit('close')
     }
 })

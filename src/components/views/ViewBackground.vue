@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue'
 import { useView } from '../../composables/view'
-import { Background } from '../../core/background'
+import { type Background } from '../../core/background'
 import { getImageInfo } from '../../core/utils'
 import MyColorInput from '../ui/MyColorInput.vue'
 import MyField from '../ui/MyField.vue'
@@ -22,11 +22,12 @@ const props = defineProps<{
 const v = useView(props, 'backgrounds')
 
 const imageAspectRatio = ref<number>()
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 watchEffect(async () => {
     try {
         const { width, height } = await getImageInfo(props.data.image)
         imageAspectRatio.value = width / height || undefined
-    } catch (error) {
+    } catch {
         imageAspectRatio.value = undefined
     }
 })

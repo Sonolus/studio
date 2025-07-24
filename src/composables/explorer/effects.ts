@@ -1,6 +1,6 @@
 import { EffectClipName } from '@sonolus/core'
 import { markRaw } from 'vue'
-import { ExplorerItem, isOpened, onClone, onDelete, onDeleteAll, onNew, onRename } from '.'
+import { type ExplorerItem, isOpened, onClone, onDelete, onDeleteAll, onNew, onRename } from '.'
 import ModalName from '../../components/modals/ModalName.vue'
 import { formatEffectClipName, newEffect, newEffectClip } from '../../core/effect'
 import { clone } from '../../core/utils'
@@ -11,7 +11,7 @@ import IconFileAudio from '../../icons/file-audio-solid.svg?component'
 import IconFolder from '../../icons/folder-solid.svg?component'
 import IconPlus from '../../icons/plus-solid.svg?component'
 import { show } from '../modal'
-import { UseStateReturn, push } from '../state'
+import { type UseStateReturn, push } from '../state'
 
 export function addEffectItems(state: UseStateReturn, items: ExplorerItem[]) {
     items.push({
@@ -20,53 +20,76 @@ export function addEffectItems(state: UseStateReturn, items: ExplorerItem[]) {
         hasChildren: true,
         icon: IconDrum,
         title: `SFX (${state.project.value.effects.size})`,
-        onNew: () => onNew(state, 'effects', 'New SFX', 'Enter SFX name...', newEffect()),
-        onDelete: () => onDeleteAll(state, 'effects'),
+        onNew: () => {
+            void onNew(state, 'effects', 'New SFX', 'Enter SFX name...', newEffect())
+        },
+        onDelete: () => {
+            onDeleteAll(state, 'effects')
+        },
     })
 
     if (!isOpened(['effects'])) return
-    state.project.value.effects.forEach((effect, name) => {
+
+    for (const [name, effect] of state.project.value.effects) {
         items.push({
             level: 1,
             path: ['effects', name],
             hasChildren: true,
             icon: effect.thumbnail,
             title: name,
-            onRename: () => onRename(state, 'effects', 'Rename SFX', 'Enter new SFX name...', name),
-            onClone: () => onClone(state, 'effects', 'Clone SFX', 'Enter new SFX name...', name),
-            onDelete: () => onDelete(state, 'effects', name),
+            onRename: () => {
+                void onRename(state, 'effects', 'Rename SFX', 'Enter new SFX name...', name)
+            },
+            onClone: () => {
+                void onClone(state, 'effects', 'Clone SFX', 'Enter new SFX name...', name)
+            },
+            onDelete: () => {
+                onDelete(state, 'effects', name)
+            },
         })
 
-        if (!isOpened(['effects', name])) return
+        if (!isOpened(['effects', name])) continue
+
         items.push({
             level: 2,
             path: ['effects', name, 'clips'],
             hasChildren: true,
             icon: IconFolder,
             title: `Clips (${effect.data.clips.length})`,
-            onNew: () => onNewEffectClip(state, name),
-            onDelete: () => onDeleteEffectClips(state, name),
+            onNew: () => {
+                void onNewEffectClip(state, name)
+            },
+            onDelete: () => {
+                onDeleteEffectClips(state, name)
+            },
         })
 
-        if (!isOpened(['effects', name, 'clips'])) return
-        effect.data.clips.forEach(({ name: clipName }) => {
+        if (!isOpened(['effects', name, 'clips'])) continue
+
+        for (const { name: clipName } of effect.data.clips) {
             items.push({
                 level: 3,
                 path: ['effects', name, 'clips', clipName],
                 hasChildren: false,
                 icon: IconFileAudio,
                 title: formatEffectClipName(clipName),
-                onRename: () => onRenameEffectClip(state, name, clipName),
-                onClone: () => onCloneEffectClip(state, name, clipName),
-                onDelete: () => onDeleteEffectClip(state, name, clipName),
+                onRename: () => {
+                    void onRenameEffectClip(state, name, clipName)
+                },
+                onClone: () => {
+                    void onCloneEffectClip(state, name, clipName)
+                },
+                onDelete: () => {
+                    onDeleteEffectClip(state, name, clipName)
+                },
             })
-        })
-    })
+        }
+    }
 }
 
 async function onNewEffectClip({ project, isExplorerOpened }: UseStateReturn, name: string) {
     const effect = project.value.effects.get(name)
-    if (!effect) throw 'SFX not found'
+    if (!effect) throw new Error('SFX not found')
 
     const newName = await show(ModalName, {
         icon: markRaw(IconPlus),
@@ -92,9 +115,9 @@ async function onNewEffectClip({ project, isExplorerOpened }: UseStateReturn, na
     isExplorerOpened.value = false
 }
 
-async function onDeleteEffectClips({ project }: UseStateReturn, name: string) {
+function onDeleteEffectClips({ project }: UseStateReturn, name: string) {
     const effect = project.value.effects.get(name)
-    if (!effect) throw 'SFX not found'
+    if (!effect) throw new Error('SFX not found')
     if (!effect.data.clips.length) return
 
     const newEffect = clone(effect)
@@ -110,9 +133,9 @@ async function onDeleteEffectClips({ project }: UseStateReturn, name: string) {
     })
 }
 
-async function onDeleteEffectClip({ project }: UseStateReturn, name: string, clipName: string) {
+function onDeleteEffectClip({ project }: UseStateReturn, name: string, clipName: string) {
     const effect = project.value.effects.get(name)
-    if (!effect) throw 'SFX not found'
+    if (!effect) throw new Error('SFX not found')
 
     const newEffect = clone(effect)
     newEffect.data.clips = newEffect.data.clips.filter(({ name }) => name !== clipName)
@@ -133,10 +156,10 @@ async function onRenameEffectClip(
     spriteName: string,
 ) {
     const effect = project.value.effects.get(name)
-    if (!effect) throw 'SFX not found'
+    if (!effect) throw new Error('SFX not found')
 
     const clip = effect.data.clips.find(({ name }) => name === spriteName)
-    if (!clip) throw 'SFX clip not found'
+    if (!clip) throw new Error('SFX clip not found')
 
     const newName = await show(ModalName, {
         icon: markRaw(IconEdit),
@@ -177,10 +200,10 @@ async function onCloneEffectClip(
     spriteName: string,
 ) {
     const effect = project.value.effects.get(name)
-    if (!effect) throw 'SFX not found'
+    if (!effect) throw new Error('SFX not found')
 
     const clip = effect.data.clips.find(({ name }) => name === spriteName)
-    if (!clip) throw 'SFX clip not found'
+    if (!clip) throw new Error('SFX clip not found')
 
     const newName = await show(ModalName, {
         icon: markRaw(IconClone),

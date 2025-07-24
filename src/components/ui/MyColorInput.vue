@@ -14,33 +14,37 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: string): void
-    (e: 'enter'): void
-    (e: 'escape'): void
+    'update:modelValue': [value: string]
+    enter: []
+    escape: []
 }>()
 
 const el = ref<HTMLInputElement>()
 
 const value = computed({
     get: () => props.modelValue,
-    set: (value) => emit('update:modelValue', value),
+    set: (value) => {
+        emit('update:modelValue', value)
+    },
 })
 
 const rgba = computed(() => {
     if (!(props.alpha ? [5, 9] : [4, 7]).includes(props.modelValue.length)) return
-    if (props.modelValue[0] !== '#') return
+    if (!props.modelValue.startsWith('#')) return
 
     const value = props.modelValue.slice(1).toLowerCase()
     if (!value.split('').every((c) => '0123456789abcdef'.includes(c))) return
 
     const rgb =
         value.length === (props.alpha ? 4 : 3)
-            ? `${value[0]}${value[0]}${value[1]}${value[1]}${value[2]}${value[2]}`
+            ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              `${value[0]!}${value[0]!}${value[1]!}${value[1]!}${value[2]!}${value[2]!}`
             : value.slice(0, 6)
 
     const a = props.alpha
         ? value.length === 4
-            ? `${value[3]}${value[3]}`
+            ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              `${value[3]!}${value[3]!}`
             : value.slice(6, 8)
         : '00'
 
@@ -48,9 +52,10 @@ const rgba = computed(() => {
 })
 
 const colorValue = computed({
-    get: () => `#${rgba.value?.rgb || '000000'}`,
-    set: (value) =>
-        emit('update:modelValue', props.alpha ? `${value}${rgba.value?.a || '00'}` : value),
+    get: () => `#${rgba.value?.rgb ?? '000000'}`,
+    set: (value) => {
+        emit('update:modelValue', props.alpha ? `${value}${rgba.value?.a ?? '00'}` : value)
+    },
 })
 
 const isError = computed(() => !validateInput(props, () => !!rgba.value))

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useView } from '../../composables/view'
-import { Skin } from '../../core/skin'
+import { type Skin } from '../../core/skin'
 import MyField from '../ui/MyField.vue'
 import MyImageInput from '../ui/MyImageInput.vue'
 import MySection from '../ui/MySection.vue'

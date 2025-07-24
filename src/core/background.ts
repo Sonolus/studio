@@ -1,11 +1,11 @@
 import {
-    BackgroundConfiguration,
-    BackgroundData,
-    BackgroundItem,
-    ServerItemDetails,
-    ServerItemList,
+    type BackgroundConfiguration,
+    type BackgroundData,
+    type BackgroundItem,
+    type ServerItemDetails,
+    type ServerItemList,
 } from '@sonolus/core'
-import { PackProcess, Project, UnpackProcess } from './project'
+import { type PackProcess, type Project, type UnpackProcess } from './project'
 import { load } from './storage'
 import { emptySrl, packJson, packRaw, unpackJson } from './utils'
 
@@ -46,7 +46,9 @@ export function addBackgroundToWhitelist(background: Background, whitelist: Set<
 }
 
 export function packBackgrounds(process: PackProcess, project: Project) {
-    project.backgrounds.forEach((background, name) => packBackground(process, name, background))
+    for (const [name, background] of project.backgrounds) {
+        packBackground(process, name, background)
+    }
 }
 
 function packBackground(
@@ -118,7 +120,7 @@ function packBackground(
 
     tasks.push({
         description: `Generating background "${name}" details...`,
-        async execute() {
+        execute() {
             addJson<ServerItemDetails<BackgroundItem>>(`/sonolus/backgrounds/${name}`, {
                 item,
                 description: background.description,
@@ -142,7 +144,9 @@ export function unpackBackgrounds(process: UnpackProcess) {
             )
             if (!list) return
 
-            list.items.forEach(({ name }) => unpackBackground(process, name))
+            for (const { name } of list.items) {
+                unpackBackground(process, name)
+            }
         },
     })
 }
@@ -159,7 +163,7 @@ function unpackBackground({ project, tasks, getRaw, getJson }: UnpackProcess, na
             item.title = details.item.title
             item.subtitle = details.item.subtitle
             item.author = details.item.author
-            item.description = details.description || ''
+            item.description = details.description ?? ''
 
             tasks.push({
                 description: `Unpacking background "${name}" thumbnail...`,

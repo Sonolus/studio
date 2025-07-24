@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Component, computed, ref } from 'vue'
-import { Validator } from '../../core/validation'
+import { type Component, computed, ref } from 'vue'
+import { type Validator } from '../../core/validation'
 import IconCheck from '../../icons/check-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
 import MyButton from '../ui/MyButton.vue'
@@ -18,7 +18,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'close', result?: string): void
+    close: [result?: string]
 }>()
 
 const value = ref(props.data.defaultValue)

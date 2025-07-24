@@ -1,4 +1,4 @@
-import { ParticleDataGroupParticlePropertyExpression } from '@sonolus/core'
+import { type ParticleDataGroupParticlePropertyExpression } from '@sonolus/core'
 import { createEquationToExpression } from './expression'
 
 export type PropertyExpression = Required<ParticleDataGroupParticlePropertyExpression>

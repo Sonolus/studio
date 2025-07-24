@@ -3,8 +3,8 @@ import { computed } from 'vue'
 import { show } from '../../composables/modal'
 import { useView } from '../../composables/view'
 import { easings } from '../../core/ease'
-import { Particle } from '../../core/particle'
-import { PropertyExpression, allZero } from '../../core/property-expression'
+import { type Particle } from '../../core/particle'
+import { type PropertyExpression, allZero } from '../../core/property-expression'
 import IconEdit from '../../icons/edit-solid.svg?component'
 import ModalPropertyExpressionEquation from '../modals/ModalPropertyExpressionEquation.vue'
 import MyButton from '../ui/MyButton.vue'
@@ -20,14 +20,12 @@ const props = defineProps<{
     data: Particle
 }>()
 
-const v = useView(
-    props,
-    'particles',
+const v = useView(props, 'particles', (v, view) => {
+    const effect = v.value.data.effects.find(({ name }) => name === view.value[3])
+
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    (v, view) =>
-        v.value.data.effects.find(({ name }) => name === view.value[3])!.groups[+view.value[5]]
-            .particles[+view.value[7]],
-)
+    return effect!.groups[+view.value[5]!]!.particles[+view.value[7]!]!
+})
 
 const spriteOptions = computed(() =>
     Object.fromEntries(

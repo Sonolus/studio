@@ -15,14 +15,14 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: number): void
+    'update:modelValue': [value: number]
 }>()
 
 const el = ref<HTMLDivElement>()
 
 const value = computed({
     get: () => props.modelValue,
-    set: (value) =>
+    set: (value) => {
         emit(
             'update:modelValue',
             Math.max(
@@ -32,7 +32,8 @@ const value = computed({
                     props.min + Math.round((value - props.min) / props.step) * props.step,
                 ),
             ),
-        ),
+        )
+    },
 })
 
 function increase() {

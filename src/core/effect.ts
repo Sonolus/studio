@@ -1,13 +1,13 @@
 import {
     EffectClipName,
-    EffectData,
-    EffectItem,
-    ServerItemDetails,
-    ServerItemList,
+    type EffectData,
+    type EffectItem,
+    type ServerItemDetails,
+    type ServerItemList,
 } from '@sonolus/core'
 import JSZip from 'jszip'
 import { formatNameKey } from './names'
-import { PackProcess, Project, UnpackProcess } from './project'
+import { type PackProcess, type Project, type UnpackProcess } from './project'
 import { load } from './storage'
 import { emptySrl, packArrayBuffer, packJson, packRaw, unpackJson } from './utils'
 
@@ -58,11 +58,16 @@ export function formatEffectClipName(name: string) {
 
 export function addEffectToWhitelist(effect: Effect, whitelist: Set<string>) {
     whitelist.add(effect.thumbnail)
-    Object.values(effect.data.clips).forEach(({ url }) => whitelist.add(url))
+
+    for (const { url } of effect.data.clips) {
+        whitelist.add(url)
+    }
 }
 
 export function packEffects(process: PackProcess, project: Project) {
-    project.effects.forEach((effect, name) => packEffect(process, name, effect))
+    for (const [name, effect] of project.effects) {
+        packEffect(process, name, effect)
+    }
 }
 
 function packEffect(
@@ -148,7 +153,7 @@ function packEffect(
 
     tasks.push({
         description: `Generating SFX "${name}" details...`,
-        async execute() {
+        execute() {
             addJson<ServerItemDetails<EffectItem>>(`/sonolus/effects/${name}`, {
                 item,
                 description: effect.description,
@@ -170,7 +175,9 @@ export function unpackEffects(process: UnpackProcess) {
             const list = await getJsonOptional<ServerItemList<EffectItem>>('/sonolus/effects/list')
             if (!list) return
 
-            list.items.forEach(({ name }) => unpackEffect(process, name))
+            for (const { name } of list.items) {
+                unpackEffect(process, name)
+            }
         },
     })
 }
@@ -185,7 +192,7 @@ function unpackEffect({ project, tasks, getRaw, getJson }: UnpackProcess, name: 
             item.title = details.item.title
             item.subtitle = details.item.subtitle
             item.author = details.item.author
-            item.description = details.description || ''
+            item.description = details.description ?? ''
 
             let effectAudio: JSZip
 
@@ -208,14 +215,14 @@ function unpackEffect({ project, tasks, getRaw, getJson }: UnpackProcess, name: 
                 async execute() {
                     const data = await unpackJson<EffectData>(await getRaw(details.item.data.url))
 
-                    data.clips.forEach(({ name: clipName, filename }) => {
+                    for (const { name: clipName, filename } of data.clips) {
                         tasks.push({
                             description: `Unpacking SFX "${name}" clip "${formatEffectClipName(
                                 clipName,
                             )}"...`,
                             async execute() {
                                 const file = effectAudio.file(filename)
-                                if (!file) throw `"${filename}" not found`
+                                if (!file) throw new Error(`"${filename}" not found`)
 
                                 item.data.clips.push({
                                     name: clipName,
@@ -223,7 +230,7 @@ function unpackEffect({ project, tasks, getRaw, getJson }: UnpackProcess, name: 
                                 })
                             },
                         })
-                    })
+                    }
                 },
             })
 

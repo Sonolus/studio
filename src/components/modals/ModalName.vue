@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Component, computed, ref } from 'vue'
+import { type Component, computed, ref } from 'vue'
 import { formatNameKey } from '../../core/names'
-import { Validator } from '../../core/validation'
+import { type Validator } from '../../core/validation'
 import IconCheck from '../../icons/check-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
 import MyButton from '../ui/MyButton.vue'
@@ -21,7 +21,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'close', result?: string): void
+    close: [result?: string]
 }>()
 
 const options = computed(() =>
@@ -29,7 +29,8 @@ const options = computed(() =>
 )
 
 const type = ref<'general' | 'custom'>('general')
-const generalName = ref(Object.values(options.value)[0])
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const generalName = ref(Object.values(options.value)[0]!)
 const customName = ref('')
 
 const value = computed(() => {
@@ -39,7 +40,7 @@ const value = computed(() => {
         case 'custom':
             return customName.value
         default:
-            throw 'Unexpected type'
+            throw new Error('Unexpected type')
     }
 })
 

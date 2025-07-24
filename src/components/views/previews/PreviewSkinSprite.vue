@@ -5,8 +5,8 @@ import { useCanvas } from '../../../composables/canvas'
 import { inverseBilinear } from '../../../core/bilinear-interpolation'
 import { execute } from '../../../core/expression'
 import { sample } from '../../../core/sampling'
-import { Skin } from '../../../core/skin'
-import { Rect, getImageBuffer, getImageInfo } from '../../../core/utils'
+import { type Skin } from '../../../core/skin'
+import { type Rect, getImageBuffer, getImageInfo } from '../../../core/utils'
 import MyColorInput from '../../ui/MyColorInput.vue'
 import MyField from '../../ui/MyField.vue'
 
@@ -67,8 +67,7 @@ watchPostEffect(() => {
     drawRect(ctx, rectTransformed.value, 'rgba(255, 255, 255, 0.25)')
     drawRect(ctx, rect.value, 'rgba(255, 255, 255, 0.5)')
 
-    for (let i = 0; i < rect.value.length; i++) {
-        const [x, y] = rect.value[i]
+    for (const [i, [x, y]] of rect.value.entries()) {
         ctx.beginPath()
         ctx.arc(x, y, 0.02, 0, 2 * Math.PI)
         ctx.closePath()

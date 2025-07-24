@@ -12,7 +12,7 @@ defineProps<{
 }>()
 
 defineEmits<{
-    (e: 'close', result?: boolean): void
+    close: [result?: boolean]
 }>()
 </script>
 

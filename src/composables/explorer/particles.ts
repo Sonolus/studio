@@ -1,6 +1,6 @@
 import { ParticleEffectName } from '@sonolus/core'
 import { markRaw } from 'vue'
-import { ExplorerItem, isOpened, onClone, onDelete, onDeleteAll, onNew, onRename } from '.'
+import { type ExplorerItem, isOpened, onClone, onDelete, onDeleteAll, onNew, onRename } from '.'
 import ModalName from '../../components/modals/ModalName.vue'
 import { newId } from '../../core/id'
 import {
@@ -19,7 +19,7 @@ import IconFolder from '../../icons/folder-solid.svg?component'
 import IconParticle from '../../icons/particle.svg?component'
 import IconPlus from '../../icons/plus-solid.svg?component'
 import { show } from '../modal'
-import { UseStateReturn, push } from '../state'
+import { type UseStateReturn, push } from '../state'
 
 export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
     items.push({
@@ -28,27 +28,47 @@ export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
         hasChildren: true,
         icon: IconParticle,
         title: `Particles (${state.project.value.particles.size})`,
-        onNew: () =>
-            onNew(state, 'particles', 'New Particle', 'Enter particle name...', newParticle()),
-        onDelete: () => onDeleteAll(state, 'particles'),
+        onNew: () => {
+            void onNew(state, 'particles', 'New Particle', 'Enter particle name...', newParticle())
+        },
+        onDelete: () => {
+            onDeleteAll(state, 'particles')
+        },
     })
 
     if (!isOpened(['particles'])) return
-    state.project.value.particles.forEach((particle, name) => {
+
+    for (const [name, particle] of state.project.value.particles) {
         items.push({
             level: 1,
             path: ['particles', name],
             hasChildren: true,
             icon: particle.thumbnail,
             title: name,
-            onRename: () =>
-                onRename(state, 'particles', 'Rename Particle', 'Enter new particle name...', name),
-            onClone: () =>
-                onClone(state, 'particles', 'Clone Particle', 'Enter new particle name...', name),
-            onDelete: () => onDelete(state, 'particles', name),
+            onRename: () => {
+                void onRename(
+                    state,
+                    'particles',
+                    'Rename Particle',
+                    'Enter new particle name...',
+                    name,
+                )
+            },
+            onClone: () => {
+                void onClone(
+                    state,
+                    'particles',
+                    'Clone Particle',
+                    'Enter new particle name...',
+                    name,
+                )
+            },
+            onDelete: () => {
+                onDelete(state, 'particles', name)
+            },
         })
 
-        if (!isOpened(['particles', name])) return
+        if (!isOpened(['particles', name])) continue
 
         items.push({
             level: 2,
@@ -56,11 +76,16 @@ export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
             hasChildren: true,
             icon: IconFolder,
             title: `Sprites (${particle.data.sprites.length})`,
-            onNew: () => onNewParticleSprite(state, name),
-            onDelete: () => onDeleteParticleSprites(state, name),
+            onNew: () => {
+                onNewParticleSprite(state, name)
+            },
+            onDelete: () => {
+                onDeleteParticleSprites(state, name)
+            },
         })
+
         if (isOpened(['particles', name, 'sprites'])) {
-            particle.data.sprites.forEach(({ id: spriteId, texture }, index) => {
+            for (const [index, { id: spriteId, texture }] of particle.data.sprites.entries()) {
                 items.push({
                     level: 3,
                     path: ['particles', name, 'sprites', spriteId],
@@ -68,9 +93,11 @@ export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
                     icon: texture,
                     fallback: IconFileImage,
                     title: `Sprite #${index + 1}`,
-                    onDelete: () => onDeleteParticleSprite(state, name, spriteId),
+                    onDelete: () => {
+                        onDeleteParticleSprite(state, name, spriteId)
+                    },
                 })
-            })
+            }
         }
 
         items.push({
@@ -79,11 +106,16 @@ export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
             hasChildren: true,
             icon: IconFolder,
             title: `Effects (${particle.data.effects.length})`,
-            onNew: () => onNewParticleEffect(state, name),
-            onDelete: () => onDeleteParticleEffects(state, name),
+            onNew: () => {
+                void onNewParticleEffect(state, name)
+            },
+            onDelete: () => {
+                onDeleteParticleEffects(state, name)
+            },
         })
+
         if (isOpened(['particles', name, 'effects'])) {
-            particle.data.effects.forEach(({ name: effectName, groups }) => {
+            for (const { name: effectName, groups } of particle.data.effects) {
                 items.push({
                     level: 3,
                     path: ['particles', name, 'effects', effectName],
@@ -91,26 +123,38 @@ export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
                     icon: IconParticle,
                     fallback: IconFileImage,
                     title: formatParticleEffectName(effectName),
-                    onNew: () => onNewParticleEffectGroup(state, name, effectName),
-                    onRename: () => onRenameParticleEffect(state, name, effectName),
-                    onClone: () => onCloneParticleEffect(state, name, effectName),
-                    onDelete: () => onDeleteParticleEffect(state, name, effectName),
+                    onNew: () => {
+                        onNewParticleEffectGroup(state, name, effectName)
+                    },
+                    onRename: () => {
+                        void onRenameParticleEffect(state, name, effectName)
+                    },
+                    onClone: () => {
+                        void onCloneParticleEffect(state, name, effectName)
+                    },
+                    onDelete: () => {
+                        onDeleteParticleEffect(state, name, effectName)
+                    },
                 })
 
-                if (!isOpened(['particles', name, 'effects', effectName])) return
-                groups.forEach(({ particles }, groupIndex) => {
+                if (!isOpened(['particles', name, 'effects', effectName])) continue
+
+                for (const [groupIndex, { particles }] of groups.entries()) {
                     items.push({
                         level: 4,
                         path: ['particles', name, 'effects', effectName, 'groups', `${groupIndex}`],
                         hasChildren: true,
                         icon: IconFolder,
                         title: `Group #${groupIndex}`,
-                        onNew: () =>
-                            onNewParticleEffectGroupParticle(state, name, effectName, groupIndex),
-                        onClone: () =>
-                            onCloneParticleEffectGroup(state, name, effectName, groupIndex),
-                        onDelete: () =>
-                            onDeleteParticleEffectGroup(state, name, effectName, groupIndex),
+                        onNew: () => {
+                            onNewParticleEffectGroupParticle(state, name, effectName, groupIndex)
+                        },
+                        onClone: () => {
+                            onCloneParticleEffectGroup(state, name, effectName, groupIndex)
+                        },
+                        onDelete: () => {
+                            onDeleteParticleEffectGroup(state, name, effectName, groupIndex)
+                        },
                     })
 
                     if (
@@ -123,8 +167,9 @@ export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
                             `${groupIndex}`,
                         ])
                     )
-                        return
-                    particles.forEach(({ spriteId }, particleIndex) => {
+                        continue
+
+                    for (const [particleIndex, { spriteId }] of particles.entries()) {
                         items.push({
                             level: 5,
                             path: [
@@ -143,33 +188,35 @@ export function addParticleItems(state: UseStateReturn, items: ExplorerItem[]) {
                                 '',
                             fallback: IconFileImage,
                             title: `Particle #${particleIndex}`,
-                            onClone: () =>
+                            onClone: () => {
                                 onCloneParticleEffectGroupParticle(
                                     state,
                                     name,
                                     effectName,
                                     groupIndex,
                                     particleIndex,
-                                ),
-                            onDelete: () =>
+                                )
+                            },
+                            onDelete: () => {
                                 onDeleteParticleEffectGroupParticle(
                                     state,
                                     name,
                                     effectName,
                                     groupIndex,
                                     particleIndex,
-                                ),
+                                )
+                            },
                         })
-                    })
-                })
-            })
+                    }
+                }
+            }
         }
-    })
+    }
 }
 
-async function onNewParticleSprite({ project }: UseStateReturn, name: string) {
+function onNewParticleSprite({ project }: UseStateReturn, name: string) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
 
     const spriteId = newId()
 
@@ -188,7 +235,7 @@ async function onNewParticleSprite({ project }: UseStateReturn, name: string) {
 
 async function onNewParticleEffect({ project, isExplorerOpened }: UseStateReturn, name: string) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
 
     const effectName = await show(ModalName, {
         icon: markRaw(IconPlus),
@@ -214,16 +261,12 @@ async function onNewParticleEffect({ project, isExplorerOpened }: UseStateReturn
     isExplorerOpened.value = false
 }
 
-async function onNewParticleEffectGroup(
-    { project }: UseStateReturn,
-    name: string,
-    effectName: string,
-) {
+function onNewParticleEffectGroup({ project }: UseStateReturn, name: string, effectName: string) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
 
     const effect = particle.data.effects.find(({ name }) => name === effectName)
-    if (!effect) throw 'Particle Effect not found'
+    if (!effect) throw new Error('Particle Effect not found')
 
     const newEffect = clone(effect)
     newEffect.groups.push(newParticleEffectGroup())
@@ -243,20 +286,20 @@ async function onNewParticleEffectGroup(
     })
 }
 
-async function onNewParticleEffectGroupParticle(
+function onNewParticleEffectGroupParticle(
     { project }: UseStateReturn,
     name: string,
     effectName: string,
     groupIndex: number,
 ) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
 
     const effect = particle.data.effects.find(({ name }) => name === effectName)
-    if (!effect) throw 'Particle Effect not found'
+    if (!effect) throw new Error('Particle Effect not found')
 
     const group = effect.groups[groupIndex]
-    if (!group) throw 'Particle Effect Group not found'
+    if (!group) throw new Error('Particle Effect Group not found')
 
     const newGroup = clone(group)
     newGroup.particles.push(newParticleEffectGroupParticle())
@@ -288,20 +331,20 @@ async function onNewParticleEffectGroupParticle(
     })
 }
 
-async function onDeleteParticleSprites({ project }: UseStateReturn, name: string) {
+function onDeleteParticleSprites({ project }: UseStateReturn, name: string) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
     if (!particle.data.sprites.length) return
 
     const newParticle = clone(particle)
     newParticle.data.sprites = []
-    newParticle.data.effects.forEach((effect) => {
-        effect.groups.forEach((group) => {
-            group.particles.forEach((particle) => {
+    for (const effect of newParticle.data.effects) {
+        for (const group of effect.groups) {
+            for (const particle of group.particles) {
                 particle.spriteId = ''
-            })
-        })
-    })
+            }
+        }
+    }
 
     const particles = new Map(project.value.particles)
     particles.set(name, newParticle)
@@ -313,21 +356,21 @@ async function onDeleteParticleSprites({ project }: UseStateReturn, name: string
     })
 }
 
-async function onDeleteParticleSprite({ project }: UseStateReturn, name: string, spriteId: string) {
+function onDeleteParticleSprite({ project }: UseStateReturn, name: string, spriteId: string) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
 
     const newParticle = clone(particle)
     newParticle.data.sprites = newParticle.data.sprites.filter(({ id }) => id !== spriteId)
-    newParticle.data.effects.forEach((effect) => {
-        effect.groups.forEach((group) => {
-            group.particles.forEach((particle) => {
+    for (const effect of newParticle.data.effects) {
+        for (const group of effect.groups) {
+            for (const particle of group.particles) {
                 if (particle.spriteId === spriteId) {
                     particle.spriteId = ''
                 }
-            })
-        })
-    })
+            }
+        }
+    }
 
     const particles = new Map(project.value.particles)
     particles.set(name, newParticle)
@@ -339,9 +382,9 @@ async function onDeleteParticleSprite({ project }: UseStateReturn, name: string,
     })
 }
 
-async function onDeleteParticleEffects({ project }: UseStateReturn, name: string) {
+function onDeleteParticleEffects({ project }: UseStateReturn, name: string) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
     if (!particle.data.effects.length) return
 
     const newParticle = clone(particle)
@@ -357,13 +400,9 @@ async function onDeleteParticleEffects({ project }: UseStateReturn, name: string
     })
 }
 
-async function onDeleteParticleEffect(
-    { project }: UseStateReturn,
-    name: string,
-    effectName: string,
-) {
+function onDeleteParticleEffect({ project }: UseStateReturn, name: string, effectName: string) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
 
     const newParticle = clone(particle)
     newParticle.data.effects = newParticle.data.effects.filter(({ name }) => name !== effectName)
@@ -378,17 +417,17 @@ async function onDeleteParticleEffect(
     })
 }
 
-async function onDeleteParticleEffectGroup(
+function onDeleteParticleEffectGroup(
     { project }: UseStateReturn,
     name: string,
     effectName: string,
     groupIndex: number,
 ) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
 
     const effect = particle.data.effects.find(({ name }) => name === effectName)
-    if (!effect) throw 'Particle Effect not found'
+    if (!effect) throw new Error('Particle Effect not found')
 
     const newEffect = clone(effect)
     newEffect.groups.splice(groupIndex, 1)
@@ -408,7 +447,7 @@ async function onDeleteParticleEffectGroup(
     })
 }
 
-async function onDeleteParticleEffectGroupParticle(
+function onDeleteParticleEffectGroupParticle(
     { project }: UseStateReturn,
     name: string,
     effectName: string,
@@ -416,13 +455,13 @@ async function onDeleteParticleEffectGroupParticle(
     particleIndex: number,
 ) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
 
     const effect = particle.data.effects.find(({ name }) => name === effectName)
-    if (!effect) throw 'Particle Effect not found'
+    if (!effect) throw new Error('Particle Effect not found')
 
     const group = effect.groups[groupIndex]
-    if (!group) throw 'Particle Effect Group not found'
+    if (!group) throw new Error('Particle Effect Group not found')
 
     const newGroup = clone(group)
     newGroup.particles.splice(particleIndex, 1)
@@ -451,10 +490,10 @@ async function onRenameParticleEffect(
     effectName: string,
 ) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
 
     const effect = particle.data.effects.find(({ name }) => name === effectName)
-    if (!effect) throw 'Particle Effect not found'
+    if (!effect) throw new Error('Particle Effect not found')
 
     const newName = await show(ModalName, {
         icon: markRaw(IconEdit),
@@ -495,10 +534,10 @@ async function onCloneParticleEffect(
     effectName: string,
 ) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
 
     const effect = particle.data.effects.find(({ name }) => name === effectName)
-    if (!effect) throw 'Particle Effect not found'
+    if (!effect) throw new Error('Particle Effect not found')
 
     const newName = await show(ModalName, {
         icon: markRaw(IconClone),
@@ -531,20 +570,20 @@ async function onCloneParticleEffect(
     })
 }
 
-async function onCloneParticleEffectGroup(
+function onCloneParticleEffectGroup(
     { project, view }: UseStateReturn,
     name: string,
     effectName: string,
     groupIndex: number,
 ) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
 
     const effect = particle.data.effects.find(({ name }) => name === effectName)
-    if (!effect) throw 'Particle Effect not found'
+    if (!effect) throw new Error('Particle Effect not found')
 
     const group = effect.groups[groupIndex]
-    if (!group) throw 'Particle Effect Group not found'
+    if (!group) throw new Error('Particle Effect Group not found')
 
     const newGroup = clone(group)
 
@@ -582,7 +621,7 @@ async function onCloneParticleEffectGroup(
     })
 }
 
-async function onCloneParticleEffectGroupParticle(
+function onCloneParticleEffectGroupParticle(
     { project, view }: UseStateReturn,
     name: string,
     effectName: string,
@@ -590,16 +629,16 @@ async function onCloneParticleEffectGroupParticle(
     particleIndex: number,
 ) {
     const particle = project.value.particles.get(name)
-    if (!particle) throw 'Particle not found'
+    if (!particle) throw new Error('Particle not found')
 
     const effect = particle.data.effects.find(({ name }) => name === effectName)
-    if (!effect) throw 'Particle Effect not found'
+    if (!effect) throw new Error('Particle Effect not found')
 
     const group = effect.groups[groupIndex]
-    if (!group) throw 'Particle Effect Group not found'
+    if (!group) throw new Error('Particle Effect Group not found')
 
     const groupParticle = group.particles[particleIndex]
-    if (!groupParticle) throw 'Particle Effect Group Particle not found'
+    if (!groupParticle) throw new Error('Particle Effect Group Particle not found')
 
     const newGroupParticle = clone(groupParticle)
 

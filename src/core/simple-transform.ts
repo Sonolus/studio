@@ -1,4 +1,4 @@
-import { Expression, Transform } from './skin'
+import { type Expression, type Transform } from './skin'
 
 type Point = {
     x: Expression
@@ -28,7 +28,7 @@ export function getSimpleTransform(
             x: { x1: 0, x2: 0, x3: 0, x4: 1, y1: 0, y2: 0, y3: 0, y4: 0 },
             y: { x1: 0, x2: 0, x3: 0, x4: 0, y1: 0, y2: 0, y3: 0, y4: 1 },
         },
-    ]
+    ] as const
 
     const t = scale(p[1], p[2], left, right)
     const b = scale(p[0], p[3], left, right)
@@ -54,7 +54,7 @@ function scale(a: Point, b: Point, m: number, n: number) {
     return [
         add(b, multiply(subtract(a, b), (m + l) / l)),
         add(a, multiply(subtract(b, a), (n + l) / l)),
-    ]
+    ] as const
 }
 
 function add(a: Point, b: Point): Point {

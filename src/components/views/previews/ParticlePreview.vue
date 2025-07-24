@@ -18,9 +18,9 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (event: 'update:elBack', value: HTMLCanvasElement | undefined): void
-    (event: 'update:elTop', value: HTMLCanvasElement | undefined): void
-    (event: 'update:randomize', value: number): void
+    'update:elBack': [value: HTMLCanvasElement | undefined]
+    'update:elTop': [value: HTMLCanvasElement | undefined]
+    'update:randomize': [value: number]
 }>()
 
 const { backgroundColor, duration, loop } = useParticlePreviewOptions()
@@ -28,8 +28,12 @@ const { backgroundColor, duration, loop } = useParticlePreviewOptions()
 const elBackRef = ref<HTMLCanvasElement>()
 const elTopRef = ref<HTMLCanvasElement>()
 
-watch(elBackRef, () => emit('update:elBack', elBackRef.value))
-watch(elTopRef, () => emit('update:elTop', elTopRef.value))
+watch(elBackRef, () => {
+    emit('update:elBack', elBackRef.value)
+})
+watch(elTopRef, () => {
+    emit('update:elTop', elTopRef.value)
+})
 </script>
 
 <template>

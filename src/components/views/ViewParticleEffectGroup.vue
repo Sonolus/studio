@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useView } from '../../composables/view'
-import { Particle } from '../../core/particle'
+import { type Particle } from '../../core/particle'
 import MyField from '../ui/MyField.vue'
 import MyNumberInput from '../ui/MyNumberInput.vue'
 import MySection from '../ui/MySection.vue'
@@ -13,9 +13,9 @@ const props = defineProps<{
 const v = useView(
     props,
     'particles',
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     (v, view) =>
-        v.value.data.effects.find(({ name }) => name === view.value[3])!.groups[+view.value[5]],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        v.value.data.effects.find(({ name }) => name === view.value[3])!.groups[+view.value[5]!]!,
 )
 </script>
 

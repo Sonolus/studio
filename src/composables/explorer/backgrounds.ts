@@ -1,7 +1,7 @@
-import { ExplorerItem, isOpened, onClone, onDelete, onDeleteAll, onNew, onRename } from '.'
+import { type ExplorerItem, isOpened, onClone, onDelete, onDeleteAll, onNew, onRename } from '.'
 import { newBackground } from '../../core/background'
 import IconImage from '../../icons/image-solid.svg?component'
-import { UseStateReturn } from '../state'
+import { type UseStateReturn } from '../state'
 
 export function addBackgroundItems(state: UseStateReturn, items: ExplorerItem[]) {
     items.push({
@@ -10,42 +10,50 @@ export function addBackgroundItems(state: UseStateReturn, items: ExplorerItem[])
         hasChildren: true,
         icon: IconImage,
         title: `Backgrounds (${state.project.value.backgrounds.size})`,
-        onNew: () =>
-            onNew(
+        onNew: () => {
+            void onNew(
                 state,
                 'backgrounds',
                 'New Background',
                 'Enter background name...',
                 newBackground(),
-            ),
-        onDelete: () => onDeleteAll(state, 'backgrounds'),
+            )
+        },
+        onDelete: () => {
+            onDeleteAll(state, 'backgrounds')
+        },
     })
 
     if (!isOpened(['backgrounds'])) return
-    state.project.value.backgrounds.forEach((background, name) => {
+
+    for (const [name, background] of state.project.value.backgrounds) {
         items.push({
             level: 1,
             path: ['backgrounds', name],
             hasChildren: false,
             icon: background.thumbnail,
             title: name,
-            onRename: () =>
-                onRename(
+            onRename: () => {
+                void onRename(
                     state,
                     'backgrounds',
                     'Rename Background',
                     'Enter new background name...',
                     name,
-                ),
-            onClone: () =>
-                onClone(
+                )
+            },
+            onClone: () => {
+                void onClone(
                     state,
                     'backgrounds',
                     'Clone Background',
                     'Enter new background name...',
                     name,
-                ),
-            onDelete: () => onDelete(state, 'backgrounds', name),
+                )
+            },
+            onDelete: () => {
+                onDelete(state, 'backgrounds', name)
+            },
         })
-    })
+    }
 }

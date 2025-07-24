@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { expressionToEquation } from '../../core/expression'
-import { TransformExpression, equationToTransformExpression } from '../../core/transform-expression'
+import {
+    type TransformExpression,
+    equationToTransformExpression,
+} from '../../core/transform-expression'
 import IconCheck from '../../icons/check-solid.svg?component'
 import IconEdit from '../../icons/edit-solid.svg?component'
 import IconTimes from '../../icons/times-solid.svg?component'
@@ -17,7 +20,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'close', result?: TransformExpression): void
+    close: [result?: TransformExpression]
 }>()
 
 const value = ref(expressionToEquation(props.data.defaultValue))

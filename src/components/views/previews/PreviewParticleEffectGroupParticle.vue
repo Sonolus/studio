@@ -2,7 +2,7 @@
 import { computedAsync } from '@vueuse/core'
 import { computed, watchPostEffect } from 'vue'
 import { useParticlePreview } from '../../../composables/particle-preview'
-import { Particle } from '../../../core/particle'
+import { type Particle } from '../../../core/particle'
 import { renderParticle } from '../../../core/particle-renderer'
 import { getParticleState } from '../../../core/particle-state'
 import { getPropertyExpressionRandom } from '../../../core/property-expression'
@@ -56,8 +56,7 @@ watchPostEffect(() => {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'
     ctx.stroke()
 
-    for (let i = 0; i < rect.value.length; i++) {
-        const [x, y] = rect.value[i]
+    for (const [i, [x, y]] of rect.value.entries()) {
         ctx.beginPath()
         ctx.arc(x, y, 0.02, 0, 2 * Math.PI)
         ctx.closePath()
@@ -78,6 +77,7 @@ const imageInfos = computedAsync(async () => {
     try {
         return {
             [props.particle.spriteId]: await getImageInfo(
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 props.sprites.find(({ id }) => id === props.particle.spriteId)!.texture,
             ),
         }

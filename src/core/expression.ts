@@ -1,12 +1,11 @@
 export type Expression = Record<string, number>
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export function execute<T extends Expression>(expression: T, values: T & {}) {
-    return Object.entries(expression).reduce((sum, [k, v]) => sum + values[k] * v, 0)
+    return Object.entries(expression).reduce((sum, [k, v]) => sum + (values[k] ?? 0) * v, 0)
 }
 
 export function expressionToEquation(expression: Expression) {
-    let equation = `${expression.c}`
+    let equation = `${expression.c ?? ''}`
 
     for (const [variable, value] of Object.entries(expression)) {
         if (variable === 'c') continue
@@ -19,8 +18,8 @@ export function expressionToEquation(expression: Expression) {
     return equation.startsWith('0+')
         ? equation.slice(2)
         : equation.startsWith('0-')
-        ? equation.slice(1)
-        : equation
+          ? equation.slice(1)
+          : equation
 }
 
 export function createEquationToExpression<T extends Expression>(allZero: T) {
@@ -55,7 +54,7 @@ export function createEquationToExpression<T extends Expression>(allZero: T) {
                 if (names.includes(segment)) return { name: segment }
 
                 const value = +segment
-                if (Number.isNaN(value)) throw 'Invalid number'
+                if (Number.isNaN(value)) throw new Error('Invalid number')
 
                 return value
             })
@@ -73,7 +72,7 @@ export function createEquationToExpression<T extends Expression>(allZero: T) {
                 const rhs = parseProduct(tokens)
                 lhs = add(lhs, multiply(rhs, -1))
             } else {
-                throw 'Invalid sum'
+                throw new Error('Invalid sum')
             }
         }
 
@@ -92,11 +91,11 @@ export function createEquationToExpression<T extends Expression>(allZero: T) {
                 } else if (isConstant(rhs)) {
                     lhs = multiply(lhs, rhs.c)
                 } else {
-                    throw 'Cannot multiply variables'
+                    throw new Error('Cannot multiply variables')
                 }
             } else if (token === '/') {
                 const rhs = parseTerm(tokens)
-                if (!isConstant(rhs)) throw 'Cannot divide by variable'
+                if (!isConstant(rhs)) throw new Error('Cannot divide by variable')
 
                 lhs = multiply(lhs, 1 / rhs.c)
             } else {
@@ -110,7 +109,7 @@ export function createEquationToExpression<T extends Expression>(allZero: T) {
 
     function parseTerm(tokens: Token[], multiplier = 1) {
         const token = tokens.shift()
-        if (token === undefined) throw 'Unexpected end of equation'
+        if (token === undefined) throw new Error('Unexpected end of equation')
 
         if (typeof token === 'number') {
             return { ...allZero, c: multiplier * token } as T
@@ -120,16 +119,16 @@ export function createEquationToExpression<T extends Expression>(allZero: T) {
             return parseTerm(tokens, -multiplier)
         }
 
-        throw 'Invalid term'
+        throw new Error('Invalid term')
     }
 
-    function isConstant(expression: T) {
+    function isConstant(expression: T): expression is T & { c: number } {
         return names.every((name) => expression[name] === 0)
     }
 
     function add(lhs: T, rhs: T) {
         return Object.fromEntries(
-            Object.entries(lhs).map(([k, v]) => [k, v + rhs[k as never]]),
+            Object.entries(lhs).map(([k, v]) => [k, v + (rhs[k as never] ?? 0)]),
         ) as T
     }
 

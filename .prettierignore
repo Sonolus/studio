@@ -1,0 +1,9 @@
+**/*.*
+
+!eslint.config.js
+!index.html
+!README.md
+!tailwind.config.js
+!vite.config.ts
+
+!src/**/*

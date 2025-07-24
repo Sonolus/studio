@@ -16,18 +16,19 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: string): void
+    'update:modelValue': [value: string]
 }>()
 
 const el = ref<HTMLInputElement>()
 
 const imageInfo = ref<string | false>()
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 watchEffect(async () => {
     imageInfo.value = undefined
     try {
         const { width, height } = await getImageInfo(props.modelValue)
         imageInfo.value = `${width} x ${height}`
-    } catch (error) {
+    } catch {
         imageInfo.value = false
     }
 })
@@ -52,7 +53,7 @@ function onFileInput() {
 }
 
 function open() {
-    show(ModalImage, { src: props.modelValue })
+    void show(ModalImage, { src: props.modelValue })
 }
 
 function clear() {
@@ -73,8 +74,8 @@ function clear() {
                         imageInfo === undefined
                             ? 'Loading...'
                             : imageInfo === false
-                            ? 'Error'
-                            : imageInfo
+                              ? 'Error'
+                              : imageInfo
                     }}
                 </div>
             </button>

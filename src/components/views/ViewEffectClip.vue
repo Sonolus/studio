@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useView } from '../../composables/view'
-import { Effect } from '../../core/effect'
+import { type Effect } from '../../core/effect'
 import MyAudioInput from '../ui/MyAudioInput.vue'
 import MyField from '../ui/MyField.vue'
 import MySection from '../ui/MySection.vue'

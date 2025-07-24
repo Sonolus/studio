@@ -10,7 +10,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: boolean): void
+    'update:modelValue': [value: boolean]
 }>()
 
 const el = ref<HTMLButtonElement>()
@@ -25,7 +25,9 @@ watchEffect(() => {
 
 const value = computed({
     get: () => props.modelValue,
-    set: (value) => emit('update:modelValue', value),
+    set: (value) => {
+        emit('update:modelValue', value)
+    },
 })
 
 function reset() {

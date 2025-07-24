@@ -1,24 +1,24 @@
 import {
-    BackgroundItem,
-    EffectItem,
-    PackageInfo,
-    ParticleItem,
-    ServerInfo,
-    ServerItemInfo,
-    ServerItemList,
-    SkinItem,
-    Srl,
+    type BackgroundItem,
+    type EffectItem,
+    type PackageInfo,
+    type ParticleItem,
+    type ServerInfo,
+    type ServerItemInfo,
+    type ServerItemList,
+    type SkinItem,
+    type Srl,
 } from '@sonolus/core'
 import JSZip from 'jszip'
 import {
-    Background,
+    type Background,
     addBackgroundToWhitelist,
     packBackgrounds,
     unpackBackgrounds,
 } from './background'
-import { Effect, addEffectToWhitelist, packEffects, unpackEffects } from './effect'
-import { Particle, addParticleToWhitelist, packParticles, unpackParticles } from './particle'
-import { Skin, addSkinToWhitelist, packSkins, unpackSkins } from './skin'
+import { type Effect, addEffectToWhitelist, packEffects, unpackEffects } from './effect'
+import { type Particle, addParticleToWhitelist, packParticles, unpackParticles } from './particle'
+import { type Skin, addSkinToWhitelist, packSkins, unpackSkins } from './skin'
 import { load } from './storage'
 import { packRaw } from './utils'
 
@@ -52,10 +52,22 @@ export function newProject(): Project {
 
 export function addProjectToWhitelist(project: Project, whitelist: Set<string>) {
     whitelist.add(project.banner)
-    project.skins.forEach((skin) => addSkinToWhitelist(skin, whitelist))
-    project.backgrounds.forEach((background) => addBackgroundToWhitelist(background, whitelist))
-    project.effects.forEach((effect) => addEffectToWhitelist(effect, whitelist))
-    project.particles.forEach((particle) => addParticleToWhitelist(particle, whitelist))
+
+    for (const skin of project.skins.values()) {
+        addSkinToWhitelist(skin, whitelist)
+    }
+
+    for (const background of project.backgrounds.values()) {
+        addBackgroundToWhitelist(background, whitelist)
+    }
+
+    for (const effect of project.effects.values()) {
+        addEffectToWhitelist(effect, whitelist)
+    }
+
+    for (const particle of project.particles.values()) {
+        addParticleToWhitelist(particle, whitelist)
+    }
 }
 
 export type PackProcess = {
@@ -66,12 +78,13 @@ export type PackProcess = {
 
     tasks: {
         description: string
-        execute: () => Promise<void>
+        execute: () => void | Promise<void>
     }[]
 
     canvas: HTMLCanvasElement
 
     addRaw: (path: string, data: Uint8Array) => void
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
     addJson: <T>(path: string, data: T) => void
 
     finish: () => Promise<Blob>
@@ -112,7 +125,7 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
 
     process.tasks.push({
         description: 'Generating package information...',
-        async execute() {
+        execute() {
             process.addJson<PackageInfo>('/sonolus/package', {
                 shouldUpdate: false,
             })
@@ -162,10 +175,10 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
         ['effect', 'effects'],
         ['particle', 'particles'],
         ['engine', 'engines'],
-    ]) {
+    ] as const) {
         process.tasks.push({
             description: `Generating ${name} info...`,
-            async execute() {
+            execute() {
                 process.addJson<ServerItemInfo>(`/sonolus/${path}/info`, {
                     sections: [],
                 })
@@ -174,9 +187,10 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
 
         process.tasks.push({
             description: `Generating ${name} list...`,
-            async execute() {
+            execute() {
                 process.addJson<ServerItemList<unknown>>(`/sonolus/${path}/list`, {
                     pageCount: 1,
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     items: process[path as never] ?? [],
                 })
             },
@@ -185,8 +199,8 @@ export function packProject(project: Project, canvas: HTMLCanvasElement) {
 
     return process
 
-    function add(path: string, data: unknown) {
-        if (!path.startsWith('/')) throw `"${path}" not allowed`
+    function add(path: string, data: string | Uint8Array) {
+        if (!path.startsWith('/')) throw new Error(`"${path}" not allowed`)
         path = path.slice(1)
 
         zip.file(path, data)
@@ -198,7 +212,7 @@ export type UnpackProcess = {
 
     tasks: {
         description: string
-        execute: () => Promise<void>
+        execute: () => void | Promise<void>
     }[]
 
     canvas: HTMLCanvasElement
@@ -224,13 +238,13 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
             return await get(path).async('blob')
         },
         async getJson(path: string | null | undefined) {
-            return JSON.parse(await get(path).async('string'))
+            return JSON.parse(await get(path).async('string')) as never
         },
         async getJsonOptional(path: string | null | undefined) {
             const file = getOptional(path)
             if (!file) return
 
-            return JSON.parse(await file.async('string'))
+            return JSON.parse(await file.async('string')) as never
         },
 
         async finish() {
@@ -245,7 +259,9 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
 
             const packageInfo = await process.getJson<PackageInfo>(`/sonolus/package`)
             if (packageInfo.shouldUpdate)
-                throw 'Package not supported. If the package is exported from Sonolus, please export again using Full mode.'
+                throw new Error(
+                    'Package not supported. If the package is exported from Sonolus, please export again using Full mode.',
+                )
         },
     })
 
@@ -271,14 +287,16 @@ export function unpackPackage(file: File, canvas: HTMLCanvasElement) {
     return process
 
     function getOptional(path: string | null | undefined) {
-        if (!path?.startsWith('/')) throw `"${path}" not allowed`
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        if (!path?.startsWith('/')) throw new Error(`"${path!}" not allowed`)
 
         return zip.file(path.slice(1))
     }
 
     function get(path: string | null | undefined) {
         const file = getOptional(path)
-        if (!file) throw `"${path}" not found`
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        if (!file) throw new Error(`"${path!}" not found`)
 
         return file
     }

@@ -15,12 +15,13 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: string): void
+    'update:modelValue': [value: string]
 }>()
 
 const el = ref<HTMLInputElement>()
 
 const audioInfo = ref<string | false>()
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 watchEffect(async () => {
     audioInfo.value = undefined
     try {
@@ -30,7 +31,7 @@ watchEffect(async () => {
             .padStart(2, '0')
         const seconds = (duration % 60).toFixed(2).padStart(5, '0')
         audioInfo.value = `${minutes}:${seconds}`
-    } catch (error) {
+    } catch {
         audioInfo.value = false
     }
 })
@@ -55,7 +56,7 @@ function onFileInput() {
 }
 
 function open() {
-    show(ModalAudio, { src: props.modelValue })
+    void show(ModalAudio, { src: props.modelValue })
 }
 
 function clear() {
@@ -79,8 +80,8 @@ function clear() {
                         audioInfo === undefined
                             ? 'Loading...'
                             : audioInfo === false
-                            ? 'Error'
-                            : audioInfo
+                              ? 'Error'
+                              : audioInfo
                     }}
                 </div>
             </button>

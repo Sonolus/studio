@@ -1,18 +1,18 @@
 import {
-    ParticleData,
+    type ParticleData,
     ParticleEffectName,
-    ParticleItem,
-    ServerItemDetails,
-    ServerItemList,
+    type ParticleItem,
+    type ServerItemDetails,
+    type ServerItemList,
 } from '@sonolus/core'
-import { Ease } from './ease'
+import { type Ease } from './ease'
 import { newId } from './id'
 import { formatNameKey } from './names'
-import { PackProcess, Project, UnpackProcess } from './project'
-import { PropertyExpression, allZero as allZeroProperty } from './property-expression'
+import { type PackProcess, type Project, type UnpackProcess } from './project'
+import { type PropertyExpression, allZero as allZeroProperty } from './property-expression'
 import { bakeSprite, tryCalculateLayout } from './sprite-sheet'
 import { load } from './storage'
-import { TransformExpression, allZero as allZeroTransform } from './transform-expression'
+import { type TransformExpression, allZero as allZeroTransform } from './transform-expression'
 import { emptySrl, getBlob, getImageInfo, packJson, packRaw, unpackJson } from './utils'
 
 export type Particle = {
@@ -153,11 +153,16 @@ export function formatParticleEffectName(name: string) {
 
 export function addParticleToWhitelist(particle: Particle, whitelist: Set<string>) {
     whitelist.add(particle.thumbnail)
-    particle.data.sprites.forEach((s) => whitelist.add(s.texture))
+
+    for (const { texture } of particle.data.sprites) {
+        whitelist.add(texture)
+    }
 }
 
 export function packParticles(process: PackProcess, project: Project) {
-    project.particles.forEach((particle, name) => packParticle(process, name, particle))
+    for (const [name, particle] of project.particles) {
+        packParticle(process, name, particle)
+    }
 }
 
 function packParticle(
@@ -201,7 +206,7 @@ function packParticle(
     tasks.push({
         description: `Packing particle "${name}" texture...`,
         async execute() {
-            particle.data.effects.forEach(({ name, transform, groups }) => {
+            for (const { name, transform, groups } of particle.data.effects) {
                 particleData.effects.push({
                     name,
                     transform,
@@ -225,7 +230,7 @@ function packParticle(
                         ),
                     })),
                 })
-            })
+            }
 
             const { size, layouts } = await tryCalculateLayout(
                 particle.data.sprites.map(({ id, padding, texture }) => ({
@@ -242,13 +247,13 @@ function packParticle(
             canvas.height = size
 
             const ctx = canvas.getContext('2d')
-            if (!ctx) throw 'Failed to obtain canvas context'
+            if (!ctx) throw new Error('Failed to obtain canvas context')
 
             ctx.clearRect(0, 0, size, size)
 
             for (const { name, x, y, w, h } of layouts) {
                 const sprite = particle.data.sprites.find(({ id }) => id === name)
-                if (!sprite) throw 'Unexpected missing sprite'
+                if (!sprite) throw new Error('Unexpected missing sprite')
 
                 particleData.sprites[particle.data.sprites.indexOf(sprite)] = {
                     x: x + (sprite.padding.left ? 1 : 0),
@@ -287,7 +292,7 @@ function packParticle(
 
     tasks.push({
         description: `Generating particle "${name}" details...`,
-        async execute() {
+        execute() {
             addJson<ServerItemDetails<ParticleItem>>(`/sonolus/particles/${name}`, {
                 item,
                 description: particle.description,
@@ -306,12 +311,13 @@ export function unpackParticles(process: UnpackProcess) {
     tasks.push({
         description: 'Loading particle list...',
         async execute() {
-            const list = await getJsonOptional<ServerItemList<ParticleItem>>(
-                '/sonolus/particles/list',
-            )
+            const list =
+                await getJsonOptional<ServerItemList<ParticleItem>>('/sonolus/particles/list')
             if (!list) return
 
-            list.items.forEach(({ name }) => unpackParticle(process, name))
+            for (const { name } of list.items) {
+                unpackParticle(process, name)
+            }
         },
     })
 }
@@ -328,9 +334,9 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
             item.title = details.item.title
             item.subtitle = details.item.subtitle
             item.author = details.item.author
-            item.description = details.description || ''
+            item.description = details.description ?? ''
 
-            let img: HTMLImageElement
+            let img: HTMLImageElement | undefined
 
             tasks.push({
                 description: `Unpacking particle "${name}" thumbnail...`,
@@ -355,7 +361,7 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
 
                     item.data.interpolation = data.interpolation
 
-                    data.sprites.forEach(({ x, y, w, h }, index) => {
+                    for (const [index, { x, y, w, h }] of data.sprites.entries()) {
                         const spriteId = newId()
 
                         const sprite = newParticleSprite(spriteId)
@@ -363,10 +369,10 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
                         tasks.push({
                             description: `Unpacking skin "${name}" sprite #${index + 1}...`,
                             async execute() {
-                                if (!img) throw 'Unexpected missing skin texture'
+                                if (!img) throw new Error('Unexpected missing skin texture')
 
                                 const ctx = canvas.getContext('2d')
-                                if (!ctx) throw 'Failed to obtain canvas context'
+                                if (!ctx) throw new Error('Failed to obtain canvas context')
 
                                 canvas.width = w
                                 canvas.height = h
@@ -377,11 +383,11 @@ function unpackParticle({ project, tasks, canvas, getRaw, getJson }: UnpackProce
                         })
 
                         item.data.sprites.push(sprite)
-                    })
+                    }
 
                     tasks.push({
                         description: `Unpacking particle "${name}" effects...`,
-                        async execute() {
+                        execute() {
                             item.data.effects = data.effects.map((effect) => ({
                                 name: effect.name,
                                 transform: {
