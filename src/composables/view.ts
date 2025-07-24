@@ -1,34 +1,32 @@
-import { computed, type Ref, toRef } from 'vue'
+import { computed, type Ref, toRaw } from 'vue'
 import { type ProjectItemTypeOf } from '../core/project'
 import { clone } from '../core/utils'
 import { push, useState } from './state'
 
-export function useView<T, U = T>(
+export function useView<T extends object, U = T>(
     props: { data: T },
     type: ProjectItemTypeOf<T>,
     getter?: (v: Ref<T>, view: Ref<string[]>) => U,
 ): Ref<U> {
     const { project, view } = useState()
 
-    const v = toRef(bind(props), 'data')
+    const v = computed(() => bind(toRaw(props.data), ['data']))
     return getter ? computed(() => getter(v, view)) : (v as never)
 
-    function bind<T extends Record<string, unknown>>(data: T, path = [] as string[]): T {
+    function bind<T extends object>(data: T, path: string[]): T {
         return new Proxy(data, {
             get(target, prop, receiver) {
-                const keyPath = [...path, prop as string]
+                const keyPath = [...path, prop as never]
 
                 const value = Reflect.get(target, prop, receiver)
 
-                return typeof value === 'object'
-                    ? bind(value as Record<string, unknown>, keyPath)
-                    : value
+                return typeof value === 'object' && value ? bind(value, keyPath) : value
             },
             set(target, prop, value, receiver) {
                 const oldValue = Reflect.get(target, prop, receiver)
                 if (oldValue === value) return true
 
-                update([...path, prop as string], value)
+                update([...path, prop as never], value)
                 return true
             },
         })
