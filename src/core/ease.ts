@@ -74,8 +74,10 @@ export const easings: Record<Ease, (x: number) => number> = {
     outBack: (x) => 1 + 2.70158 * (x - 1) * (x - 1) * (x - 1) + 1.70158 * (x - 1) * (x - 1),
     inOutBack: (x) =>
         x < 0.5
-            ? 2 * x * x * (7.18982 * x - 2.59491)
-            : (x - 1) * (2 * x - 2) * (3.59491 * (x * 2 - 2) + 2.59491) + 1,
+            ? 4 * 2.70158 * x * x * x - 2 * 1.70158 * x * x
+            : 1 +
+              0.5 * 2.70158 * (2 * x - 2) * (2 * x - 2) * (2 * x - 2) +
+              0.5 * 1.70158 * (2 * x - 2) * (2 * x - 2),
     outInBack: (x) =>
         x < 0.5
             ? 0.5 +
@@ -102,11 +104,9 @@ export const easings: Record<Ease, (x: number) => number> = {
             : x == 1
               ? 1
               : x < 0.5
-                ? -(Math.pow(2, 20 * x - 10) * Math.sin(((20 * x - 11.125) * 2 * Math.PI) / 4.5)) /
-                  2
-                : (Math.pow(2, -20 * x + 10) * Math.sin(((20 * x - 11.125) * 2 * Math.PI) / 4.5)) /
-                      2 +
-                  1,
+                ? (-Math.pow(2, 20 * x - 10) * Math.sin(((20 * x - 10.75) * 2 * Math.PI) / 3)) / 2
+                : 1 +
+                  (Math.pow(2, -20 * x + 10) * Math.sin(((20 * x - 10.75) * 2 * Math.PI) / 3)) / 2,
     outInElastic: (x) =>
         x == 0
             ? 0
