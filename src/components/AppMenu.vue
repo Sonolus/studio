@@ -289,5 +289,5 @@ function onKeyDown(e: KeyboardEvent) {
 
     <div v-if="openedIndex !== undefined" class="fixed z-30 h-full w-full" @click="close()" />
 
-    <input ref="el" class="hidden" type="file" @input="onFileInput()" />
+    <input ref="el" class="hidden" type="file" accept=".scp,.zip" @input="onFileInput()" />
 </template>
