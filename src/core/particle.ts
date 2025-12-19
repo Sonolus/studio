@@ -1,5 +1,6 @@
 import {
     type ParticleData,
+    type ParticleDataGroupParticle,
     ParticleEffectName,
     type ParticleItem,
     type ServerItemDetails,
@@ -165,6 +166,44 @@ export function packParticles(process: PackProcess, project: Project) {
     }
 }
 
+function prune(expression: Record<string, number>) {
+    const res: Record<string, number> = {}
+    for (const [k, v] of Object.entries(expression)) {
+        if (v !== 0) res[k] = v
+    }
+    return res
+}
+
+function pruneNode(
+    from: Record<string, number> | undefined,
+    to: Record<string, number> | undefined,
+) {
+    const newFrom: Record<string, number> = {}
+    const newTo: Record<string, number> = {}
+
+    const f = from ?? {}
+    const t = to ?? {}
+
+    const keys = new Set([...Object.keys(f), ...Object.keys(t)])
+
+    for (const key of keys) {
+        const vFrom = f[key] ?? 0
+        const vTo = t[key] ?? 0
+
+        if (vFrom !== 0 || vTo !== 0) {
+            newFrom[key] = vFrom
+            newTo[key] = vTo
+        }
+    }
+
+    if (Object.keys(newFrom).length === 0) {
+        newFrom.c = 0
+        newTo.c = 0
+    }
+
+    return { from: newFrom, to: newTo }
+}
+
 function packParticle(
     { particles, tasks, canvas, addRaw, addJson }: PackProcess,
     name: string,
@@ -209,24 +248,49 @@ function packParticle(
             for (const { name, transform, groups } of particle.data.effects) {
                 particleData.effects.push({
                     name,
-                    transform,
+                    transform: {
+                        x1: prune(transform.x1),
+                        x2: prune(transform.x2),
+                        x3: prune(transform.x3),
+                        x4: prune(transform.x4),
+                        y1: prune(transform.y1),
+                        y2: prune(transform.y2),
+                        y3: prune(transform.y3),
+                        y4: prune(transform.y4),
+                    },
                     groups: groups.map(({ count, particles }) => ({
                         count,
                         particles: particles.map(
-                            ({ spriteId, color, start, duration, x, y, w, h, r, a }) => ({
-                                sprite: particle.data.sprites.findIndex(
-                                    ({ id }) => id === spriteId,
-                                ),
-                                color,
-                                start,
-                                duration,
-                                x: { from: x.from, to: x.to, ease: x.ease },
-                                y: { from: y.from, to: y.to, ease: y.ease },
-                                w: { from: w.from, to: w.to, ease: w.ease },
-                                h: { from: h.from, to: h.to, ease: h.ease },
-                                r: { from: r.from, to: r.to, ease: r.ease },
-                                a: { from: a.from, to: a.to, ease: a.ease },
-                            }),
+                            ({ spriteId, color, start, duration, x, y, w, h, r, a }) => {
+                                const p: Partial<ParticleDataGroupParticle> = {
+                                    sprite: particle.data.sprites.findIndex(
+                                        ({ id }) => id === spriteId,
+                                    ),
+                                    color,
+                                    start,
+                                    duration,
+                                }
+
+                                const px = pruneNode(x.from, x.to)
+                                if (Object.keys(px.from).length > 0) p.x = { ...px, ease: x.ease }
+
+                                const py = pruneNode(y.from, y.to)
+                                if (Object.keys(py.from).length > 0) p.y = { ...py, ease: y.ease }
+
+                                const pw = pruneNode(w.from, w.to)
+                                if (Object.keys(pw.from).length > 0) p.w = { ...pw, ease: w.ease }
+
+                                const ph = pruneNode(h.from, h.to)
+                                if (Object.keys(ph.from).length > 0) p.h = { ...ph, ease: h.ease }
+
+                                const pr = pruneNode(r.from, r.to)
+                                if (Object.keys(pr.from).length > 0) p.r = { ...pr, ease: r.ease }
+
+                                const pa = pruneNode(a.from, a.to)
+                                if (Object.keys(pa.from).length > 0) p.a = { ...pa, ease: a.ease }
+
+                                return p as ParticleDataGroupParticle
+                            },
                         ),
                     })),
                 })
