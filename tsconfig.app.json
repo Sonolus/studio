@@ -9,5 +9,6 @@
     "types": ["vite/client", "vite-svg-loader"],
 
     "noUncheckedIndexedAccess": true,
+    "downlevelIteration": true,
   }
 }
