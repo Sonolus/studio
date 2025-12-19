@@ -139,8 +139,45 @@ function packSkin(
     tasks.push({
         description: `Packing skin "${name}" texture...`,
         async execute() {
+            const uniqueSprites = new Map<
+                string,
+                {
+                    name: string
+                    texture: string
+                    padding: {
+                        left: boolean
+                        right: boolean
+                        top: boolean
+                        bottom: boolean
+                    }
+                }
+            >()
+            const spriteMapping = new Map<string, string>()
+            const textureHashCache = new Map<string, string>()
+            for (const s of skin.data.sprites) {
+                let hash = textureHashCache.get(s.texture)
+                if (!hash) {
+                    const result = await packRaw(s.texture)
+                    hash = result.hash
+                    textureHashCache.set(s.texture, hash)
+                }
+                const key = `${hash}:${Number(s.padding.left)}:${Number(s.padding.right)}:${Number(s.padding.top)}:${Number(s.padding.bottom)}`
+                let unique = uniqueSprites.get(key)
+                if (!unique) {
+                    unique = {
+                        name: s.name,
+                        texture: s.texture,
+                        padding: s.padding,
+                    }
+                    uniqueSprites.set(key, unique)
+                }
+                spriteMapping.set(s.name, unique.name)
+            }
+
+            const uniqueSpriteList = Array.from(uniqueSprites.values())
+
             const { size, layouts } = await tryCalculateLayout(
-                skin.data.sprites.map((s) => ({
+                uniqueSpriteList.map((s) => ({
                     name: s.name,
                     texture: s.texture,
                     padding: s.padding,
@@ -158,18 +195,26 @@ function packSkin(
 
             ctx.clearRect(0, 0, size, size)
 
-            for (const { name, x, y, w, h } of layouts) {
-                const sprite = skin.data.sprites.find((sprite) => sprite.name === name)
-                if (!sprite) throw new Error('Unexpected missing sprite')
+            for (const s of skin.data.sprites) {
+                const uniqueName = spriteMapping.get(s.name)
+                if (!uniqueName) throw new Error('Unexpected missing sprite mapping')
+
+                const layout = layouts.find((l) => l.name === uniqueName)
+                if (!layout) throw new Error('Unexpected missing sprite layout')
 
                 skinData.sprites.push({
-                    name,
-                    x: x + (sprite.padding.left ? 1 : 0),
-                    y: y + (sprite.padding.top ? 1 : 0),
-                    w,
-                    h,
-                    transform: sprite.transform,
+                    name: s.name,
+                    x: layout.x + (s.padding.left ? 1 : 0),
+                    y: layout.y + (s.padding.top ? 1 : 0),
+                    w: layout.w,
+                    h: layout.h,
+                    transform: s.transform,
                 })
+            }
+
+            for (const { name, x, y, w, h } of layouts) {
+                const sprite = skin.data.sprites.find((s) => s.name === name)
+                if (!sprite) throw new Error('Unexpected missing sprite')
 
                 await bakeSprite(sprite, x, y, w, h, ctx)
             }
