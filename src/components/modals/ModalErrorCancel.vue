@@ -17,7 +17,7 @@ defineEmits<{
 
 <template>
     <ModalBase :icon="IconExclamation" title="Error">
-        {{ data.message }}
+        <div class="whitespace-pre-wrap">{{ data.message }}</div>
 
         <template #actions>
             <MyButton
