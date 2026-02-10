@@ -206,27 +206,44 @@ function packParticle(
     tasks.push({
         description: `Packing particle "${name}" texture...`,
         async execute() {
-            for (const { name, transform, groups } of particle.data.effects) {
+            for (const { name: effectName, transform, groups } of particle.data.effects) {
                 particleData.effects.push({
-                    name,
+                    name: effectName,
                     transform,
-                    groups: groups.map(({ count, particles }) => ({
+                    groups: groups.map(({ count, particles }, groupIndex) => ({
                         count,
                         particles: particles.map(
-                            ({ spriteId, color, start, duration, x, y, w, h, r, a }) => ({
-                                sprite: particle.data.sprites.findIndex(
+                            (
+                                { spriteId, color, start, duration, x, y, w, h, r, a },
+                                particleIndex,
+                            ) => {
+                                const spriteIndex = particle.data.sprites.findIndex(
                                     ({ id }) => id === spriteId,
-                                ),
-                                color,
-                                start,
-                                duration,
-                                x: { from: x.from, to: x.to, ease: x.ease },
-                                y: { from: y.from, to: y.to, ease: y.ease },
-                                w: { from: w.from, to: w.to, ease: w.ease },
-                                h: { from: h.from, to: h.to, ease: h.ease },
-                                r: { from: r.from, to: r.to, ease: r.ease },
-                                a: { from: a.from, to: a.to, ease: a.ease },
-                            }),
+                                )
+                                if (spriteIndex === -1) {
+                                    throw new Error(
+                                        [
+                                            `Sprite not specified in particle "${name}"`,
+                                            `Effect: "${effectName}"`,
+                                            `Group: #${groupIndex}`,
+                                            `Particle: #${particleIndex}`,
+                                            'Please select a sprite for this particle.',
+                                        ].join('\n'),
+                                    )
+                                }
+                                return {
+                                    sprite: spriteIndex,
+                                    color,
+                                    start,
+                                    duration,
+                                    x: { from: x.from, to: x.to, ease: x.ease },
+                                    y: { from: y.from, to: y.to, ease: y.ease },
+                                    w: { from: w.from, to: w.to, ease: w.ease },
+                                    h: { from: h.from, to: h.to, ease: h.ease },
+                                    r: { from: r.from, to: r.to, ease: r.ease },
+                                    a: { from: a.from, to: a.to, ease: a.ease },
+                                }
+                            },
                         ),
                     })),
                 })
