@@ -36,23 +36,21 @@ const backgroundAspectRatio = computed(
     () => props.background.data.aspectRatio ?? imageAspectRatio.value ?? 1,
 )
 
-const width = computed(() => {
-    console.log(aspectRatio)
-    const inverse = backgroundAspectRatio.value / aspectRatioValue.value
+const calculate = (a: number, b: number) => {
     const isLarger = backgroundAspectRatio.value >= aspectRatioValue.value
     switch (props.background.data.fit) {
         case 'width':
-            return 1
+            return a
         case 'height':
-            return inverse
+            return b
         case 'contain':
-            return isLarger ? 1 : inverse
+            return isLarger ? a : b
         case 'cover':
-            return isLarger ? inverse : 1
-        default:
-            throw new Error('Unexpected fit')
+            return isLarger ? b : a
     }
-})
+}
+const w = computed(() => calculate(1, backgroundAspectRatio.value / aspectRatioValue.value))
+const h = computed(() => calculate(aspectRatioValue.value / backgroundAspectRatio.value, 1))
 
 const el = ref<HTMLDivElement>()
 const { height } = useElementBounding(el)
@@ -76,29 +74,23 @@ const blurRadius = computed(() => height.value * props.background.configuration.
     <div class="my-4 border-4 border-sonolus-ui-text-normal">
         <div
             ref="el"
-            class="relative h-0 overflow-hidden"
+            class="relative overflow-hidden"
             :style="{
                 backgroundColor: background.data.color,
                 paddingTop: `calc(100% / ${aspectRatioValue})`,
             }"
         >
-            <div
-                class="absolute left-1/2 top-0 h-full -translate-x-1/2"
-                :style="{ width: `calc(100% * ${width})` }"
-            >
-                <div
-                    class="relative top-1/2 h-0 -translate-y-1/2 overflow-hidden"
-                    :style="{
-                        paddingTop: `calc(100% / ${backgroundAspectRatio})`,
-                    }"
-                >
-                    <img
-                        class="absolute left-0 top-0 h-full w-full"
-                        :style="{ filter: `blur(${blurRadius}px)` }"
-                        :src="background.image"
-                    />
-                </div>
-            </div>
+            <img
+                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                :style="{
+                    width: `${100 * w * (background.data.scaleX ?? 1)}%`,
+                    height: `${100 * h * (background.data.scaleY ?? 1)}%`,
+                    maxWidth: 'none',
+                    maxHeight: 'none',
+                    filter: `blur(${blurRadius}px)`,
+                }"
+                :src="background.image"
+            />
             <div
                 class="absolute left-0 top-0 h-full w-full"
                 :style="{ backgroundColor: background.configuration.mask }"
