@@ -36,6 +36,16 @@ const useNaturalAspectRatio = computed({
     get: () => v.value.data.aspectRatio === undefined,
     set: (value) => (v.value.data.aspectRatio = value ? undefined : imageAspectRatio.value),
 })
+
+const useScaleX = computed({
+    get: () => v.value.data.scaleX !== undefined,
+    set: (value) => (v.value.data.scaleX = value ? 1 : undefined),
+})
+
+const useScaleY = computed({
+    get: () => v.value.data.scaleY !== undefined,
+    set: (value) => (v.value.data.scaleY = value ? 1 : undefined),
+})
 </script>
 
 <template>
@@ -79,6 +89,26 @@ const useNaturalAspectRatio = computed({
                 v-model="v.data.aspectRatio"
                 :default-value="imageAspectRatio"
                 placeholder="Enter background aspect ratio..."
+            />
+        </MyField>
+        <MyField title="Use Scale X">
+            <MyToggle v-model="useScaleX" :default-value="false" />
+        </MyField>
+        <MyField v-if="v.data.scaleX !== undefined" title="Scale X">
+            <MyNumberInput
+                v-model="v.data.scaleX"
+                :default-value="1"
+                placeholder="Enter background scale X..."
+            />
+        </MyField>
+        <MyField title="Use Scale Y">
+            <MyToggle v-model="useScaleY" :default-value="false" />
+        </MyField>
+        <MyField v-if="v.data.scaleY !== undefined" title="Scale Y">
+            <MyNumberInput
+                v-model="v.data.scaleY"
+                :default-value="1"
+                placeholder="Enter background scale Y..."
             />
         </MyField>
         <MyField title="Fit">
