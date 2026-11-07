@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import sanitize from 'sanitize-filename'
 import { saveAs } from 'file-saver'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { show, useModal } from '../composables/modal'
@@ -186,7 +187,7 @@ async function onSaveProject() {
     const result = await show(ModalPackProject, project.value)
     if (!result) return
 
-    saveAs(result, 'project.scp')
+    saveAs(result, `${sanitize(project.value.title)}.scp`)
 }
 
 const openedIndex = ref<number>()
