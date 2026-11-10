@@ -187,7 +187,7 @@ async function onSaveProject() {
     const result = await show(ModalPackProject, project.value)
     if (!result) return
 
-    saveAs(result, `${sanitize(project.value.title)}.scp`)
+    saveAs(result, `${sanitize(project.value.title || 'project')}.scp`)
 }
 
 const openedIndex = ref<number>()
